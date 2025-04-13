@@ -98,7 +98,7 @@ const data = {
         },
         {
           title: "Сотрудники",
-          url: "#",
+          url: "/employees",
         },
         {
           title: "Полномочия",
