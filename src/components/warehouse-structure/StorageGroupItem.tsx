@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useAtomValue, useSetAtom } from "jotai";
 import Link from "next/link";
 import { ChevronDown, ChevronRight, FolderOpen, Plus } from "lucide-react";
 import { StorageGroup } from "./types";
 import { storageGroupMatchesSearch, matchesSearch } from "./utils";
 import { ElementMenu } from "./ElementMenu";
 import { CellGroupItem } from "./CellGroupItem";
+import { itemOpenAtom, toggleItemAtom } from "./atoms";
 
 interface StorageGroupItemProps {
   item: StorageGroup;
@@ -21,16 +22,19 @@ export const StorageGroupItem = ({
   isLast = false,
   onAddChild,
 }: StorageGroupItemProps) => {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const isExpanded = useAtomValue(itemOpenAtom(item.id));
+  const toggleItem = useSetAtom(toggleItemAtom);
+
   const hasMatchingChildren = storageGroupMatchesSearch(item, searchQuery);
   const isExactMatch = matchesSearch(item, searchQuery);
   const shouldShow = !searchQuery || hasMatchingChildren;
-  const highlightClass = searchQuery && isExactMatch ? "bg-yellow-50" : "bg-gray-50/50";
+  const highlightClass =
+    searchQuery && isExactMatch ? "bg-yellow-50" : "bg-gray-50/50";
 
   if (!shouldShow) return null;
 
   // Filter visible children based on search
-  const visibleChildren = item.children.filter(child => {
+  const visibleChildren = item.children.filter((child) => {
     if (child.type === "cellGroup") {
       return !searchQuery || matchesSearch(child, searchQuery);
     } else {
@@ -39,21 +43,27 @@ export const StorageGroupItem = ({
   });
 
   return (
-    <div className={`pl-8 relative ${!isLast ? 'mb-2' : ''}`}>
+    <div className={`pl-8 relative ${!isLast ? "mb-2" : ""}`}>
       {level > 0 && (
         <>
           {/* Vertical line connecting to parent */}
-          <div className={`absolute left-4 -top-2 w-px bg-gray-300 ${isLast ? 'h-[2.25rem]' : 'h-[calc(100%+0.5rem)]'}`}></div>
+          <div
+            className={`absolute left-4 -top-2 w-px bg-gray-300 ${
+              isLast ? "h-[2.25rem]" : "h-[calc(100%+0.5rem)]"
+            }`}
+          ></div>
 
           {/* Horizontal line connecting to vertical line */}
           <div className="absolute left-4 top-[1.75rem] w-4 h-px bg-gray-300"></div>
         </>
       )}
 
-      <div className={`py-2 rounded-lg ${highlightClass} border border-gray-200`}>
+      <div
+        className={`py-2 rounded-lg ${highlightClass} border border-gray-200`}
+      >
         <div className="flex items-center group px-2">
           <button
-            onClick={() => setIsExpanded(!isExpanded)}
+            onClick={() => toggleItem({ itemId: item.id, item })}
             className="w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded"
           >
             {isExpanded ? (
@@ -76,7 +86,9 @@ export const StorageGroupItem = ({
                   ({item.shortName})
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground">{item.description}</p>
+              <p className="text-xs text-muted-foreground">
+                {item.description}
+              </p>
             </div>
           </Link>
           <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center">
@@ -97,14 +109,17 @@ export const StorageGroupItem = ({
         <div className="mt-2">
           {item.children.map((child, index) => {
             // Check if the child should be visible
-            const childShouldShow = child.type === "cellGroup"
-              ? (!searchQuery || matchesSearch(child, searchQuery))
-              : (!searchQuery || storageGroupMatchesSearch(child, searchQuery));
+            const childShouldShow =
+              child.type === "cellGroup"
+                ? !searchQuery || matchesSearch(child, searchQuery)
+                : !searchQuery || storageGroupMatchesSearch(child, searchQuery);
 
             if (!childShouldShow) return null;
 
             // Find the index among visible children
-            const visibleIndex = visibleChildren.findIndex(vc => vc.id === child.id);
+            const visibleIndex = visibleChildren.findIndex(
+              (vc) => vc.id === child.id
+            );
             const isLastVisible = visibleIndex === visibleChildren.length - 1;
 
             if (child.type === "cellGroup") {
@@ -133,4 +148,4 @@ export const StorageGroupItem = ({
       )}
     </div>
   );
-}; 
+};

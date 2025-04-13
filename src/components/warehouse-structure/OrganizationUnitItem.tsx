@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useAtomValue, useSetAtom } from "jotai";
 import Link from "next/link";
 import { ChevronDown, ChevronRight, Plus } from "lucide-react";
 import { OrganizationUnit } from "./types";
 import { organizationUnitMatchesSearch, matchesSearch } from "./utils";
 import { ElementMenu } from "./ElementMenu";
 import { StorageGroupItem } from "./StorageGroupItem";
+import { itemOpenAtom, toggleItemAtom } from "./atoms";
 
 interface OrganizationUnitItemProps {
   item: OrganizationUnit;
@@ -21,20 +22,25 @@ export const OrganizationUnitItem = ({
   onAddStorageGroup,
   onAddChild,
 }: OrganizationUnitItemProps) => {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const isExpanded = useAtomValue(itemOpenAtom(item.id));
+  const toggleItem = useSetAtom(toggleItemAtom);
+
   const hasMatchingChildren = organizationUnitMatchesSearch(item, searchQuery);
   const isExactMatch = matchesSearch(item, searchQuery);
   const shouldShow = !searchQuery || hasMatchingChildren;
-  const highlightClass = searchQuery && isExactMatch ? "bg-yellow-50" : "bg-gray-100";
+  const highlightClass =
+    searchQuery && isExactMatch ? "bg-yellow-50" : "bg-gray-100";
 
   if (!shouldShow) return null;
 
   return (
     <div className="mb-4">
-      <div className={`py-2 rounded-lg ${highlightClass} border border-gray-300`}>
+      <div
+        className={`py-2 rounded-lg ${highlightClass} border border-gray-300`}
+      >
         <div className="flex items-center group px-2">
           <button
-            onClick={() => setIsExpanded(!isExpanded)}
+            onClick={() => toggleItem({ itemId: item.id, item })}
             className="w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded"
           >
             {isExpanded ? (
@@ -54,7 +60,9 @@ export const OrganizationUnitItem = ({
                   ({item.shortName})
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground">{item.description}</p>
+              <p className="text-xs text-muted-foreground">
+                {item.description}
+              </p>
             </div>
           </Link>
           <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center">
@@ -86,4 +94,4 @@ export const OrganizationUnitItem = ({
       )}
     </div>
   );
-}; 
+};

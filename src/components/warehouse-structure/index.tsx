@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAtom } from "jotai";
 import { Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -8,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { WarehouseData } from "./types";
 import { warehouseData } from "./data";
 import { OrganizationUnitItem } from "./OrganizationUnitItem";
+import { cleanupRemovedItemsAtom } from "./atoms";
 
 interface WarehouseStructureProps {
   data?: WarehouseData;
@@ -25,6 +27,12 @@ export default function WarehouseStructure({
   onAddChild,
 }: WarehouseStructureProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [, cleanupRemovedItems] = useAtom(cleanupRemovedItemsAtom);
+
+  // Clean up removed items whenever the data changes
+  useEffect(() => {
+    cleanupRemovedItems(data);
+  }, [data, cleanupRemovedItems]);
 
   return (
     <div className={cn("space-y-4", className)}>
@@ -63,4 +71,4 @@ export default function WarehouseStructure({
       </div>
     </div>
   );
-} 
+}
