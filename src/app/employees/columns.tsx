@@ -24,7 +24,7 @@ export type Employee = {
 export const columns: ColumnDef<Employee>[] = [
   {
     accessorKey: "fullName",
-    header: "Full Name",
+    header: "Имя",
     size: 200,
   },
   {
@@ -34,7 +34,7 @@ export const columns: ColumnDef<Employee>[] = [
   },
   {
     accessorKey: "status",
-    header: "Status",
+    header: "Статус",
     size: 150,
     cell: ({ row }) => {
       const status = row.getValue("status") as string
@@ -56,11 +56,15 @@ export const columns: ColumnDef<Employee>[] = [
   },
   {
     accessorKey: "joiningDate",
-    header: "Joining Date",
+    header: "Дата присоединения",
     size: 150,
     cell: ({ row }) => {
       const date = new Date(row.getValue("joiningDate"))
-      return date.toLocaleDateString()
+      return date.toLocaleDateString('ru-RU', {
+        month: 'numeric',
+        day: 'numeric',
+        year: 'numeric'
+      })
     },
   },
   {

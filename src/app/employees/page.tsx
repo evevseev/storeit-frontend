@@ -1,12 +1,7 @@
-import { Employee, columns } from "./columns"
-import { DataTable } from "./data-table"
-import { Metadata } from "next"
-import { PageMetadata } from "@/components/header/page-metadata"
-
-export const metadata: Metadata = {
-  title: "Employees | StoreIT",
-  description: "Manage organization employees",
-}
+import { Employee, columns } from "./columns";
+import { DataTable } from "./data-table";
+import { Metadata } from "next";
+import { PageMetadata } from "@/components/header/page-metadata";
 
 // This would typically come from your API
 const data: Employee[] = [
@@ -32,19 +27,19 @@ const data: Employee[] = [
     joiningDate: "2024-03-01",
   },
   // Add more sample data as needed
-]
+];
 
 export default function EmployeesPage() {
   return (
-    <div className="container mx-auto py-10">
-      <PageMetadata 
-        title="Employees"
+    <div className="container mx-auto">
+      <PageMetadata
+        title="Сотрудники"
         breadcrumbs={[
-          { label: "Organization", href: "/organization" },
-          { label: "Employees" }
+          { label: "Организация", href: "/organization" },
+          { label: "Сотрудники" },
         ]}
       />
       <DataTable columns={columns} data={data} />
     </div>
-  )
-} 
+  );
+}

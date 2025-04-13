@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useSetAtom } from "jotai";
-import { pageMetadataAtom } from "@/atoms/page-header";
+import { pageMetadataAtom } from "@/components/header/page-header";
 
 interface PageMetadataProps {
   title: string;

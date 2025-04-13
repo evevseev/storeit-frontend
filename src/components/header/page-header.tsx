@@ -12,5 +12,5 @@ interface PageMetadata {
 
 export const pageMetadataAtom = atom<PageMetadata>({
   title: "StoreIt",
-  breadcrumbs: [{ label: "Home", href: "/" }, { label: "Storage" }],
+  breadcrumbs: [{ label: "Home", href: "/" }],
 });
