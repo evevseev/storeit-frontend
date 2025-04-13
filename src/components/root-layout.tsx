@@ -16,6 +16,7 @@ import { pageMetadataAtom } from "@/components/header/page-header";
 import { Providers } from "@/components/providers";
 import { useAtomValue } from "jotai";
 import React from "react";
+import { usePathname } from "next/navigation";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -75,14 +76,23 @@ export function RootLayoutContent({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+  const isLoginPage = pathname === "/login";
+
   return (
     <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
       <Providers>
-        <AppSidebar />
-        <SidebarInset>
-          <Header />
-          <main className="px-4 py-6">{children}</main>
-        </SidebarInset>
+        {!isLoginPage ? (
+          <>
+            <AppSidebar />
+            <SidebarInset>
+              <Header />
+              <main className="px-4 py-6">{children}</main>
+            </SidebarInset>
+          </>
+        ) : (
+          <main className="w-full h-full">{children}</main>
+        )}
       </Providers>
     </body>
   );
