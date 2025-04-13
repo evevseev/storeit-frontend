@@ -1,5 +1,12 @@
 import { Employee, columns } from "./columns"
 import { DataTable } from "./data-table"
+import { Metadata } from "next"
+import { PageMetadata } from "@/components/header/page-metadata"
+
+export const metadata: Metadata = {
+  title: "Employees | StoreIT",
+  description: "Manage organization employees",
+}
 
 // This would typically come from your API
 const data: Employee[] = [
@@ -30,7 +37,13 @@ const data: Employee[] = [
 export default function EmployeesPage() {
   return (
     <div className="container mx-auto py-10">
-      <h1 className="text-2xl font-bold tracking-tight mb-6">Employees</h1>
+      <PageMetadata 
+        title="Employees"
+        breadcrumbs={[
+          { label: "Organization", href: "/organization" },
+          { label: "Employees" }
+        ]}
+      />
       <DataTable columns={columns} data={data} />
     </div>
   )

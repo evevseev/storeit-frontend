@@ -9,6 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 
@@ -24,14 +25,17 @@ export const columns: ColumnDef<Employee>[] = [
   {
     accessorKey: "fullName",
     header: "Full Name",
+    size: 200,
   },
   {
     accessorKey: "email",
     header: "Email",
+    size: 250,
   },
   {
     accessorKey: "status",
     header: "Status",
+    size: 150,
     cell: ({ row }) => {
       const status = row.getValue("status") as string
 
@@ -53,6 +57,7 @@ export const columns: ColumnDef<Employee>[] = [
   {
     accessorKey: "joiningDate",
     header: "Joining Date",
+    size: 150,
     cell: ({ row }) => {
       const date = new Date(row.getValue("joiningDate"))
       return date.toLocaleDateString()
@@ -60,33 +65,37 @@ export const columns: ColumnDef<Employee>[] = [
   },
   {
     id: "actions",
+    size: 50,
     cell: ({ row }) => {
       const employee = row.original
 
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem>
-              <Pencil className="mr-2 h-4 w-4" />
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive">
-              <Ban className="mr-2 h-4 w-4" />
-              Block
-            </DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive">
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="text-right">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem>
+                <Pencil className="mr-2 h-4 w-4" />
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Ban className="mr-2 h-4 w-4" />
+                <span className="text-black">Block</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="text-destructive">
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       )
     },
   },
