@@ -1,11 +1,12 @@
 import { useAtomValue, useSetAtom } from "jotai";
 import Link from "next/link";
-import { ChevronDown, ChevronRight, FolderOpen, Plus } from "lucide-react";
+import { ChevronDown, ChevronRight, FolderOpen } from "lucide-react";
 import { StorageGroup } from "./types";
 import { storageGroupMatchesSearch, matchesSearch } from "./utils";
 import { ElementMenu } from "./ElementMenu";
 import { CellGroupItem } from "./CellGroupItem";
 import { itemOpenAtom, toggleItemAtom } from "./atoms";
+import { AddItemButton } from "./AddItemButton";
 
 interface StorageGroupItemProps {
   item: StorageGroup;
@@ -13,6 +14,7 @@ interface StorageGroupItemProps {
   searchQuery: string;
   isLast?: boolean;
   onAddChild?: (storageGroupId: string) => void;
+  parentPath?: { id: string; name: string }[];
 }
 
 export const StorageGroupItem = ({
@@ -21,6 +23,7 @@ export const StorageGroupItem = ({
   searchQuery,
   isLast = false,
   onAddChild,
+  parentPath = [],
 }: StorageGroupItemProps) => {
   const isExpanded = useAtomValue(itemOpenAtom(item.id));
   const toggleItem = useSetAtom(toggleItemAtom);
@@ -30,6 +33,8 @@ export const StorageGroupItem = ({
   const shouldShow = !searchQuery || hasMatchingChildren;
   const highlightClass =
     searchQuery && isExactMatch ? "bg-yellow-50" : "bg-gray-50/50";
+
+  const currentPath = [...parentPath, { id: item.id, name: item.name }];
 
   if (!shouldShow) return null;
 
@@ -91,14 +96,14 @@ export const StorageGroupItem = ({
               </p>
             </div>
           </Link>
-          <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center">
+          <div className="flex items-center">
             {onAddChild && (
-              <button
-                onClick={() => onAddChild(item.id)}
-                className="mr-2 p-1 hover:bg-gray-100 rounded"
-              >
-                <Plus className="h-4 w-4 text-muted-foreground" />
-              </button>
+              <AddItemButton
+                className="mr-2"
+                onAddStorageGroup={() => onAddChild(item.id)}
+                onAddCellGroup={() => onAddChild(item.id)}
+                parentPath={currentPath}
+              />
             )}
             <ElementMenu />
           </div>
@@ -140,6 +145,7 @@ export const StorageGroupItem = ({
                   searchQuery={searchQuery}
                   isLast={isLastVisible}
                   onAddChild={onAddChild}
+                  parentPath={currentPath}
                 />
               );
             }

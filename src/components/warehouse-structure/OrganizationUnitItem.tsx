@@ -2,17 +2,18 @@
 
 import { useAtomValue, useSetAtom } from "jotai";
 import Link from "next/link";
-import { ChevronDown, ChevronRight, Plus } from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { OrganizationUnit } from "./types";
 import { organizationUnitMatchesSearch, matchesSearch } from "./utils";
 import { ElementMenu } from "./ElementMenu";
 import { StorageGroupItem } from "./StorageGroupItem";
 import { itemOpenAtom, toggleItemAtom } from "./atoms";
+import { AddItemButton } from "./AddItemButton";
 
 interface OrganizationUnitItemProps {
   item: OrganizationUnit;
   searchQuery: string;
-  onAddStorageGroup?: (organizationId: string) => void;
+  onAddStorageGroup?: (organizationId: string, data: { name: string; alias: string; description?: string }) => void;
   onAddChild?: (storageGroupId: string) => void;
 }
 
@@ -65,14 +66,14 @@ export const OrganizationUnitItem = ({
               </p>
             </div>
           </Link>
-          <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center">
+          <div className="flex items-center">
             {onAddStorageGroup && (
-              <button
-                onClick={() => onAddStorageGroup(item.id)}
-                className="mr-2 p-1 hover:bg-gray-100 rounded"
-              >
-                <Plus className="h-4 w-4 text-muted-foreground" />
-              </button>
+              <AddItemButton
+                className="mr-2"
+                onAddStorageGroup={(data) => onAddStorageGroup(item.id, data)}
+                onAddCellGroup={() => onAddChild?.(item.id)}
+                parentPath={[{ id: item.id, name: item.name }]}
+              />
             )}
             <ElementMenu />
           </div>
