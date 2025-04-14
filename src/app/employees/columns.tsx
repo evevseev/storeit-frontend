@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { ColumnDef } from "@tanstack/react-table"
-import { MoreHorizontal, Pencil, Ban, Trash2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { ColumnDef } from "@tanstack/react-table";
+import { MoreHorizontal, Pencil, Ban, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,16 +10,16 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu"
-import { Badge } from "@/components/ui/badge"
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 
 export type Employee = {
-  id: string
-  fullName: string
-  email: string
-  status: "Administrator" | "Invited" | "Blocked"
-  joiningDate: string
-}
+  id: string;
+  fullName: string;
+  email: string;
+  status: "Administrator" | "Invited" | "Blocked";
+  joiningDate: string;
+};
 
 export const columns: ColumnDef<Employee>[] = [
   {
@@ -37,7 +37,7 @@ export const columns: ColumnDef<Employee>[] = [
     header: "Статус",
     size: 150,
     cell: ({ row }) => {
-      const status = row.getValue("status") as string
+      const status = row.getValue("status") as string;
 
       return (
         <Badge
@@ -51,7 +51,7 @@ export const columns: ColumnDef<Employee>[] = [
         >
           {status}
         </Badge>
-      )
+      );
     },
   },
   {
@@ -59,19 +59,19 @@ export const columns: ColumnDef<Employee>[] = [
     header: "Дата присоединения",
     size: 150,
     cell: ({ row }) => {
-      const date = new Date(row.getValue("joiningDate"))
-      return date.toLocaleDateString('ru-RU', {
-        month: 'numeric',
-        day: 'numeric',
-        year: 'numeric'
-      })
+      const date = new Date(row.getValue("joiningDate"));
+      return date.toLocaleDateString("ru-RU", {
+        month: "numeric",
+        day: "numeric",
+        year: "numeric",
+      });
     },
   },
   {
     id: "actions",
     size: 50,
     cell: ({ row }) => {
-      const employee = row.original
+      const employee = row.original;
 
       return (
         <div className="text-right">
@@ -100,7 +100,7 @@ export const columns: ColumnDef<Employee>[] = [
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-      )
+      );
     },
   },
-] 
+];

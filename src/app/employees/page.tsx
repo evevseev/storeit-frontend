@@ -1,5 +1,5 @@
 import { Employee, columns } from "./columns";
-import { DataTable } from "./data-table";
+import { DataTable } from "@/components/ui/data-table";
 import { Metadata } from "next";
 import { PageMetadata } from "@/components/header/page-metadata";
 
