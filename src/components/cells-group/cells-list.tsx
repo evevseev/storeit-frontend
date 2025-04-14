@@ -13,7 +13,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { useState } from "react"
 import { DataTable } from "@/components/ui/data-table"
-import { SortButton } from "@/components/ui/data-table/sort-button"
 
 export type CellKind = {
   id: string
@@ -130,8 +129,9 @@ export default function CellsList() {
   const columns: ColumnDef<Cell>[] = [
     {
       accessorKey: "alias",
-      header: ({ column }) => <SortButton column={column}>Название</SortButton>,
+      header: "Название",
       size: 150,
+      sortingFn: "alphanumeric",
       cell: ({ row }) => {
         const cell = row.original
         if (isEditing) {
@@ -148,8 +148,9 @@ export default function CellsList() {
     },
     {
       accessorKey: "rackNumber",
-      header: ({ column }) => <SortButton column={column}>№ стеллажа</SortButton>,
+      header: "№ стеллажа",
       size: 120,
+      sortingFn: "basic",
       cell: ({ row }) => {
         const cell = row.original
         if (isEditing) {
@@ -167,8 +168,9 @@ export default function CellsList() {
     },
     {
       accessorKey: "levelNumber",
-      header: ({ column }) => <SortButton column={column}>№ уровня</SortButton>,
+      header: "№ уровня",
       size: 120,
+      sortingFn: "basic",
       cell: ({ row }) => {
         const cell = row.original
         if (isEditing) {
@@ -186,8 +188,9 @@ export default function CellsList() {
     },
     {
       accessorKey: "positionNumber",
-      header: ({ column }) => <SortButton column={column}>№ позиции</SortButton>,
+      header: "№ позиции",
       size: 120,
+      sortingFn: "basic",
       cell: ({ row }) => {
         const cell = row.original
         if (isEditing) {
@@ -205,12 +208,13 @@ export default function CellsList() {
     },
     {
       accessorKey: "cellKind.name",
-      header: ({ column }) => <SortButton column={column}>Тип ячейки</SortButton>,
+      header: "Тип ячейки",
       size: 150,
+      sortingFn: "alphanumeric",
     },
     {
       accessorKey: "dimensions",
-      header: ({ column }) => <SortButton column={column}>Размеры (ВxШxГ)</SortButton>,
+      header: "Размеры (ВxШxГ)",
       size: 150,
       cell: ({ row }) => {
         const cell = row.original
@@ -219,8 +223,9 @@ export default function CellsList() {
     },
     {
       accessorKey: "maxWeight",
-      header: ({ column }) => <SortButton column={column}>Макс. вес (кг)</SortButton>,
+      header: "Макс. вес (кг)",
       size: 120,
+      sortingFn: "basic",
       cell: ({ row }) => {
         const cell = row.original
         return cell.cellKind.maxWeight

@@ -10,13 +10,14 @@ interface SortButtonProps<TData> {
   children: React.ReactNode;
 }
 
-export function SortButton<TData>({ column, children }: SortButtonProps<TData>) {
+export function SortButton<TData>({
+  column,
+  children,
+}: SortButtonProps<TData>) {
   const isSorted = column.getIsSorted();
-  
+
   const handleSort = () => {
-    if (!isSorted) column.toggleSorting(false);
-    else if (isSorted === "asc") column.toggleSorting(true);
-    else column.clearSorting();
+    column.toggleSorting(undefined, true);
   };
 
   return (
@@ -26,10 +27,12 @@ export function SortButton<TData>({ column, children }: SortButtonProps<TData>) 
         className="flex items-center justify-between w-full group hover:opacity-70"
       >
         <span>{children}</span>
-        <span className={cn(
-          "opacity-0 group-hover:opacity-70 transition-opacity",
-          isSorted && "opacity-100"
-        )}>
+        <span
+          className={cn(
+            "opacity-0 group-hover:opacity-70 transition-opacity",
+            isSorted && "opacity-100"
+          )}
+        >
           {isSorted === "asc" ? (
             <ArrowUp className="h-3.5 w-3.5" />
           ) : isSorted === "desc" ? (
@@ -47,4 +50,4 @@ export function SortButton<TData>({ column, children }: SortButtonProps<TData>) 
       />
     </div>
   );
-} 
+}

@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/table";
 
 import { DataTablePagination } from "./pagination";
+import { SortButton } from "./sort-button";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -37,7 +38,6 @@ export function DataTable<TData, TValue>({
   pagination = true,
   pageSize = 50,
 }: DataTableProps<TData, TValue>) {
-  // const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
@@ -47,12 +47,10 @@ export function DataTable<TData, TValue>({
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: pagination ? getPaginationRowModel() : undefined,
-    // onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     state: {
-      // sorting,
       columnFilters,
     },
     initialState: {
@@ -60,6 +58,7 @@ export function DataTable<TData, TValue>({
         pageSize,
       },
     },
+    sortDescFirst: false,
   });
 
   return (
@@ -75,12 +74,21 @@ export function DataTable<TData, TValue>({
                     style={{ width: header.getSize() }}
                     className="whitespace-nowrap"
                   >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
+                    {header.isPlaceholder ? null : (
+                      header.column.columnDef.sortingFn ? (
+                        <SortButton column={header.column}>
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                        </SortButton>
+                      ) : (
+                        flexRender(
                           header.column.columnDef.header,
                           header.getContext()
-                        )}
+                        )
+                      )
+                    )}
                   </TableHead>
                 );
               })}
