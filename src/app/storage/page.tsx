@@ -6,7 +6,10 @@ export default function StoragePage() {
     <>
       <PageMetadata
         title="Структура склада"
-        breadcrumbs={[{ label: "Home", href: "/" }, { label: "Storage" }]}
+        breadcrumbs={[
+          // { label: "Организация", href: "/" },
+          { label: "Хранение" },
+        ]}
       />
       <WarehouseStructure />
     </>

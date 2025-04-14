@@ -9,19 +9,31 @@ import { ElementMenu } from "./ElementMenu";
 import { StorageGroupItem } from "./StorageGroupItem";
 import { itemOpenAtom, toggleItemAtom } from "./atoms";
 import { AddItemButton } from "./AddItemButton";
+import { cn } from "@/lib/utils";
 
 interface OrganizationUnitItemProps {
   item: OrganizationUnit;
   searchQuery: string;
-  onAddStorageGroup?: (organizationId: string, data: { name: string; alias: string; description?: string }) => void;
-  onAddChild?: (storageGroupId: string) => void;
 }
+
+const onAddStorageGroup = (
+  organizationId: string,
+  data: { name: string; alias: string; description?: string }
+) => {
+  alert(`Creating storage group in organization ${organizationId}`);
+};
+
+const onAddCellGroup = (storageGroupId: string) => {
+  alert(`Creating cell group in storage group ${storageGroupId}`);
+};
+
+const onAddChild = (storageGroupId: string) => {
+  alert(`Creating child in storage group ${storageGroupId}`);
+};
 
 export const OrganizationUnitItem = ({
   item,
   searchQuery,
-  onAddStorageGroup,
-  onAddChild,
 }: OrganizationUnitItemProps) => {
   const isExpanded = useAtomValue(itemOpenAtom(item.id));
   const toggleItem = useSetAtom(toggleItemAtom);
@@ -37,7 +49,7 @@ export const OrganizationUnitItem = ({
   return (
     <div className="mb-4">
       <div
-        className={`py-2 rounded-lg ${highlightClass} border border-gray-300`}
+        className={cn("py-2 rounded-lg border border-gray-300", highlightClass)}
       >
         <div className="flex items-center group px-2">
           <button

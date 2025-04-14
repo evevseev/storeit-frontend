@@ -45,8 +45,8 @@ export const ElementMenu = ({ className }: ElementMenuProps) => {
 
   return (
     <DropdownMenu open={isOpen} modal={false}>
-      <div 
-        onMouseEnter={handleMouseEnter} 
+      <div
+        onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         className="relative"
       >
@@ -54,14 +54,17 @@ export const ElementMenu = ({ className }: ElementMenuProps) => {
           <Button
             variant="ghost"
             size="sm"
-            className={cn("p-0 w-8 h-8 aspect-square cursor-pointer", className)}
+            className={cn(
+              "p-0 w-8 h-8 aspect-square cursor-pointer",
+              className
+            )}
             onClick={(e) => e.preventDefault()}
           >
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent 
-          align="end" 
+        <DropdownMenuContent
+          align="end"
           className="cursor-pointer"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
@@ -79,4 +82,4 @@ export const ElementMenu = ({ className }: ElementMenuProps) => {
       </div>
     </DropdownMenu>
   );
-}; 
+};

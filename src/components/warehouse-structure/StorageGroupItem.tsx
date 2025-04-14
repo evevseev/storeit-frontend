@@ -112,7 +112,7 @@ export const StorageGroupItem = ({
 
       {isExpanded && visibleChildren.length > 0 && (
         <div className="mt-2">
-          {item.children.map((child, index) => {
+          {item.children.map((child, _) => {
             // Check if the child should be visible
             const childShouldShow =
               child.type === "cellGroup"
