@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { useState } from "react"
 import { DataTable } from "@/components/ui/data-table"
-import { cn } from "@/lib/utils"
+import { SortButton } from "@/components/ui/data-table/sort-button"
 
 export type CellKind = {
   id: string
@@ -31,45 +31,6 @@ export type Cell = {
   levelNumber: number
   positionNumber: number
   cellKind: CellKind
-}
-
-const SortButton = ({ column, children }: { column: any, children: React.ReactNode }) => {
-  const isSorted = column.getIsSorted()
-  
-  const handleSort = () => {
-    if (!isSorted) column.toggleSorting(false)
-    else if (isSorted === "asc") column.toggleSorting(true)
-    else column.clearSorting()
-  }
-
-  return (
-    <div className="flex flex-col gap-1 py-2">
-      <button
-        onClick={handleSort}
-        className="flex items-center justify-between w-full group hover:opacity-70"
-      >
-        <span>{children}</span>
-        <span className={cn(
-          "opacity-0 group-hover:opacity-70 transition-opacity",
-          isSorted && "opacity-100"
-        )}>
-          {isSorted === "asc" ? (
-            <ArrowUp className="h-3.5 w-3.5" />
-          ) : isSorted === "desc" ? (
-            <ArrowDown className="h-3.5 w-3.5" />
-          ) : (
-            <ArrowUpDown className="h-3.5 w-3.5" />
-          )}
-        </span>
-      </button>
-      <Input
-        placeholder="Search..."
-        value={(column.getFilterValue() as string) ?? ""}
-        onChange={(e) => column.setFilterValue(e.target.value)}
-        className="h-7 px-2 py-1 text-xs"
-      />
-    </div>
-  )
 }
 
 export default function CellsList() {

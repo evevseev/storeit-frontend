@@ -122,3 +122,6 @@ export function DataTable<TData, TValue>({
     </div>
   );
 }
+
+export { DataTablePagination } from "./pagination";
+export { SortButton } from "./sort-button";
