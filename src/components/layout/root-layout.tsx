@@ -1,7 +1,7 @@
 "use client";
 
 import { Geist, Geist_Mono } from "next/font/google";
-import { AppSidebar } from "@/components/app-sidebar";
+import { AppSidebar } from "@/components/layout/app-sidebar";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,7 +13,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { pageMetadataAtom } from "@/components/header/page-header";
-import { Providers } from "@/components/providers";
+import { Providers } from "@/components/layout/providers";
 import { useAtomValue } from "jotai";
 import React from "react";
 import { usePathname } from "next/navigation";
@@ -62,10 +62,17 @@ function Header() {
           </BreadcrumbList>
         </Breadcrumb>
       </div>
-      <div className="px-4 pt-4">
+      <div className="px-4 pt-4 flex items-center justify-between">
         <h1 className="text-2xl font-semibold tracking-tight">
           {metadata.title}
         </h1>
+        {metadata.actions && (
+          <div className="flex items-center gap-2">
+            {metadata.actions.map((action, index) => (
+              <React.Fragment key={index}>{action}</React.Fragment>
+            ))}
+          </div>
+        )}
       </div>
     </header>
   );

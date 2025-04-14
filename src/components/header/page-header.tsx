@@ -2,15 +2,17 @@
 
 import { atom } from "jotai";
 
-interface PageMetadata {
+export interface PageMetadataConfig {
   title: string;
   breadcrumbs?: {
     href?: string;
     label: string;
   }[];
+  actions?: React.ReactNode[];
 }
 
-export const pageMetadataAtom = atom<PageMetadata>({
+export const pageMetadataAtom = atom<PageMetadataConfig>({
   title: "StoreIt",
-  breadcrumbs: [{ label: "Home", href: "/" }],
+  breadcrumbs: [{ label: "Главная", href: "/" }],
+  actions: [],
 });

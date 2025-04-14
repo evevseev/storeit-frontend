@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { RootLayoutContent } from "@/components/root-layout";
+import { RootLayoutContent } from "@/components/layout/root-layout";
 
 export const metadata: Metadata = {
   title: "StoreIt",
-  description: "File storage application",
+  description: "Adress-based storage system",
 };
 
 export default function RootLayout({
@@ -13,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ru">
       <RootLayoutContent>{children}</RootLayoutContent>
     </html>
   );

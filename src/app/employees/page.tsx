@@ -1,9 +1,7 @@
 import { Employee, columns } from "./columns";
 import { DataTable } from "@/components/ui/data-table";
-import { Metadata } from "next";
 import { PageMetadata } from "@/components/header/page-metadata";
 
-// This would typically come from your API
 const data: Employee[] = [
   {
     id: "1",
@@ -26,7 +24,6 @@ const data: Employee[] = [
     status: "Blocked",
     joiningDate: "2024-03-01",
   },
-  // Add more sample data as needed
 ];
 
 export default function EmployeesPage() {

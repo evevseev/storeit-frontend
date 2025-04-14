@@ -1,12 +1,10 @@
-import WarehouseStructure from "@/components/warehouse-structure";
 import { PageMetadata } from "@/components/header/page-metadata";
 import CellsList from "@/components/cells-group/cells-list";
 import GroupInfoCard from "@/components/cells-group/group-info-card";
-// import { useParams } from "next/navigation";
+import { useParams } from "next/navigation";
 
 export default function CellsGroupPage() {
-  // const { groupId } = useParams();
-  const groupId = "1";
+  const { groupId } = useParams();
   const breadcrumbs = [
     { label: "Хранение" },
     { label: "Москва" },
@@ -14,9 +12,8 @@ export default function CellsGroupPage() {
     { label: `Группа ячеек #${groupId}` },
   ];
 
-  // Sample data - this should be fetched from the backend
   const groupInfo = {
-    id: groupId,
+    id: groupId?.toString() ?? "",
     description: "Группа ячеек для хранения мелкогабаритных товаров",
     locationPath: breadcrumbs,
     cellsCount: 24,

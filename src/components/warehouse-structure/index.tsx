@@ -16,10 +16,6 @@ interface WarehouseStructureProps {
   className?: string;
 }
 
-const onCreateUnit = () => {
-  alert("Creating new organization unit");
-};
-
 export default function WarehouseStructure({
   data = warehouseData,
   className,
@@ -54,14 +50,6 @@ export default function WarehouseStructure({
             </Button>
           )}
         </div>
-        <Button
-          onClick={onCreateUnit}
-          className="whitespace-nowrap"
-          variant="default"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Создать Подразделение
-        </Button>
       </div>
 
       <div className="space-y-0.5">

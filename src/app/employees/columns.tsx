@@ -71,8 +71,6 @@ export const columns: ColumnDef<Employee>[] = [
     id: "actions",
     size: 50,
     cell: ({ row }) => {
-      const employee = row.original;
-
       return (
         <div className="text-right">
           <DropdownMenu>
