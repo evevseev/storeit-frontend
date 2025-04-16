@@ -1,2 +1,2 @@
-ignoredBuiltDependencies:
-  - sharp
+onlyBuiltDependencies:
+  - esbuild

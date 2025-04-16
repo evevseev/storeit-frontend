@@ -1,23 +1,16 @@
-export type ElementBase = {
+export type OrganizationUnit = {
   id: string;
   name: string;
-  shortName: string;
-  description: string;
-  link: string;
-};
-
-export type CellGroup = ElementBase & {
-  type: "cellGroup";
-};
-
-export type StorageGroup = ElementBase & {
-  type: "storageGroup";
-  children: (StorageGroup | CellGroup)[];
-};
-
-export type OrganizationUnit = ElementBase & {
-  type: "organizationUnit";
+  alias: string;
+  address: string | null;
   children: StorageGroup[];
 };
 
-export type WarehouseData = OrganizationUnit[]; 
+export type StorageGroup = {
+  id: string;
+  unitId: string;
+  parentId: string | null;
+  name: string;
+  alias: string;
+  children: StorageGroup[];
+}

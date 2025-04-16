@@ -36,7 +36,7 @@ export const CellGroupItem = ({ item, searchQuery, isLast }: CellGroupItemProps)
             <div className="flex items-center">
               <span className="text-sm">{item.name}</span>
               <span className="ml-2 text-xs text-muted-foreground">
-                ({item.shortName})
+                ({item.alias})
               </span>
             </div>
             <p className="text-xs text-muted-foreground">{item.description}</p>

@@ -72,11 +72,11 @@ export const ElementMenu = ({ className }: ElementMenuProps) => {
         >
           <DropdownMenuItem>
             <Pencil className="mr-2 h-4 w-4" />
-            Edit…
+            Редактировать...
           </DropdownMenuItem>
           <DropdownMenuItem className="text-red-600">
             <Trash2 className="mr-2 h-4 w-4" />
-            Delete…
+            Удалть...
           </DropdownMenuItem>
         </DropdownMenuContent>
       </div>

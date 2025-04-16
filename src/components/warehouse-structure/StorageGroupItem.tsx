@@ -67,33 +67,32 @@ export const StorageGroupItem = ({
         className={`py-2 rounded-lg ${highlightClass} border border-gray-200`}
       >
         <div className="flex items-center group px-2">
-          <button
-            onClick={() => toggleItem({ itemId: item.id, item })}
-            className="w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded"
-          >
-            {isExpanded ? (
-              <ChevronDown className="h-4 w-4" />
-            ) : (
-              <ChevronRight className="h-4 w-4" />
-            )}
-          </button>
+          {item.children && item.children.length > 0 && (
+            <button
+              onClick={() => toggleItem({ itemId: item.id, item })}
+              className="w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded"
+            >
+              {isExpanded ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
+            </button>
+          )}
           <div className="w-6 flex items-center justify-center">
             <FolderOpen className="h-4 w-4 text-muted-foreground" />
           </div>
           <Link
-            href={item.link}
+            href={`/storage-groups/${item.id}`}
             className="flex-1 flex items-center hover:underline"
           >
             <div className="ml-2">
               <div className="flex items-center">
                 <span className="text-sm">{item.name}</span>
                 <span className="ml-2 text-xs text-muted-foreground">
-                  ({item.shortName})
+                  ({item.alias})
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground">
-                {item.description}
-              </p>
             </div>
           </Link>
           <div className="flex items-center">
@@ -103,6 +102,8 @@ export const StorageGroupItem = ({
                 onAddStorageGroup={() => onAddChild(item.id)}
                 onAddCellGroup={() => onAddChild(item.id)}
                 parentPath={currentPath}
+                unitId={item.unitId}
+                parentId={item.id}
               />
             )}
             <ElementMenu />

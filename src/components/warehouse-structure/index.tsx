@@ -1,32 +1,34 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAtom, useSetAtom } from "jotai";
-import { Search, X, Plus } from "lucide-react";
+import { useSetAtom } from "jotai";
+import { Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { WarehouseData } from "./types";
-import { warehouseData } from "./data";
+import { OrganizationUnit, StorageGroup } from "./types";
 import { OrganizationUnitItem } from "./OrganizationUnitItem";
 import { cleanupRemovedItemsAtom } from "./atoms";
+import { StorageGroupItem } from "./StorageGroupItem";
 
 interface WarehouseStructureProps {
-  data?: WarehouseData;
+  units?: OrganizationUnit[];
+  storageGroups?: StorageGroup[];
   className?: string;
 }
 
 export default function WarehouseStructure({
-  data = warehouseData,
+  units,
+  storageGroups,
   className,
 }: WarehouseStructureProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const cleanupRemovedItems = useSetAtom(cleanupRemovedItemsAtom);
+  // const cleanupRemovedItems = useSetAtom(cleanupRemovedItemsAtom);
 
   // Clean up removed items whenever the data changes
-  useEffect(() => {
-    cleanupRemovedItems(data);
-  }, [data, cleanupRemovedItems]);
+  // useEffect(() => {
+  //   cleanupRemovedItems(data);
+  // }, [data, cleanupRemovedItems]);
 
   return (
     <div className={cn("space-y-4", className)}>
@@ -53,13 +55,24 @@ export default function WarehouseStructure({
       </div>
 
       <div className="space-y-0.5">
-        {data.map((organizationUnit) => (
-          <OrganizationUnitItem
-            key={organizationUnit.id}
-            item={organizationUnit}
-            searchQuery={searchQuery}
-          />
-        ))}
+        {units &&
+          units.length > 0 &&
+          units.map((organizationUnit) => (
+            <OrganizationUnitItem
+              key={organizationUnit.id}
+              item={organizationUnit}
+              searchQuery={searchQuery}
+            />
+          ))}
+        {storageGroups &&
+          storageGroups.length > 0 &&
+          storageGroups.map((storageGroup) => (
+            <StorageGroupItem
+              key={storageGroup.id}
+              item={storageGroup}
+              searchQuery={searchQuery}
+            />
+          ))}
       </div>
     </div>
   );

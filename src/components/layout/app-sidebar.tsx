@@ -41,7 +41,7 @@ const data = {
     },
     {
       title: "Товары",
-      url: "#",
+      url: "/items",
       icon: Package,
     },
     {

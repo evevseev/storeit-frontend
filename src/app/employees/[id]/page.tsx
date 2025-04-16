@@ -10,6 +10,13 @@ import { DataTable } from "@/components/ui/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { Pencil, X, Save, Trash2 } from "lucide-react";
 import { PageMetadata } from "@/components/header/page-metadata";
+import {
+  PageBlock,
+  BlockTextElement,
+  BlockCustomElement,
+  EditButton,
+  BlockRow,
+} from "@/components/info-page/block";
 
 interface Employee {
   id: string;
@@ -173,6 +180,7 @@ export default function EmployeePage() {
           { label: `${employee.lastName} ${employee.firstName}` },
         ]}
         actions={[
+          <EditButton label="Редактировать" onClick={() => {}} />,
           <Button
             variant={employee.status === "active" ? "destructive" : "default"}
             onClick={toggleBlock}
@@ -182,67 +190,28 @@ export default function EmployeePage() {
         ]}
       />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Информация о сотруднике</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex gap-6">
-            <Avatar className="h-24 w-24 text-2xl">
-              <AvatarImage
-                src={`https://api.dicebear.com/7.x/initials/svg?seed=${employee.firstName} ${employee.lastName}`}
-              />
-              <AvatarFallback>{employee.avatarUrl}</AvatarFallback>
-            </Avatar>
-            <div className="space-y-2">
-              <div>
-                <div className="text-sm text-muted-foreground">Статус</div>
-                <Badge
-                  variant={
-                    employee.status === "active" ? "default" : "destructive"
-                  }
-                >
-                  {employee.status === "active" ? "Активен" : "Заблокирован"}
-                </Badge>
-              </div>
-              <div>
-                <div className="text-sm text-muted-foreground">Email</div>
-                <div>{employee.email}</div>
-              </div>
-              <div>
-                <div className="text-sm text-muted-foreground">
-                  Дата начала работы
-                </div>
-                <div>{new Date(employee.joiningDate).toLocaleDateString()}</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-6">
-            <EditableField
-              label="Имя"
-              value={employee.firstName}
-              onSave={(value) =>
-                setEmployee((prev) => ({ ...prev, firstName: value }))
-              }
-            />
-            <EditableField
-              label="Фамилия"
-              value={employee.lastName}
-              onSave={(value) =>
-                setEmployee((prev) => ({ ...prev, lastName: value }))
-              }
-            />
-            <EditableField
-              label="Отчество"
-              value={employee.middleName}
-              onSave={(value) =>
-                setEmployee((prev) => ({ ...prev, middleName: value }))
-              }
-            />
-          </div>
-        </CardContent>
-      </Card>
+      <PageBlock title="Информация о сотруднике">
+        <BlockCustomElement
+          label="Статус"
+          value={
+            <Badge
+              variant={employee.status === "active" ? "default" : "destructive"}
+            >
+              {employee.status === "active" ? "Активен" : "Заблокирован"}
+            </Badge>
+          }
+        />
+        <BlockRow>
+          <BlockTextElement label="Фамилия" value={employee.lastName} />
+          <BlockTextElement label="Имя" value={employee.firstName} />
+          <BlockTextElement label="Отчество" value={employee.middleName} />
+        </BlockRow>
+        <BlockTextElement label="Email" value={employee.email} />
+        <BlockTextElement
+          label="Дата присоединения"
+          value={new Date(employee.joiningDate).toLocaleDateString()}
+        />
+      </PageBlock>
 
       <Card>
         <CardHeader>

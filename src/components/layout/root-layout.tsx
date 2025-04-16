@@ -1,5 +1,5 @@
 "use client";
-
+import { Toaster } from "@/components/ui/sonner"
 import { Geist, Geist_Mono } from "next/font/google";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import {
@@ -100,6 +100,7 @@ export function RootLayoutContent({
         ) : (
           <main className="w-full h-full">{children}</main>
         )}
+        <Toaster />
       </Providers>
     </body>
   );

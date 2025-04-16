@@ -22,11 +22,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAppForm } from "@/components/form";
 import React from "react";
+import client from "@/lib/api/client";
+import { toast } from "sonner"
 
 const createGroupSchema = z.interface({
-  name: z.string().min(1, "Name is required"),
-  alias: z.string().min(1, "Alias is required"),
-  description: z.string(),
+  name: z.string().min(1, "Обязательное поле"),
+  alias: z.string().min(1, "Обязательное поле"),
 });
 
 type CreateGroupFormData = z.infer<typeof createGroupSchema>;
@@ -34,26 +35,39 @@ type CreateGroupFormData = z.infer<typeof createGroupSchema>;
 interface CreateGroupDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  parentPath: { id: string; name: string }[];
   onSubmit: (data: CreateGroupFormData) => void;
+
+  parentPath: { id: string; name: string }[];
+  parentId: string | null;
+  unitId: string;
 }
 
 export function CreateGroupDialog({
   open,
   onOpenChange,
   parentPath,
+  parentId,
+  unitId,
 }: CreateGroupDialogProps) {
+  const mutation = client.useMutation("post", "/storage-groups");
   const form = useAppForm({
     defaultValues: {
       name: "",
       alias: "",
-      description: "",
     },
     validators: {
       onChange: createGroupSchema,
     },
-    onSubmit: (values) => {
-      alert(JSON.stringify(values.value));
+    onSubmit: async (values) => {
+      await mutation.mutate({
+        body: {
+          unitId: unitId,
+          parentId: parentId,
+          name: values.value.name,
+          alias: values.value.alias,
+        },
+      });
+      toast.success("Группа успешно создана");
       onOpenChange(false);
     },
   });
@@ -67,7 +81,7 @@ export function CreateGroupDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>New Group</DialogTitle>
+          <DialogTitle>Новая Группа</DialogTitle>
           <Breadcrumb>
             <BreadcrumbList>
               {visibleItems.map((item, index) => (
@@ -111,24 +125,21 @@ export function CreateGroupDialog({
               <div className="col-span-2">
                 <form.AppField
                   name="name"
-                  children={(field) => <field.TextField placeholder="Name" />}
+                  children={(field) => (
+                    <field.TextField placeholder="Название" />
+                  )}
                 />
               </div>
               <div className="col-span-1">
                 <form.AppField
                   name="alias"
-                  children={(field) => <field.TextField placeholder="Alias" />}
+                  children={(field) => (
+                    <field.TextField placeholder="Сокращение" />
+                  )}
                 />
               </div>
             </div>
-            <div>
-              <form.AppField
-                name="description"
-                children={(field) => (
-                  <field.TextField placeholder="Description" />
-                )}
-              />
-            </div>
+            <div></div>
           </div>
           <DialogFooter>
             <form.AppForm>

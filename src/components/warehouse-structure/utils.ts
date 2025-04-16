@@ -6,7 +6,7 @@ export const matchesSearch = (item: ElementBase, searchQuery: string): boolean =
   const query = searchQuery.toLowerCase();
   return (
     item.name.toLowerCase().includes(query) ||
-    item.shortName.toLowerCase().includes(query)
+    item.alias.toLowerCase().includes(query)
   );
 };
 

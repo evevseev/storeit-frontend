@@ -9,6 +9,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { CreateGroupDialog } from "./dialogs/CreateGroupDialog";
+import { StorageGroup } from "./types";
 
 interface AddItemButtonProps {
   onAddStorageGroup: (data: {
@@ -20,6 +21,8 @@ interface AddItemButtonProps {
   onAddCellGroup: () => void;
   className?: string;
   parentPath: { id: string; name: string }[];
+  unitId: string;
+  parentId: string | null;
 }
 
 export const AddItemButton = ({
@@ -27,6 +30,8 @@ export const AddItemButton = ({
   onAddCellGroup,
   className,
   parentPath,
+  unitId,
+  parentId,
 }: AddItemButtonProps) => {
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
 
@@ -63,6 +68,8 @@ export const AddItemButton = ({
         onOpenChange={setIsCreateGroupOpen}
         parentPath={parentPath}
         onSubmit={onAddStorageGroup}
+        parentId={parentId}
+        unitId={unitId}
       />
     </>
   );
