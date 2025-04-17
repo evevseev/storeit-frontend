@@ -54,7 +54,6 @@ export function LoginForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Script
         src="https://yastatic.net/s3/passport-sdk/autofill/v1/sdk-suggest-with-polyfills-latest.js"
-        strategy="beforeInteractive"
         // onReady={() => {
         //   console.log("ready");
         //   console.log(window.YaAuthSuggest)
@@ -69,7 +68,7 @@ export function LoginForm({
         //   .then(({ handler }: any) => alert("loaded"))
         //   // .catch((error: any) => alert("Обработка ошибки"));
         // }}
-        onLoad={() => {
+        onReady={() => {
           window.YaAuthSuggest.init(
             {
               client_id: "712925a705b34f5399ba6f067347266b",
