@@ -22,8 +22,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAppForm } from "@/components/form";
 import React from "react";
-import client from "@/lib/api/client";
-import { toast } from "sonner"
+import { useApiQueryClient } from "@/hooks/use-api-query-client";
+import { toast } from "sonner";
 
 const createGroupSchema = z.interface({
   name: z.string().min(1, "Обязательное поле"),
@@ -49,7 +49,8 @@ export function CreateGroupDialog({
   parentId,
   unitId,
 }: CreateGroupDialogProps) {
-  const mutation = client.useMutation("post", "/storage-groups");
+  const queryClient = useApiQueryClient();
+  const mutation = queryClient.useMutation("post", "/storage-groups");
   const form = useAppForm({
     defaultValues: {
       name: "",

@@ -10,7 +10,7 @@ import {
 import Link from "next/link";
 import CreateOrgDialog from "@/components/create-org/dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import client from "@/lib/api/client";
+import client from "@/hooks/client";
 
 export default function OrganizationSelect({
   className,

@@ -18,22 +18,32 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { activeOrganizationIdAtom, useApiQueryClient } from "@/hooks/use-api-query-client";
+import { Avatar, AvatarFallback } from "../ui/avatar";
+import { useAtom, useSetAtom } from "jotai";
+import { useQueryClient } from "@tanstack/react-query";
 
-export function TeamSwitcher({
-  teams,
-}: {
-  teams: {
-    name: string;
-    logo: React.ElementType;
-    plan: string;
-  }[];
-}) {
+export function OrgSwitcher() {
+  const queryClient = useApiQueryClient();
+  const globalQueryClient = useQueryClient();
+  const [activeOrgId, setActiveOrgId] = useAtom(activeOrganizationIdAtom);
+
+  const { data: orgs, isPending } = queryClient.useQuery("get", "/orgs");
+
+  const { data: currentOrg } = queryClient.useQuery("get", "/orgs/{id}", {
+    params: {
+      path: {
+        id: activeOrgId!,
+      },
+    },
+  });
+
   const { isMobile } = useSidebar();
-  const [activeTeam, setActiveTeam] = React.useState(teams[0]);
 
-  if (!activeTeam) {
-    return null;
-  }
+  const changeOrg = (orgId: string) => {
+    setActiveOrgId(orgId);
+    globalQueryClient.invalidateQueries();
+  };
 
   return (
     <SidebarMenu>
@@ -44,12 +54,15 @@ export function TeamSwitcher({
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                <activeTeam.logo className="size-4" />
-              </div>
+              <Avatar>
+                <AvatarFallback>
+                  {currentOrg?.data.name.slice(0, 2)}
+                </AvatarFallback>
+              </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{activeTeam.name}</span>
-                <span className="truncate text-xs">{activeTeam.plan}</span>
+                <span className="truncate font-medium">
+                  {currentOrg?.data.name}
+                </span>
               </div>
               <ChevronsUpDown className="ml-auto" />
             </SidebarMenuButton>
@@ -61,19 +74,18 @@ export function TeamSwitcher({
             sideOffset={4}
           >
             <DropdownMenuLabel className="text-muted-foreground text-xs">
-              Teams
+              Организации
             </DropdownMenuLabel>
-            {teams.map((team, index) => (
+            {orgs?.data.map((org, _) => (
               <DropdownMenuItem
-                key={team.name}
-                onClick={() => setActiveTeam(team)}
-                className="gap-2 p-2"
+                key={org.id}
+                onClick={() => changeOrg(org.id)}
+                className=" p-2 break-all gap-4 "
               >
-                <div className="flex size-6 items-center justify-center rounded-md border">
-                  <team.logo className="size-3.5 shrink-0" />
-                </div>
-                {team.name}
-                <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
+                <Avatar>
+                  <AvatarFallback>{org.name.slice(0, 2)}</AvatarFallback>
+                </Avatar>
+                {org.name}
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
@@ -81,7 +93,9 @@ export function TeamSwitcher({
               <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
                 <Plus className="size-4" />
               </div>
-              <div className="text-muted-foreground font-medium">Add team</div>
+              <div className="text-muted-foreground font-medium">
+                Создать организацию
+              </div>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

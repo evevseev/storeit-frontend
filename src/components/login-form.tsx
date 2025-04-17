@@ -11,7 +11,7 @@ import Script from "next/script";
 import { Skeleton } from "./ui/skeleton";
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
-import client from "@/lib/api/client";
+import client from "@/hooks/client";
 
 export function LoginForm({ className }: React.ComponentProps<"div">) {
   const [yandexAuthLoaded, setYandexAuthLoaded] = useState(false);

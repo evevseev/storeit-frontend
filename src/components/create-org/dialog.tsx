@@ -9,8 +9,11 @@ import {
 } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { useAppForm } from "../form";
+import { useApiQueryClient } from "@/hooks/client";
 
 export default function CreateOrgDialog() {
+  const queryClient = useApiQueryClient();
+  
   const form = useAppForm({
     defaultValues: {
       name: "",

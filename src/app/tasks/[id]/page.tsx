@@ -16,7 +16,7 @@ import {
   DeleteButton,
   PageBlockRow,
 } from "@/components/info-page/block";
-import client from "@/lib/api/client";
+import client from "@/hooks/client";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 

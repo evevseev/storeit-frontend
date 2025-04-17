@@ -3,15 +3,21 @@ import WarehouseStructure from "@/components/warehouse-structure";
 import { PageMetadata } from "@/components/header/page-metadata";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { OrganizationUnit, StorageGroup } from "@/components/warehouse-structure/types";
+import {
+  OrganizationUnit,
+  StorageGroup,
+} from "@/components/warehouse-structure/types";
 import { useState, useEffect } from "react";
-import queryClient from "@/lib/api/client";
+import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import type { paths } from "@/lib/api/storeit";
 
-type ApiStorageGroup = paths["/storage-groups"]["get"]["responses"]["200"]["content"]["application/json"]["data"][number];
-type ApiUnit = paths["/units"]["get"]["responses"]["200"]["content"]["application/json"]["data"][number];
+type ApiStorageGroup =
+  paths["/storage-groups"]["get"]["responses"]["200"]["content"]["application/json"]["data"][number];
+type ApiUnit =
+  paths["/units"]["get"]["responses"]["200"]["content"]["application/json"]["data"][number];
 
 export default function StoragePage() {
+  const queryClient = useApiQueryClient();
   const {
     data: unitsData,
     error: unitsError,
@@ -36,7 +42,8 @@ export default function StoragePage() {
   ): StorageGroup[] => {
     const groupsForParent =
       storageGroupsData?.data.filter(
-        (group: ApiStorageGroup) => group.unitId === unitId && group.parentId === parentId
+        (group: ApiStorageGroup) =>
+          group.unitId === unitId && group.parentId === parentId
       ) || [];
 
     return groupsForParent.map((group: ApiStorageGroup) => ({
@@ -51,10 +58,12 @@ export default function StoragePage() {
 
   useEffect(() => {
     if (unitsData) {
-      const transformedData: OrganizationUnit[] = unitsData.data.map((unit: ApiUnit) => ({
-        ...unit,
-        children: buildStorageGroupTree(unit.id),
-      }));
+      const transformedData: OrganizationUnit[] = unitsData.data.map(
+        (unit: ApiUnit) => ({
+          ...unit,
+          children: buildStorageGroupTree(unit.id),
+        })
+      );
       setUnits(transformedData);
     }
   }, [unitsData, storageGroupsData]);
