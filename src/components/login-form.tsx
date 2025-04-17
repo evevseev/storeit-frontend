@@ -54,20 +54,43 @@ export function LoginForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Script
         src="https://yastatic.net/s3/passport-sdk/autofill/v1/sdk-suggest-with-polyfills-latest.js"
-        // strategy="beforeInteractive"
-        onReady={() => {
-          console.log("ready");
-          console.log(window.YaAuthSuggest)
+        strategy="beforeInteractive"
+        // onReady={() => {
+        //   console.log("ready");
+        //   console.log(window.YaAuthSuggest)
+        //   window.YaAuthSuggest.init(
+        //     {
+        //       client_id: "712925a705b34f5399ba6f067347266b",
+        //       response_type: "token",
+        //       redirect_uri: "https://storeit-frontend-git-main-evevseevs-projects-fd07aed8.vercel.app/auth/oauth/yandex"
+        //     },
+        //     "https://storeit-frontend-git-main-evevseevs-projects-fd07aed8.vercel.app",
+        //   )
+        //   .then(({ handler }: any) => alert("loaded"))
+        //   // .catch((error: any) => alert("Обработка ошибки"));
+        // }}
+        onLoad={() => {
           window.YaAuthSuggest.init(
             {
               client_id: "712925a705b34f5399ba6f067347266b",
               response_type: "token",
-              redirect_uri: "https://storeit-frontend-git-main-evevseevs-projects-fd07aed8.vercel.app/auth/oauth/yandex"
+              redirect_uri:
+                "https://storeit-frontend-git-main-evevseevs-projects-fd07aed8.vercel.app/auth/oauth/yandex",
             },
             "https://storeit-frontend-git-main-evevseevs-projects-fd07aed8.vercel.app",
+            {
+              view: "button",
+              parentId: "buttonContainerId",
+              buttonSize: "m",
+              buttonView: "main",
+              buttonTheme: "light",
+              buttonBorderRadius: "0",
+              buttonIcon: "ya",
+            }
           )
-          .then(({ handler }: any) => alert("loaded"))
-          // .catch((error: any) => alert("Обработка ошибки"));
+            .then(({ handler }) => handler())
+            .then((data) => console.log("Сообщение с токеном", data))
+            .catch((error) => console.log("Обработка ошибки", error));
         }}
         onError={(e: any) => {
           console.log(JSON.stringify(e));
@@ -106,6 +129,22 @@ export function LoginForm({
                 <Button type="submit" className="w-full">
                   Login
                 </Button>
+                {/* <Script>
+                  {`window.YaAuthSuggest.init(
+                    {
+                      client_id: "712925a705b34f5399ba6f067347266b",
+                      response_type: "token",
+                      redirect_uri: "https://storeit-frontend-git-main-evevseevs-projects-fd07aed8.vercel.app/auth/oauth/yandex"
+                    },
+                    "https://storeit-frontend-git-main-evevseevs-projects-fd07aed8.vercel.app",
+                    { view: "default" }
+                  )
+                  .then(({handler}) => handler())
+                  .then(data => console.log('Сообщение с токеном', data))
+                  .catch(error => console.log('Обработка ошибки', error))
+                `}
+                </Script> */}
+
                 <Button
                   variant="outline"
                   type="button"
