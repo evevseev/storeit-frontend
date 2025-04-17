@@ -12,12 +12,8 @@ import { Skeleton } from "./ui/skeleton";
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import client from "@/lib/api/client";
-import { redirect } from "next/navigation";
 
-export function LoginForm({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
+export function LoginForm({ className }: React.ComponentProps<"div">) {
   const [yandexAuthLoaded, setYandexAuthLoaded] = useState(false);
   const router = useRouter();
   const mutation = client.useMutation("post", "/auth/oauth2/yandex");
@@ -28,13 +24,11 @@ export function LoginForm({
         access_token: token,
       },
     });
-    // alert("login ok!?");
-    
-    // redirect("/login/select-org");
   };
+
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (event.origin === "http://localhost:3000") {
+      if (event.origin === process.env.NEXT_PUBLIC_APP_URL) {
         if (
           event.data.type === "token" &&
           event.data.payload.extraData.oauthProvider === "yandex"
@@ -49,7 +43,7 @@ export function LoginForm({
   }, [router]);
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className={cn("flex flex-col gap-6", className)}>
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Добро пожаловать</CardTitle>
@@ -66,10 +60,9 @@ export function LoginForm({
                       {
                         client_id: "712925a705b34f5399ba6f067347266b",
                         response_type: "token",
-                        redirect_uri:
-                          "http://localhost:3000/login/oauth/redirect/yandex",
+                        redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/login/oauth/redirect/yandex`,
                       },
-                      "http://localhost:3000",
+                      process.env.NEXT_PUBLIC_APP_URL,
                       {
                         view: "button",
                         parentId: "yandex-id-button",
@@ -86,7 +79,6 @@ export function LoginForm({
                       })
                       .catch((error: any) => {
                         console.error("Yandex Auth Error:", error);
-                        // You might want to show an error message to the user
                       });
                   }}
                   onError={(e: any) => {
