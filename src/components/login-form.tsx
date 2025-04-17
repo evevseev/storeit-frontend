@@ -58,16 +58,15 @@ export function LoginForm({
         onReady={() => {
           console.log("ready");
           console.log(window.YaAuthSuggest)
-          const a = window.YaAuthSuggest.init(
+          window.YaAuthSuggest.init(
             {
               client_id: "712925a705b34f5399ba6f067347266b",
               response_type: "token",
-              reredirect_uri: "https://store-it.ru/auth/oauth/yandex"
+              redirect_uri: "https://storeit-frontend-git-main-evevseevs-projects-fd07aed8.vercel.app/auth/oauth/yandex"
             },
-            "https://store-it.ru",
-            // { view: "default" }
+            "https://storeit-frontend-git-main-evevseevs-projects-fd07aed8.vercel.app",
           )
-          // .then(({ handler }: any) => alert("handler"))
+          .then(({ handler }: any) => alert("loaded"))
           // .catch((error: any) => alert("Обработка ошибки"));
         }}
         onError={(e: any) => {
