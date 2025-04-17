@@ -452,6 +452,67 @@ paths:
                 $ref: '#/components/schemas/UpdateItemResponse'
         default:
           $ref: '#/components/responses/default-error'
+  /auth/oauth2/yandex:
+    post:
+      tags:
+        - auth
+      summary: Exchange Yandex Access token for Session token
+      operationId: exchangeYandexAccessToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                access_token:
+                  type: string
+                  description: Yandex Access token
+              required:
+                - access_token
+      responses:
+        '200':
+          $ref: '#/components/responses/AuthResponse'
+        default:
+          $ref: '#/components/responses/default-error'
+  /auth/testing:
+    post:
+      tags:
+        - auth
+      summary: Get Auth Cookie by email
+      operationId: getAuthCookieByEmail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetAuthCookieByEmailRequest'
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                description: Auth cookie
+              required: true
+        default:
+          $ref: '#/components/responses/default-error'
+  /me:
+    get:
+      tags:
+        - unit
+      summary: Get Current User
+      operationId: getCurrentUser
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCurrentUserResponse'
+        default:
+          $ref: '#/components/responses/default-error'
 components:
   schemas:
     Error:
@@ -465,14 +526,9 @@ components:
       required:
         - error_id
         - message
-    Organization:
+    OrganizationBase:
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-          readOnly: true
-          example: def3df1a-7b8f-4552-b437-a1eab851403f
         name:
           type: string
           example: Exotic
@@ -483,9 +539,21 @@ components:
           maxLength: 255
           pattern: ^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$
       required:
-        - id
         - name
         - subdomain
+    Organization:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+              readOnly: true
+              example: def3df1a-7b8f-4552-b437-a1eab851403f
+          required:
+            - id
+        - $ref: '#/components/schemas/OrganizationBase'
     GetOrganizationsResponse:
       type: object
       allOf:
@@ -500,7 +568,7 @@ components:
     CreateOrganizationRequest:
       type: object
       allOf:
-        - $ref: '#/components/schemas/Organization'
+        - $ref: '#/components/schemas/OrganizationBase'
     CreateOrganizationResponse:
       type: object
       allOf:
@@ -986,8 +1054,6 @@ components:
               type: integer
               nullable: true
               example: 1234567890123
-          required:
-            - id
     ItemPatch:
       allOf:
         - type: object
@@ -1017,6 +1083,38 @@ components:
               $ref: '#/components/schemas/ItemFull'
           required:
             - data
+    GetAuthCookieByEmailRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required:
+        - email
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        first_name:
+          type: string
+        last_name:
+          type: string
+        middle_name:
+          type: string
+          nullable: true
+        email:
+          type: string
+      required:
+        - id
+        - email
+        - first_name
+        - last_name
+        - middle_name
+    GetCurrentUserResponse:
+      allOf:
+        - $ref: '#/components/schemas/User'
   responses:
     default-error:
       description: General Error
@@ -1024,3 +1122,11 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    AuthResponse:
+      description: Auth response
+      headers:
+        Set-Cookie:
+          schema:
+            type: string
+            description: Auth cookie
+          required: true

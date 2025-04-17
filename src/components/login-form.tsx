@@ -1,6 +1,5 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,142 +7,107 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useEffect } from "react";
 import Script from "next/script";
+import { Skeleton } from "./ui/skeleton";
+import { useState, useEffect, use } from "react";
+import { useRouter } from "next/navigation";
+import client from "@/lib/api/client";
+import { redirect } from "next/navigation";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  // useEffect(() => {
-  //   // создаём тег <script>
-  //   // const script = document.createElement("script");
-  //   // script.src =
-  //   //   "https://yastatic.net/s3/passport-sdk/autofill/v1/sdk-suggest-with-polyfills-latest.js";
-  //   // script.async = true;
+  const [yandexAuthLoaded, setYandexAuthLoaded] = useState(false);
+  const router = useRouter();
+  const mutation = client.useMutation("post", "/auth/oauth2/yandex");
 
-  //   // // после загрузки можно инициализировать библиотеку
-  //   // script.onload = () => {
-  //   //   if ((window as any).YaAuthSuggest) {
-  //   //     (window as any).YaAuthSuggest.init(
-  //   //       {
-  //   //         client_id: "712925a705b34f5399ba6f067347266b",
-  //   //         response_type: "token",
-  //   //         redirect_uri: "https://localhost:3000/auth/oauth/yandex",
-  //   //       },
-  //   //       "https://localhost",
-  //   //       { view: "default" }
-  //   //     )
-  //   //       .then(({ handler }: any) => handler())
-  //   //       .then((data: any) => console.log("Сообщение с токеном", data))
-  //   //       .catch((error: any) => console.log("Обработка ошибки", error));
-  //   //   }
-  //   // };
+  const handleYandexAuth = async (token: string) => {
+    await mutation.mutate({
+      body: {
+        access_token: token,
+      },
+    });
+    // alert("login ok!?");
+    
+    // redirect("/login/select-org");
+  };
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin === "http://localhost:3000") {
+        if (
+          event.data.type === "token" &&
+          event.data.payload.extraData.oauthProvider === "yandex"
+        ) {
+          handleYandexAuth(event.data.payload.access_token);
+        }
+      }
+    };
 
-  //   document.body.appendChild(script);
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [router]);
 
-  //   // чистим за собой при размонтировании
-  //   return () => {
-  //     document.body.removeChild(script);
-  //   };
-  // }, []); // пустой массив — скрипт подключается один раз при монтировании
-  // // return <div>Hello</div>;
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Welcome back</CardTitle>
-          <CardDescription>Sign in to your account</CardDescription>
+          <CardTitle className="text-xl">Добро пожаловать</CardTitle>
+          <CardDescription>Войдите в свой аккаунт</CardDescription>
         </CardHeader>
         <CardContent>
           <form>
             <div className="grid gap-6">
               <div className="grid gap-6">
-                <div className="grid gap-3">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="m@example.com"
-                    required
-                  />
-                </div>
-                <div className="grid gap-3">
-                  <div className="flex items-center">
-                    <Label htmlFor="password">Password</Label>
-                    <a
-                      href="#"
-                      className="ml-auto text-sm underline-offset-4 hover:underline"
-                    >
-                      Forgot your password?
-                    </a>
-                  </div>
-                  <Input id="password" type="password" required />
-                </div>
-                <Button type="submit" className="w-full">
-                  Login
-                </Button>
                 <Script
                   src="https://yastatic.net/s3/passport-sdk/autofill/v1/sdk-suggest-with-polyfills-latest.js"
-                  // onReady={() => {
-                  //   console.log("ready");
-                  //   console.log(window.YaAuthSuggest)
-                  //   window.YaAuthSuggest.init(
-                  //     {
-                  //       client_id: "712925a705b34f5399ba6f067347266b",
-                  //       response_type: "token",
-                  //       redirect_uri: "https://storeit-frontend-git-main-evevseevs-projects-fd07aed8.vercel.app/auth/oauth/yandex"
-                  //     },
-                  //     "https://storeit-frontend-git-main-evevseevs-projects-fd07aed8.vercel.app",
-                  //   )
-                  //   .then(({ handler }: any) => alert("loaded"))
-                  //   // .catch((error: any) => alert("Обработка ошибки"));
-                  // }}
                   onReady={() => {
-                    window.YaAuthSuggest.init(
+                    (window as any).YaAuthSuggest.init(
                       {
                         client_id: "712925a705b34f5399ba6f067347266b",
                         response_type: "token",
                         redirect_uri:
-                          "https://storeit-frontend-git-main-evevseevs-projects-fd07aed8.vercel.app/auth/oauth/yandex",
+                          "http://localhost:3000/login/oauth/redirect/yandex",
                       },
-                      "https://storeit-frontend-git-main-evevseevs-projects-fd07aed8.vercel.app",
+                      "http://localhost:3000",
                       {
                         view: "button",
                         parentId: "yandex-id-button",
-                        buttonSize: "m",
+                        buttonSize: "s",
                         buttonView: "main",
                         buttonTheme: "light",
                         buttonBorderRadius: "7",
                         buttonIcon: "ya",
                       }
                     )
-                      .then(({ handler }) => handler())
-                      .then((data) => console.log("Сообщение с токеном", data))
-                      .catch((error) => console.log("Обработка ошибки", error));
+                      .then(({ handler }: any) => {
+                        setYandexAuthLoaded(true);
+                        handler();
+                      })
+                      .catch((error: any) => {
+                        console.error("Yandex Auth Error:", error);
+                        // You might want to show an error message to the user
+                      });
                   }}
                   onError={(e: any) => {
-                    console.log(JSON.stringify(e));
+                    console.error("Script loading error:", e);
                   }}
                 />
+                {!yandexAuthLoaded && <Skeleton className="w-full h-[40px]" />}
 
-                <div id="yandex-id-button"></div>
-              </div>
-              <div className="text-center text-sm">
-                Don&apos;t have an account?{" "}
-                <a href="#" className="underline underline-offset-4">
-                  Sign up
-                </a>
+                <div
+                  id="yandex-id-button"
+                  className={cn(!yandexAuthLoaded && "hidden")}
+                ></div>
               </div>
             </div>
           </form>
         </CardContent>
       </Card>
       <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
+        Нажимая продолжить, вы соглашаетесь с нашими{" "}
+        <a href="#">Условиями использования</a> и{" "}
+        <a href="#">Политикой конфиденциальности</a>.
       </div>
     </div>
   );

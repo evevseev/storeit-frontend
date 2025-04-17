@@ -168,6 +168,57 @@ export interface paths {
         patch: operations["patchItem"];
         trace?: never;
     };
+    "/auth/oauth2/yandex": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Exchange Yandex Access token for Session token */
+        post: operations["exchangeYandexAccessToken"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/testing": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Get Auth Cookie by email */
+        post: operations["getAuthCookieByEmail"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Current User */
+        get: operations["getCurrentUser"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -177,21 +228,23 @@ export interface components {
             error_id: string;
             message: string;
         };
+        OrganizationBase: {
+            /** @example Exotic */
+            name: string;
+            /** @example exotic */
+            subdomain: string;
+        };
         Organization: {
             /**
              * Format: uuid
              * @example def3df1a-7b8f-4552-b437-a1eab851403f
              */
             readonly id: string;
-            /** @example Exotic */
-            name: string;
-            /** @example exotic */
-            subdomain: string;
-        };
+        } & components["schemas"]["OrganizationBase"];
         GetOrganizationsResponse: {
             data: components["schemas"]["Organization"][];
         };
-        CreateOrganizationRequest: components["schemas"]["Organization"];
+        CreateOrganizationRequest: components["schemas"]["OrganizationBase"];
         CreateOrganizationResponse: {
             data: components["schemas"]["Organization"];
         };
@@ -374,7 +427,7 @@ export interface components {
         };
         ItemVariantPatchInItem: {
             /** Format: uuid */
-            id: string;
+            id?: string;
             /** @example Variant 1 */
             name?: string;
             /** @example 123456789012 */
@@ -393,6 +446,19 @@ export interface components {
         PatchItemResponse: {
             data: components["schemas"]["ItemFull"];
         };
+        GetAuthCookieByEmailRequest: {
+            /** Format: email */
+            email: string;
+        };
+        User: {
+            /** Format: uuid */
+            id: string;
+            first_name: string;
+            last_name: string;
+            middle_name: string | null;
+            email: string;
+        };
+        GetCurrentUserResponse: components["schemas"]["User"];
     };
     responses: {
         /** @description General Error */
@@ -403,6 +469,14 @@ export interface components {
             content: {
                 "application/json": components["schemas"]["Error"];
             };
+        };
+        /** @description Auth response */
+        AuthResponse: {
+            headers: {
+                "Set-Cookie": string;
+                [name: string]: unknown;
+            };
+            content?: never;
         };
     };
     parameters: never;
@@ -999,6 +1073,71 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PatchItemResponse"];
+                };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    exchangeYandexAccessToken: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description Yandex Access token */
+                    access_token: string;
+                };
+            };
+        };
+        responses: {
+            200: components["responses"]["AuthResponse"];
+            default: components["responses"]["default-error"];
+        };
+    };
+    getAuthCookieByEmail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GetAuthCookieByEmailRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    "Set-Cookie": string;
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    getCurrentUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetCurrentUserResponse"];
                 };
             };
             default: components["responses"]["default-error"];

@@ -9,7 +9,7 @@ const myMiddleware: Middleware = {
     },
 };
 
-export const httpClient = createClient<paths>({ baseUrl: "http://localhost:8080" });
+export const httpClient = createClient<paths>({ baseUrl: "http://localhost:8080", credentials: "include" });
 
 httpClient.use(myMiddleware);
 

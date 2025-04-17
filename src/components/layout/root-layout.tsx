@@ -85,7 +85,7 @@ export function RootLayoutContent({
 }>) {
   const pathname = usePathname();
 
-  const isLoginPage = pathname === "/login" || /\/dct/.test(pathname);
+  const isLoginPage = /\/login/.test(pathname) || /\/dct/.test(pathname);
 
   return (
     <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
