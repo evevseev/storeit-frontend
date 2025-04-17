@@ -112,11 +112,11 @@ export function LoginForm({
                       "https://storeit-frontend-git-main-evevseevs-projects-fd07aed8.vercel.app",
                       {
                         view: "button",
-                        parentId: "buttonContainerId",
+                        parentId: "yandex-id-button",
                         buttonSize: "m",
                         buttonView: "main",
                         buttonTheme: "light",
-                        buttonBorderRadius: "0",
+                        buttonBorderRadius: "7",
                         buttonIcon: "ya",
                       }
                     )
@@ -129,13 +129,7 @@ export function LoginForm({
                   }}
                 />
 
-                <Button
-                  variant="outline"
-                  type="button"
-                  className="w-full -mt-4"
-                >
-                  Login with SSO
-                </Button>
+                <div id="yandex-id-button"></div>
               </div>
               <div className="text-center text-sm">
                 Don&apos;t have an account?{" "}
