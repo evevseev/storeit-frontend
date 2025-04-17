@@ -1,5 +1,5 @@
 "use client";
-import { Toaster } from "@/components/ui/sonner"
+import { Toaster } from "@/components/ui/sonner";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import {
@@ -75,7 +75,7 @@ function Header() {
         )}
       </div>
     </header>
-  );
+);
 }
 
 export function RootLayoutContent({
@@ -84,7 +84,8 @@ export function RootLayoutContent({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
-  const isLoginPage = pathname === "/login";
+
+  const isLoginPage = pathname === "/login" || /\/dct/.test(pathname);
 
   return (
     <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>

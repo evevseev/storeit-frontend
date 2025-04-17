@@ -1,8 +1,12 @@
+"use client";
 import { PageMetadata } from "@/components/header/page-metadata";
 import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/ui/data-table";
-import { useReactTable, createColumnHelper } from "@tanstack/react-table";
-
+import {
+  useReactTable,
+  createColumnHelper,
+  ColumnDef,
+} from "@tanstack/react-table";
 type Task = {
   id: string;
   name: string;
@@ -10,6 +14,7 @@ type Task = {
   status: "pending" | "completed" | "failed";
   createdAt: string;
 };
+import { redirect } from "next/navigation";
 
 const columnHelper = createColumnHelper<Task>();
 const columns = [
@@ -37,11 +42,39 @@ const columns = [
   }),
 ];
 
+const data: Task[] = [
+  {
+    id: "1",
+    name: "Задание 1",
+    type: "order",
+    status: "pending",
+    createdAt: "2021-01-01",
+  },
+  {
+    id: "2",
+    name: "Задание 2",
+    type: "movement",
+    status: "completed",
+    createdAt: "2021-01-02",
+  },
+  {
+    id: "3",
+    name: "Задание 3",
+    type: "order",
+    status: "failed",
+    createdAt: "2021-01-03",
+  },
+];
+
 export default function TasksPage() {
   return (
     <>
       <PageMetadata title="Задания" breadcrumbs={[{ label: "Задания" }]} />
-      <DataTable columns={columns} data={[]} />
+      <DataTable
+        columns={columns}
+        data={data}
+        onRowClick={(row) => redirect(`/tasks/${row.id}`)}
+      />
     </>
   );
 }

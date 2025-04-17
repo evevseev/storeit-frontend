@@ -1,7 +1,6 @@
 import { useFieldContext } from "@/components/form";
 import { Input } from "../ui/input";
 import { cn } from "@/lib/utils";
-import { useState, useEffect } from "react";
 
 interface TextFieldProps {
   placeholder: string;
@@ -9,20 +8,9 @@ interface TextFieldProps {
   unit?: string;
 }
 
-export function TextField({
-  placeholder,
-  type = "text",
-  unit,
-}: TextFieldProps) {
+export function TextField({ placeholder, type = "text", unit }: TextFieldProps) {
   const field = useFieldContext<string | number>();
   const hasError = field.state.meta.errors.length > 0;
-  const [errorText, setErrorText] = useState<string | null>(null);
-
-  useEffect(() => {
-    setErrorText(
-      field.state.meta.errors.map((error) => error.message).join(", ")
-    );
-  }, [field.state.meta.errors]);
 
   const handleChange = (value: string) => {
     if (type === "number") {
@@ -32,6 +20,9 @@ export function TextField({
       field.handleChange(value);
     }
   };
+  // {field.state.meta.errors.length > 0 ? (
+  //   <em role="alert">{field.state.meta.errors.join(', ')}</em>
+  // ) : null}
   return (
     <div className="relative group">
       <Input
@@ -50,12 +41,12 @@ export function TextField({
           {unit}
         </div>
       )}
-      {errorText && (
-        <div className="absolute left-1/2 -translate-x-1/2 -top-12 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-out">
-          <div className="bg-red-500 text-white px-3 py-1.5 rounded-full text-sm whitespace-nowrap shadow-sm">
-            {errorText}
+      {hasError && (
+        <div className="absolute -top-2 left-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-out">
+          <div className="bg-red-500 text-white px-2 py-1 rounded text-sm whitespace-nowrap">
+            {field.state.meta.errors.join(", ")}
           </div>
-          <div className="w-2 h-2 bg-red-500 rotate-45 absolute left-1/2 -translate-x-1/2 -bottom-1"></div>
+          <div className="w-2 h-2 bg-red-500 rotate-45 translate-x-2 -translate-y-1"></div>
         </div>
       )}
     </div>

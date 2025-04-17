@@ -6,6 +6,8 @@ import {
   ClipboardList,
   GalleryVerticalEnd,
   Package,
+  Phone,
+  Smartphone,
   Warehouse,
 } from "lucide-react";
 
@@ -35,8 +37,13 @@ const data = {
   ],
   navMain: [
     {
+      title: "ТСД",
+      url: "/dct",
+      icon: Smartphone,
+    },
+    {
       title: "Задания",
-      url: "#",
+      url: "/tasks",
       icon: ClipboardList,
     },
     {

@@ -1,3 +1,5 @@
+"use client";
+
 import { PageMetadata } from "@/components/header/page-metadata";
 import CellsList from "@/components/cells-group/cells-list";
 import GroupInfoCard from "@/components/cells-group/group-info-card";

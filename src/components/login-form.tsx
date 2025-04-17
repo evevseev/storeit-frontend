@@ -1,27 +1,83 @@
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+"use client";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useEffect } from "react";
+import Script from "next/script";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  // useEffect(() => {
+  //   // создаём тег <script>
+  //   // const script = document.createElement("script");
+  //   // script.src =
+  //   //   "https://yastatic.net/s3/passport-sdk/autofill/v1/sdk-suggest-with-polyfills-latest.js";
+  //   // script.async = true;
+
+  //   // // после загрузки можно инициализировать библиотеку
+  //   // script.onload = () => {
+  //   //   if ((window as any).YaAuthSuggest) {
+  //   //     (window as any).YaAuthSuggest.init(
+  //   //       {
+  //   //         client_id: "712925a705b34f5399ba6f067347266b",
+  //   //         response_type: "token",
+  //   //         redirect_uri: "https://localhost:3000/auth/oauth/yandex",
+  //   //       },
+  //   //       "https://localhost",
+  //   //       { view: "default" }
+  //   //     )
+  //   //       .then(({ handler }: any) => handler())
+  //   //       .then((data: any) => console.log("Сообщение с токеном", data))
+  //   //       .catch((error: any) => console.log("Обработка ошибки", error));
+  //   //   }
+  //   // };
+
+  //   document.body.appendChild(script);
+
+  //   // чистим за собой при размонтировании
+  //   return () => {
+  //     document.body.removeChild(script);
+  //   };
+  // }, []); // пустой массив — скрипт подключается один раз при монтировании
+  // // return <div>Hello</div>;
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
+      <Script
+        src="https://yastatic.net/s3/passport-sdk/autofill/v1/sdk-suggest-with-polyfills-latest.js"
+        // strategy="beforeInteractive"
+        onReady={() => {
+          console.log("ready");
+          console.log(window.YaAuthSuggest)
+          const a = window.YaAuthSuggest.init(
+            {
+              client_id: "712925a705b34f5399ba6f067347266b",
+              response_type: "token",
+              reredirect_uri: "https://store-it.ru/auth/oauth/yandex"
+            },
+            "https://store-it.ru",
+            // { view: "default" }
+          )
+          // .then(({ handler }: any) => alert("handler"))
+          // .catch((error: any) => alert("Обработка ошибки"));
+        }}
+        onError={(e: any) => {
+          console.log(JSON.stringify(e));
+        }}
+      />
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Welcome back</CardTitle>
-          <CardDescription>
-            Sign in to your account
-          </CardDescription>
+          <CardDescription>Sign in to your account</CardDescription>
         </CardHeader>
         <CardContent>
           <form>
@@ -51,7 +107,11 @@ export function LoginForm({
                 <Button type="submit" className="w-full">
                   Login
                 </Button>
-                <Button variant="outline" type="button" className="w-full -mt-4">
+                <Button
+                  variant="outline"
+                  type="button"
+                  className="w-full -mt-4"
+                >
                   Login with SSO
                 </Button>
               </div>
@@ -70,5 +130,5 @@ export function LoginForm({
         and <a href="#">Privacy Policy</a>.
       </div>
     </div>
-  )
+  );
 }

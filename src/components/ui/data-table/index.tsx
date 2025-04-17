@@ -24,12 +24,16 @@ import {
 
 import { DataTablePagination } from "./pagination";
 import { SortButton } from "./sort-button";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
+  columns: ColumnDef<TData, any>[];
   data: TData[];
   pagination?: boolean;
   pageSize?: number;
+  rowHref?: (row: TData) => string;
+  onRowClick?: (row: TData) => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -37,6 +41,7 @@ export function DataTable<TData, TValue>({
   data,
   pagination = true,
   pageSize = 50,
+  onRowClick,
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -74,19 +79,18 @@ export function DataTable<TData, TValue>({
                     style={{ width: header.getSize() }}
                     className="whitespace-nowrap"
                   >
-                    {header.isPlaceholder ? null : (
-                      header.column.columnDef.sortingFn ? (
-                        <SortButton column={header.column}>
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                        </SortButton>
-                      ) : (
-                        flexRender(
+                    {header.isPlaceholder ? null : header.column.columnDef
+                        .sortingFn ? (
+                      <SortButton column={header.column}>
+                        {flexRender(
                           header.column.columnDef.header,
                           header.getContext()
-                        )
+                        )}
+                      </SortButton>
+                    ) : (
+                      flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
                       )
                     )}
                   </TableHead>
@@ -100,7 +104,12 @@ export function DataTable<TData, TValue>({
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
+                className={cn(
+                  "hover:cursor-pointer",
+                  onRowClick ? "hover:bg-gray-100" : ""
+                )}
                 data-state={row.getIsSelected() && "selected"}
+                onClick={() => onRowClick?.(row.original)}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell
