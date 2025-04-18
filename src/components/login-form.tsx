@@ -11,9 +11,10 @@ import Script from "next/script";
 import { Skeleton } from "./ui/skeleton";
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
-import client from "@/hooks/client";
+import { useApiQueryClient } from "@/hooks/use-api-query-client";
 
 export function LoginForm({ className }: React.ComponentProps<"div">) {
+  const client = useApiQueryClient();
   const [yandexAuthLoaded, setYandexAuthLoaded] = useState(false);
   const router = useRouter();
   const mutation = client.useMutation("post", "/auth/oauth2/yandex");

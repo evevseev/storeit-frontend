@@ -10,11 +10,12 @@ import {
 import Link from "next/link";
 import CreateOrgDialog from "@/components/create-org/dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import client from "@/hooks/client";
+import { useApiQueryClient } from "@/hooks/use-api-query-client";
 
 export default function OrganizationSelect({
   className,
 }: React.ComponentProps<"div">) {
+  const client = useApiQueryClient();
   const { data, isLoading, error } = client.useQuery("get", "/orgs");
   return (
     <div className={cn("flex flex-col gap-6", className)}>
@@ -35,6 +36,7 @@ export default function OrganizationSelect({
                 />
               ))}
           </div>
+          <CreateOrgDialog />
         </CardContent>
       </Card>
     </div>

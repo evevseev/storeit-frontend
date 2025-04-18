@@ -9,15 +9,33 @@ import {
 } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { useAppForm } from "../form";
-import { useApiQueryClient } from "@/hooks/client";
+import { useApiQueryClient } from "@/hooks/use-api-query-client";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function CreateOrgDialog() {
+  const globalQueryClient = useQueryClient();
   const queryClient = useApiQueryClient();
-  
+  const mutate = queryClient.useMutation("post", "/orgs");
+
   const form = useAppForm({
     defaultValues: {
       name: "",
       subdomain: "",
+    },
+    onSubmit: (data) => {
+      mutate.mutate(
+        {
+          body: {
+            name: data.value.name,
+            subdomain: data.value.subdomain,
+          },
+        },
+        {
+          onSuccess: () => {
+            globalQueryClient.invalidateQueries({ queryKey: ["get", "/orgs"] });
+          },
+        }
+      );
     },
   });
   return (

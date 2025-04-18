@@ -4,11 +4,13 @@ import createQueryClient from "openapi-react-query";
 import { useAtomValue } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 import { useMemo } from "react";
+import { useRouter } from "next/navigation";
 
 const activeOrganizationIdAtom = atomWithStorage<string | null>('activeOrganizationId', null);
 
 function useApiQueryClient() {
     const orgId = useAtomValue(activeOrganizationIdAtom);
+    const router = useRouter();
 
     const httpClient = useMemo(() => {
         const client = createClient<paths>({
@@ -23,11 +25,17 @@ function useApiQueryClient() {
                 }
                 return request;
             },
+            async onResponse({ response }) {
+                if (response.status === 401) {
+                    router.push('/login');
+                }
+                return response;
+            }
         };
 
         client.use(organizationMiddleware);
         return client;
-    }, [orgId]);
+    }, [orgId, router]);
 
     return createQueryClient(httpClient);
 }
