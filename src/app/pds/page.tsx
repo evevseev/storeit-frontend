@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import usePrintLabels from '@/hooks/usePrintLabels';
+import usePrintLabels from '@/hooks/use-print-labels';
 
 const exampleLabels = [
   {

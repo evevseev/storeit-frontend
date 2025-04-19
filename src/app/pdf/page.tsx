@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import usePrintLabels from "@/hooks/usePrintLabels";
+import { usePrintLabels } from "@/hooks/use-print-labels";
 import { Button } from "@/components/ui/button";
 
 const exampleLabels = [
@@ -38,9 +38,7 @@ const PDFPage: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-900 mb-8">
             Label Printer Demo
           </h1>
-          <Button onClick={handlePrint}>
-            Generate Example Labels
-          </Button  >
+          <Button onClick={handlePrint}>Generate Example Labels</Button>
           <p className="mt-4 text-sm text-gray-600">
             Click the button above to generate and view example labels in a new
             tab

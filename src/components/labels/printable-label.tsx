@@ -1,6 +1,6 @@
-import React from 'react';
-import { View, Text, StyleSheet } from '@react-pdf/renderer';
-import QR from './QR';
+import React from "react";
+import { View, Text, StyleSheet } from "@react-pdf/renderer";
+import QR from "../QR";
 
 interface LabelProps {
   url: string;
@@ -10,28 +10,28 @@ interface LabelProps {
 
 const styles = StyleSheet.create({
   label: {
-    width: '100%',
-    height: '100%',
-    padding: '2mm',
-    flexDirection: 'row',
-    gap: '2mm',
+    width: "100%",
+    height: "100%",
+    padding: "2mm",
+    flexDirection: "row",
+    gap: "2mm",
   },
   qrContainer: {
-    width: '20mm',
-    height: '46mm',
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: "20mm",
+    height: "46mm",
+    justifyContent: "center",
+    alignItems: "center",
   },
   contentContainer: {
     flex: 1,
-    flexDirection: 'column',
-    gap: '2mm',
-    justifyContent: 'center',
+    flexDirection: "column",
+    gap: "2mm",
+    justifyContent: "center",
   },
   name: {
     fontSize: 12,
-    fontWeight: 'bold',
-    marginBottom: '2mm',
+    fontWeight: "bold",
+    marginBottom: "2mm",
   },
   description: {
     fontSize: 9,
@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const PrintableLabel: React.FC<LabelProps> = ({ url, name, description }) => {
+function PrintableLabel({ url, name, description }: LabelProps) {
   return (
     <View style={styles.label}>
       <View style={styles.qrContainer}>
@@ -51,6 +51,6 @@ const PrintableLabel: React.FC<LabelProps> = ({ url, name, description }) => {
       </View>
     </View>
   );
-};
+}
 
-export default PrintableLabel; 
+export default PrintableLabel;
