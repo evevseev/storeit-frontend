@@ -9,6 +9,7 @@ import { StorageGroupItem } from "./storage-group-item";
 import { itemOpenAtom, toggleItemAtom } from "./atoms";
 import { GroupsCreationButton } from "./AddItemButton";
 import { cn } from "@/lib/utils";
+import { PrintLabelButton } from "./print-label-button";
 
 interface OrganizationUnitItemProps {
   item: OrganizationUnit;
@@ -64,7 +65,16 @@ export const OrganizationUnitItem = ({
               )}
             </div>
           </Link>
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
+            <PrintLabelButton
+              labels={[
+                {
+                  url: `https://store-it.ru/units/${item.id}`,
+                  name: item.alias,
+                  description: item.address,
+                },
+              ]}
+            />
             <GroupsCreationButton
               className="mr-2"
               parentPath={[{ id: item.id, name: item.name }]}

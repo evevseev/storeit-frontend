@@ -19,7 +19,7 @@ export default function ItemSearchPage() {
         <br />
         <Html5QrcodePlugin
           fps={10}
-          qrbox={500}
+          qrbox={200}
           disableFlip={false}
           qrCodeSuccessCallback={onNewScanResult}
         />

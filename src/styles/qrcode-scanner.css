@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+/* Main container */
+#html5qr-code-full-region {
+    @apply w-full max-w-2xl mx-auto rounded-lg border border-gray-200 bg-white shadow-lg overflow-hidden;
+}
+
+/* Header section */
+#html5qr-code-full-region__header_message {
+    @apply text-sm text-gray-600 py-2 px-4 border-t border-gray-100;
+}
+
+/* Scan region */
+#html5qr-code-full-region__scan_region {
+    @apply p-8 flex flex-col items-center justify-center space-y-4;
+}
+
+/* QR Scanner element */
+#html5qr-code-full-region video,
+#html5qr-code-full-region canvas {
+    @apply border border-gray-300;
+}
+
+/* Override backgrounds */
+#html5qr-code-full-region div[style*="background"],
+#html5qr-code-full-region video[style*="background"],
+#html5qr-code-full-region canvas[style*="background"] {
+    background: none;
+}
+
+#html5qr-code-full-region__scan_region img {
+    @apply opacity-60 w-16 h-16;
+}
+
+/* Dashboard section */
+#html5qr-code-full-region__dashboard {
+    @apply p-6 bg-white;
+}
+
+#html5qr-code-full-region__dashboard_section {
+    @apply space-y-4;
+}
+
+/* All buttons in the QR scanner */
+#html5qr-code-full-region button.html5-qrcode-element {
+    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gray-900 text-white hover:bg-gray-800 h-10 px-4 py-2;
+}
+
+/* Camera permission button */
+#html5-qrcode-button-camera-permission {
+    @apply bg-gray-900 text-white hover:bg-gray-800;
+}
+
+/* Start/Stop scanning button */
+#html5-qrcode-button-camera-start,
+#html5-qrcode-button-camera-stop {
+    @apply bg-gray-900 text-white hover:bg-gray-800;
+}
+
+/* File selection button */
+#html5-qrcode-button-file-selection {
+    @apply bg-gray-100 text-gray-900 hover:bg-gray-200 border border-gray-200;
+}
+
+/* File drop zone */
+#html5qr-code-full-region__dashboard_section div[style*="border: 6px dashed"] {
+    @apply border-2 border-dashed border-gray-200 rounded-lg p-6 text-center;
+}
+
+/* Scan type change link */
+#html5-qrcode-anchor-scan-type-change {
+    @apply text-sm text-gray-900 hover:text-gray-700 underline cursor-pointer;
+}
+
+/* Remove background from info icon section */
+#html5qr-code-full-region > div > div[style*="position: absolute"] {
+    @apply bg-transparent border-0 text-xs;
+}
+
+#html5qr-code-full-region > div > div[style*="position: absolute"] a {
+    @apply text-gray-900 hover:text-gray-700 no-underline;
+}
+
+/* Camera selection dropdown (if present) */
+select.html5-qrcode-element {
+    @apply block w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm ring-offset-white focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+} 
