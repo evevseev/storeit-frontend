@@ -16,15 +16,8 @@ interface OrganizationUnitItemProps {
   searchQuery: string;
 }
 
-const onAddStorageGroup = (
-  organizationId: string,
-  data: { name: string; alias: string; description?: string }
-) => {
+const onAddStorageGroup = (organizationId: string) => {
   alert(`Creating storage group in organization ${organizationId}`);
-};
-
-const onAddCellGroup = (storageGroupId: string) => {
-  alert(`Creating cell group in storage group ${storageGroupId}`);
 };
 
 const onAddChild = (storageGroupId: string) => {
@@ -84,8 +77,6 @@ export const OrganizationUnitItem = ({
             {onAddStorageGroup && (
               <AddItemButton
                 className="mr-2"
-                onAddStorageGroup={(data) => onAddStorageGroup(item.id, data)}
-                onAddCellGroup={() => onAddChild?.(item.id)}
                 parentPath={[{ id: item.id, name: item.name }]}
                 unitId={item.id}
                 parentId={null}

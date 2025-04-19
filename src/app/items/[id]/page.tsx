@@ -3,23 +3,24 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { DataTable } from "@/components/ui/data-table";
+import { DataTable } from "@/components/data-table";
 import { ColumnDef, flexRender, getCoreRowModel } from "@tanstack/react-table";
 import { Trash2 } from "lucide-react";
 import { PageMetadata } from "@/components/header/page-metadata";
 import {
-  PageBlock,
+  Block,
   BlockTextElement,
   BlockCustomElement,
   EditButton,
   BlockRow,
   DeleteButton,
-  PageBlockRow,
-} from "@/components/info-page/block";
-import client from "@/hooks/client";
+  BlockedPageRow,
+} from "@/components/common-page/block";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useReactTable, createColumnHelper } from "@tanstack/react-table";
+import { useApiQueryClient } from "@/hooks/use-api-query-client";
+
 import {
   Table,
   TableBody,
@@ -75,6 +76,7 @@ const variantColumns = [
 ];
 
 export default function ItemPage() {
+  const client = useApiQueryClient();
   const { id } = useParams();
 
   const { data, isLoading, isError } = client.useQuery("get", "/items/{id}", {
@@ -134,23 +136,23 @@ export default function ItemPage() {
           <EditButton onClick={() => {}} />,
         ]}
       />
-      <PageBlockRow>
-        <PageBlock title="Информация о товаре">
+      <BlockedPageRow>
+        <Block title="Информация о товаре">
           <BlockTextElement label="Название" value={item.name} />
           <BlockTextElement label="Описание" value={item.description ?? ""} />
           <BlockTextElement label="ID" value={item.id} />
-        </PageBlock>
-        <PageBlock title="Параметры упаковки">
+        </Block>
+        <Block title="Параметры упаковки">
           <BlockRow>
             <BlockTextElement label="Ширина" value="100" unitLabel="мм" />
             <BlockTextElement label="Высота" value="100" unitLabel="мм" />
             <BlockTextElement label="Длина" value="100" unitLabel="мм" />
           </BlockRow>
           <BlockTextElement label="Вес" value="0.01" unitLabel="кг" />
-        </PageBlock>
-      </PageBlockRow>
-      <PageBlockRow>
-        <PageBlock title="Варианты">
+        </Block>
+      </BlockedPageRow>
+      <BlockedPageRow>
+        <Block title="Варианты">
           {/* Custom Table */}
           <Table>
             <TableHeader>
@@ -190,8 +192,8 @@ export default function ItemPage() {
               ))}
             </TableBody>
           </Table>
-        </PageBlock>
-      </PageBlockRow>
+        </Block>
+      </BlockedPageRow>
     </div>
   );
 }

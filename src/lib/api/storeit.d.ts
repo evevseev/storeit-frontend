@@ -185,17 +185,17 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/auth/testing": {
+    "/auth/logout": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Logout user */
+        get: operations["logout"];
         put?: never;
-        /** Get Auth Cookie by email */
-        post: operations["getAuthCookieByEmail"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -211,9 +211,153 @@ export interface paths {
         };
         /** Get Current User */
         get: operations["getCurrentUser"];
+        /** Update Current User */
+        put: operations["putCurrentUser"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update Current User */
+        patch: operations["patchCurrentUser"];
+        trace?: never;
+    };
+    "/cells-groups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get list of Cells Groups */
+        get: operations["getCellsGroups"];
+        put?: never;
+        /** Create Cells Group */
+        post: operations["createCellsGroup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/cells-groups/{groupId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Cells Group ID */
+                groupId: string;
+            };
+            cookie?: never;
+        };
+        /** Get Cells Group by ID */
+        get: operations["getCellsGroupById"];
+        /** Update Cells Group */
+        put: operations["updateCellsGroup"];
+        post?: never;
+        /** Delete Cells Group */
+        delete: operations["deleteCellsGroup"];
+        options?: never;
+        head?: never;
+        /** Patch Cells Group */
+        patch: operations["patchCellsGroup"];
+        trace?: never;
+    };
+    "/cells-groups/{groupId}/cells": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+            };
+            cookie?: never;
+        };
+        /** Get list of Cells */
+        get: operations["getCells"];
+        put?: never;
+        /** Create Cells */
+        post: operations["createCell"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/cells-groups/{groupId}/cells/{cellId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+                cellId: string;
+            };
+            cookie?: never;
+        };
+        /** Get Cell by ID */
+        get: operations["getCellById"];
+        /** Update Cell */
+        put: operations["updateCell"];
+        post?: never;
+        /** Delete Cell */
+        delete: operations["deleteCell"];
+        options?: never;
+        head?: never;
+        /** Patch Cell */
+        patch: operations["patchCell"];
+        trace?: never;
+    };
+    "/instances": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get list of Instances */
+        get: operations["getInstances"];
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/items/{itemId}/instances": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Item ID */
+                itemId: string;
+            };
+            cookie?: never;
+        };
+        /** Get list of Instances For Item */
+        get: operations["getInstancesByItemId"];
+        put?: never;
+        /** Create Instance For Item */
+        post: operations["createInstanceForItem"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/instances/{instanceId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Instance ID */
+                instanceId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Instance by ID */
+        delete: operations["deleteInstanceById"];
         options?: never;
         head?: never;
         patch?: never;
@@ -406,8 +550,33 @@ export interface components {
             /** @example 1234567890123 */
             ean13: number | null;
         };
+        CellBase: {
+            /** Format: uuid */
+            readonly id: string;
+            alias: string;
+            row: number;
+            level: number;
+            position: number;
+        };
+        CellForInstance: components["schemas"]["CellBase"] & {
+            cellPath?: {
+                /** Format: uuid */
+                id?: string;
+                alias?: string;
+                /** @enum {string} */
+                objectType?: "cell" | "cells_group" | "storage_group";
+            }[];
+        };
         ItemFull: components["schemas"]["Item"] & {
             variants: components["schemas"]["ItemVariant"][];
+            instances: {
+                /** Format: uuid */
+                id?: string;
+                /** @enum {string} */
+                status?: "available" | "reserved" | "consumed";
+                variant?: components["schemas"]["ItemVariant"];
+                cell?: components["schemas"]["CellForInstance"];
+            }[];
         };
         CreateItemResponse: {
             data: components["schemas"]["ItemFull"];
@@ -446,10 +615,6 @@ export interface components {
         PatchItemResponse: {
             data: components["schemas"]["ItemFull"];
         };
-        GetAuthCookieByEmailRequest: {
-            /** Format: email */
-            email: string;
-        };
         User: {
             /** Format: uuid */
             id: string;
@@ -459,6 +624,110 @@ export interface components {
             email: string;
         };
         GetCurrentUserResponse: components["schemas"]["User"];
+        UserUpdate: {
+            first_name: string;
+            last_name: string;
+            middle_name: string | null;
+        };
+        UpdateCurrentUserRequest: components["schemas"]["UserUpdate"];
+        UserPatch: {
+            first_name: string;
+            last_name: string;
+            middle_name: string | null;
+        };
+        PatchCurrentUserRequest: components["schemas"]["UserPatch"];
+        CellGroupBase: {
+            /** Format: uuid */
+            readonly id: string;
+            name: string;
+            alias: string;
+            /** Format: uuid */
+            storage_group_id: string;
+        };
+        GetCellsGroupsResponse: {
+            data: components["schemas"]["CellGroupBase"][];
+        };
+        CreateCellsGroupRequest: components["schemas"]["CellGroupBase"];
+        CreateCellsGroupResponse: {
+            data: components["schemas"]["CellGroupBase"];
+        };
+        GetCellsGroupByIdResponse: {
+            data: components["schemas"]["CellGroupBase"];
+        };
+        UpdateCellsGroupRequest: components["schemas"]["CellGroupBase"];
+        UpdateCellsGroupResponse: {
+            data: components["schemas"]["CellGroupBase"];
+        };
+        CellGroupPatch: {
+            name?: string;
+            alias?: string;
+            /** Format: uuid */
+            storage_group_id?: string;
+        };
+        PatchCellsGroupRequest: components["schemas"]["CellGroupPatch"];
+        PatchCellsGroupResponse: {
+            data: components["schemas"]["CellGroupBase"];
+        };
+        GetCellsResponse: {
+            data: components["schemas"]["CellBase"][];
+        };
+        CreateCellRequest: components["schemas"]["CellBase"];
+        CreateCellResponse: {
+            data: components["schemas"]["CellBase"];
+        };
+        GetCellByIdResponse: components["schemas"]["CellBase"];
+        UpdateCellRequest: components["schemas"]["CellBase"];
+        UpdateCellResponse: {
+            data: components["schemas"]["CellBase"];
+        };
+        CellPatch: {
+            alias?: string;
+            row?: number;
+            level?: number;
+            position?: number;
+        };
+        PatchCellRequest: components["schemas"]["CellPatch"];
+        PatchCellResponse: {
+            data: components["schemas"]["CellBase"];
+        };
+        InstanceFull: {
+            /**
+             * Format: uuid
+             * @description Instance ID
+             */
+            readonly id?: string;
+            /** @enum {string} */
+            status?: "available" | "reserved" | "consumed";
+            item?: components["schemas"]["Item"];
+            variant?: components["schemas"]["ItemVariant"];
+            cell?: components["schemas"]["CellForInstance"];
+        }[];
+        GetInstancesResponse: {
+            data: [
+                components["schemas"]["InstanceFull"]
+            ];
+        };
+        InstanceForItem: {
+            /** Format: uuid */
+            id?: string;
+            /** @enum {string} */
+            status?: "available" | "reserved" | "consumed";
+            variant?: components["schemas"]["ItemVariant"];
+            cell?: components["schemas"]["CellForInstance"];
+        }[];
+        GetInstancesByItemIdResponse: {
+            data: components["schemas"]["InstanceForItem"][];
+        };
+        InstanceCreateForItem: {
+            /** Format: uuid */
+            variantId: string;
+            /** Format: uuid */
+            cellId?: string | null;
+        };
+        CreateInstanceForItemRequest: components["schemas"]["InstanceCreateForItem"];
+        CreateInstanceForItemResponse: {
+            data: components["schemas"]["InstanceForItem"][];
+        };
     };
     responses: {
         /** @description General Error */
@@ -472,6 +741,14 @@ export interface components {
         };
         /** @description Auth response */
         AuthResponse: {
+            headers: {
+                "Set-Cookie": string;
+                [name: string]: unknown;
+            };
+            content?: never;
+        };
+        /** @description Logout response */
+        LogoutResponse: {
             headers: {
                 "Set-Cookie": string;
                 [name: string]: unknown;
@@ -1098,27 +1375,16 @@ export interface operations {
             default: components["responses"]["default-error"];
         };
     };
-    getAuthCookieByEmail: {
+    logout: {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["GetAuthCookieByEmailRequest"];
-            };
-        };
+        requestBody?: never;
         responses: {
-            /** @description Successful operation */
-            200: {
-                headers: {
-                    "Set-Cookie": string;
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
+            200: components["responses"]["LogoutResponse"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1139,6 +1405,450 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["GetCurrentUserResponse"];
                 };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    putCurrentUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCurrentUserRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetCurrentUserResponse"];
+                };
+            };
+        };
+    };
+    patchCurrentUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PatchCurrentUserRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetCurrentUserResponse"];
+                };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    getCellsGroups: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetCellsGroupsResponse"];
+                };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    createCellsGroup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCellsGroupRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreateCellsGroupResponse"];
+                };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    getCellsGroupById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Cells Group ID */
+                groupId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetCellsGroupByIdResponse"];
+                };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    updateCellsGroup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Cells Group ID */
+                groupId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCellsGroupRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UpdateCellsGroupResponse"];
+                };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    deleteCellsGroup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Cells Group ID */
+                groupId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    patchCellsGroup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Cells Group ID */
+                groupId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PatchCellsGroupRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PatchCellsGroupResponse"];
+                };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    getCells: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetCellsResponse"];
+                };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    createCell: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCellRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreateCellResponse"];
+                };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    getCellById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+                cellId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetCellByIdResponse"];
+                };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    updateCell: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+                cellId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCellRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UpdateCellResponse"];
+                };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    deleteCell: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+                cellId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    patchCell: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+                cellId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PatchCellRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PatchCellResponse"];
+                };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    getInstances: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetInstancesResponse"];
+                };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    getInstancesByItemId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Item ID */
+                itemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetInstancesByItemIdResponse"];
+                };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    createInstanceForItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Item ID */
+                itemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateInstanceForItemRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreateInstanceForItemResponse"];
+                };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    deleteInstanceById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Instance ID */
+                instanceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             default: components["responses"]["default-error"];
         };

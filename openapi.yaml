@@ -475,27 +475,15 @@ paths:
           $ref: '#/components/responses/AuthResponse'
         default:
           $ref: '#/components/responses/default-error'
-  /auth/testing:
-    post:
+  /auth/logout:
+    get:
       tags:
         - auth
-      summary: Get Auth Cookie by email
-      operationId: getAuthCookieByEmail
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/GetAuthCookieByEmailRequest'
+      summary: Logout user
+      operationId: logout
       responses:
         '200':
-          description: Successful operation
-          headers:
-            Set-Cookie:
-              schema:
-                type: string
-                description: Auth cookie
-              required: true
+          $ref: '#/components/responses/LogoutResponse'
         default:
           $ref: '#/components/responses/default-error'
   /me:
@@ -511,6 +499,349 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetCurrentUserResponse'
+        default:
+          $ref: '#/components/responses/default-error'
+    patch:
+      tags:
+        - unit
+      summary: Update Current User
+      operationId: patchCurrentUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchCurrentUserRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCurrentUserResponse'
+        default:
+          $ref: '#/components/responses/default-error'
+    put:
+      tags:
+        - unit
+      summary: Update Current User
+      operationId: putCurrentUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCurrentUserRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCurrentUserResponse'
+  /cells-groups:
+    get:
+      tags:
+        - cells-group
+      summary: Get list of Cells Groups
+      operationId: getCellsGroups
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCellsGroupsResponse'
+        default:
+          $ref: '#/components/responses/default-error'
+    post:
+      tags:
+        - cells-group
+      summary: Create Cells Group
+      operationId: createCellsGroup
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCellsGroupRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateCellsGroupResponse'
+        default:
+          $ref: '#/components/responses/default-error'
+  /cells-groups/{groupId}:
+    parameters:
+      - name: groupId
+        in: path
+        description: Cells Group ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - cells-group
+      summary: Get Cells Group by ID
+      operationId: getCellsGroupById
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCellsGroupByIdResponse'
+        default:
+          $ref: '#/components/responses/default-error'
+    delete:
+      tags:
+        - cells-group
+      summary: Delete Cells Group
+      operationId: deleteCellsGroup
+      responses:
+        '200':
+          description: Successful operation
+        default:
+          $ref: '#/components/responses/default-error'
+    patch:
+      tags:
+        - storage-group
+      summary: Patch Cells Group
+      operationId: patchCellsGroup
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchCellsGroupRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatchCellsGroupResponse'
+        default:
+          $ref: '#/components/responses/default-error'
+    put:
+      tags:
+        - cells-group
+      summary: Update Cells Group
+      operationId: updateCellsGroup
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCellsGroupRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateCellsGroupResponse'
+        default:
+          $ref: '#/components/responses/default-error'
+  /cells-groups/{groupId}/cells:
+    parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - cells-group
+      summary: Get list of Cells
+      operationId: getCells
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCellsResponse'
+        default:
+          $ref: '#/components/responses/default-error'
+    post:
+      tags:
+        - cells-group
+      summary: Create Cells
+      operationId: createCell
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCellRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateCellResponse'
+        default:
+          $ref: '#/components/responses/default-error'
+  /cells-groups/{groupId}/cells/{cellId}:
+    parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: cellId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - cells-group
+      summary: Get Cell by ID
+      operationId: getCellById
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCellByIdResponse'
+        default:
+          $ref: '#/components/responses/default-error'
+    delete:
+      tags:
+        - cells-group
+      summary: Delete Cell
+      operationId: deleteCell
+      responses:
+        '200':
+          description: Successful operation
+        default:
+          $ref: '#/components/responses/default-error'
+    patch:
+      tags:
+        - cells-group
+      summary: Patch Cell
+      operationId: patchCell
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchCellRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatchCellResponse'
+        default:
+          $ref: '#/components/responses/default-error'
+    put:
+      tags:
+        - cells-group
+      summary: Update Cell
+      operationId: updateCell
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCellRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateCellResponse'
+        default:
+          $ref: '#/components/responses/default-error'
+  /instances:
+    get:
+      tags:
+        - instance
+      summary: Get list of Instances
+      operationId: getInstances
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetInstancesResponse'
+        default:
+          $ref: '#/components/responses/default-error'
+  /items/{itemId}/instances:
+    parameters:
+      - name: itemId
+        in: path
+        description: Item ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - instance
+      summary: Get list of Instances For Item
+      operationId: getInstancesByItemId
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetInstancesByItemIdResponse'
+        default:
+          $ref: '#/components/responses/default-error'
+    post:
+      tags:
+        - instance
+      summary: Create Instance For Item
+      operationId: createInstanceForItem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInstanceForItemRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateInstanceForItemResponse'
+        default:
+          $ref: '#/components/responses/default-error'
+  /instances/{instanceId}:
+    parameters:
+      - name: instanceId
+        in: path
+        description: Instance ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+    delete:
+      tags:
+        - instance
+      summary: Delete Instance by ID
+      operationId: deleteInstanceById
+      responses:
+        '200':
+          description: Successful operation
         default:
           $ref: '#/components/responses/default-error'
 components:
@@ -970,6 +1301,51 @@ components:
           required:
             - article
             - ean13
+    CellBase:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        alias:
+          type: string
+        row:
+          type: integer
+          minimum: 1
+        level:
+          type: integer
+          minimum: 1
+        position:
+          type: integer
+          minimum: 1
+      required:
+        - id
+        - alias
+        - row
+        - level
+        - position
+    CellForInstance:
+      allOf:
+        - $ref: '#/components/schemas/CellBase'
+        - type: object
+          properties:
+            cellPath:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  alias:
+                    type: string
+                  objectType:
+                    type: string
+                    enum:
+                      - cell
+                      - cells_group
+                      - storage_group
     ItemFull:
       type: object
       allOf:
@@ -980,8 +1356,27 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/ItemVariant'
+            instances:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                    enum:
+                      - available
+                      - reserved
+                      - consumed
+                  variant:
+                    $ref: '#/components/schemas/ItemVariant'
+                  cell:
+                    $ref: '#/components/schemas/CellForInstance'
           required:
             - variants
+            - instances
     CreateItemResponse:
       type: object
       allOf:
@@ -1083,14 +1478,6 @@ components:
               $ref: '#/components/schemas/ItemFull'
           required:
             - data
-    GetAuthCookieByEmailRequest:
-      type: object
-      properties:
-        email:
-          type: string
-          format: email
-      required:
-        - email
     User:
       type: object
       properties:
@@ -1115,6 +1502,267 @@ components:
     GetCurrentUserResponse:
       allOf:
         - $ref: '#/components/schemas/User'
+    UserUpdate:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        middle_name:
+          type: string
+          nullable: true
+      required:
+        - first_name
+        - last_name
+        - middle_name
+    UpdateCurrentUserRequest:
+      allOf:
+        - $ref: '#/components/schemas/UserUpdate'
+    UserPatch:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        middle_name:
+          type: string
+          nullable: true
+      required:
+        - first_name
+        - last_name
+        - middle_name
+    PatchCurrentUserRequest:
+      allOf:
+        - $ref: '#/components/schemas/UserPatch'
+    CellGroupBase:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+        alias:
+          type: string
+        storage_group_id:
+          type: string
+          format: uuid
+      required:
+        - id
+        - name
+        - alias
+        - storage_group_id
+    GetCellsGroupsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CellGroupBase'
+      required:
+        - data
+    CreateCellsGroupRequest:
+      allOf:
+        - $ref: '#/components/schemas/CellGroupBase'
+    CreateCellsGroupResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/CellGroupBase'
+      required:
+        - data
+    GetCellsGroupByIdResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/CellGroupBase'
+      required:
+        - data
+    UpdateCellsGroupRequest:
+      allOf:
+        - $ref: '#/components/schemas/CellGroupBase'
+    UpdateCellsGroupResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/CellGroupBase'
+      required:
+        - data
+    CellGroupPatch:
+      type: object
+      properties:
+        name:
+          type: string
+        alias:
+          type: string
+        storage_group_id:
+          type: string
+          format: uuid
+    PatchCellsGroupRequest:
+      allOf:
+        - $ref: '#/components/schemas/CellGroupPatch'
+    PatchCellsGroupResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/CellGroupBase'
+      required:
+        - data
+    GetCellsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CellBase'
+      required:
+        - data
+    CreateCellRequest:
+      allOf:
+        - $ref: '#/components/schemas/CellBase'
+    CreateCellResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/CellBase'
+      required:
+        - data
+    GetCellByIdResponse:
+      allOf:
+        - $ref: '#/components/schemas/CellBase'
+    UpdateCellRequest:
+      allOf:
+        - $ref: '#/components/schemas/CellBase'
+    UpdateCellResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/CellBase'
+      required:
+        - data
+    CellPatch:
+      type: object
+      properties:
+        alias:
+          type: string
+        row:
+          type: integer
+          minimum: 1
+        level:
+          type: integer
+          minimum: 1
+        position:
+          type: integer
+          minimum: 1
+    PatchCellRequest:
+      allOf:
+        - $ref: '#/components/schemas/CellPatch'
+    PatchCellResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/CellBase'
+      required:
+        - data
+    InstanceFull:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: string
+            format: uuid
+            readOnly: true
+            description: Instance ID
+          status:
+            type: string
+            enum:
+              - available
+              - reserved
+              - consumed
+          item:
+            type: object
+            $ref: '#/components/schemas/Item'
+          variant:
+            $ref: '#/components/schemas/ItemVariant'
+          cell:
+            $ref: '#/components/schemas/CellForInstance'
+      required:
+        - id
+        - itemId
+        - status
+        - variant
+        - cell
+    GetInstancesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            - $ref: '#/components/schemas/InstanceFull'
+      required:
+        - data
+    InstanceForItem:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: string
+            format: uuid
+          status:
+            type: string
+            enum:
+              - available
+              - reserved
+              - consumed
+          variant:
+            $ref: '#/components/schemas/ItemVariant'
+          cell:
+            $ref: '#/components/schemas/CellForInstance'
+      required:
+        - id
+        - status
+        - variant
+        - cell
+    GetInstancesByItemIdResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/InstanceForItem'
+      required:
+        - data
+    InstanceCreateForItem:
+      type: object
+      properties:
+        variantId:
+          type: string
+          format: uuid
+        cellId:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+        - variantId
+    CreateInstanceForItemRequest:
+      allOf:
+        - $ref: '#/components/schemas/InstanceCreateForItem'
+    CreateInstanceForItemResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/InstanceForItem'
+      required:
+        - data
   responses:
     default-error:
       description: General Error
@@ -1129,4 +1777,12 @@ components:
           schema:
             type: string
             description: Auth cookie
+          required: true
+    LogoutResponse:
+      description: Logout response
+      headers:
+        Set-Cookie:
+          schema:
+            type: string
+            description: Cleared auth cookie
           required: true

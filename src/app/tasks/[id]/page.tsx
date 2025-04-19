@@ -3,19 +3,19 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { DataTable } from "@/components/ui/data-table";
+import { DataTable } from "@/components/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { Trash2 } from "lucide-react";
 import { PageMetadata } from "@/components/header/page-metadata";
 import {
-  PageBlock,
+  Block,
   BlockTextElement,
   BlockCustomElement,
   EditButton,
   BlockRow,
   DeleteButton,
-  PageBlockRow,
-} from "@/components/info-page/block";
+  BlockedPageRow,
+} from "@/components/common-page/block";
 import client from "@/hooks/client";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -49,8 +49,8 @@ export default function TaskPage() {
           <EditButton onClick={() => {}} />,
         ]}
       />
-      <PageBlockRow>
-        <PageBlock title="Информация о задаче">
+      <BlockedPageRow>
+        <Block title="Информация о задаче">
           <BlockTextElement label="Название" value="Отгрузка товара" />
           <BlockTextElement label="Подразделение" value="Красноярск" />
           <BlockTextElement
@@ -63,8 +63,8 @@ export default function TaskPage() {
             unitLabel="(10 минут назад)"
           />
           <BlockTextElement label="ID" value={task.id} />
-        </PageBlock>
-        <PageBlock title="Статус выполнения">
+        </Block>
+        <Block title="Статус выполнения">
           <BlockCustomElement label="Статус">
             <Badge variant="outline" className="bg-green-500 text-white">
               Выполнено
@@ -85,14 +85,14 @@ export default function TaskPage() {
             unitLabel="(10 минут назад)"
           />
           <BlockTextElement label="Время выполнения" value="10 минут" />
-        </PageBlock>
-      </PageBlockRow>
-      <PageBlock title="Товары">
+        </Block>
+      </BlockedPageRow>
+      <Block title="Товары">
         <div>Таблица</div>
-      </PageBlock>
-      <PageBlock title="Результаты выполнения">
+      </Block>
+      <Block title="Результаты выполнения">
         <div>Таблица</div>
-      </PageBlock>
+      </Block>
     </div>
   );
 }

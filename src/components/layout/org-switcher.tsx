@@ -18,7 +18,10 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { activeOrganizationIdAtom, useApiQueryClient } from "@/hooks/use-api-query-client";
+import {
+  activeOrganizationIdAtom,
+  useApiQueryClient,
+} from "@/hooks/use-api-query-client";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { useAtom, useSetAtom } from "jotai";
 import { useQueryClient } from "@tanstack/react-query";

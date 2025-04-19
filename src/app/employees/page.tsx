@@ -1,5 +1,5 @@
 import { Employee, columns } from "./columns";
-import { DataTable } from "@/components/ui/data-table";
+import { DataTable } from "@/components/data-table";
 import { PageMetadata } from "@/components/header/page-metadata";
 
 const data: Employee[] = [

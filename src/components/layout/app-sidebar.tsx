@@ -13,7 +13,7 @@ import {
 
 import { NavMain } from "@/components/layout/nav-main";
 import { NavUser } from "@/components/layout/nav-user";
-import { OrgSwitcher } from "@/components/layout/team-switcher";
+import { OrgSwitcher } from "@/components/layout/org-switcher";
 import {
   Sidebar,
   SidebarContent,
@@ -73,7 +73,7 @@ const data = {
       items: [
         {
           title: "Подразделения",
-          url: "/unit",
+          url: "/units",
         },
         {
           title: "Сотрудники",
@@ -92,13 +92,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <OrgSwitcher teams={data.teams} />
+        <OrgSwitcher />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

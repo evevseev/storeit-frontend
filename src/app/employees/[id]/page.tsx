@@ -6,17 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { DataTable } from "@/components/ui/data-table";
+import { DataTable } from "@/components/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { Pencil, X, Save, Trash2 } from "lucide-react";
 import { PageMetadata } from "@/components/header/page-metadata";
 import {
-  PageBlock,
+  Block,
   BlockTextElement,
   BlockCustomElement,
   EditButton,
   BlockRow,
-} from "@/components/info-page/block";
+} from "@/components/common-page/block";
 
 interface Employee {
   id: string;
@@ -190,7 +190,7 @@ export default function EmployeePage() {
         ]}
       />
 
-      <PageBlock title="Информация о сотруднике">
+      <Block title="Информация о сотруднике">
         <BlockCustomElement
           label="Статус"
           value={
@@ -211,7 +211,7 @@ export default function EmployeePage() {
           label="Дата присоединения"
           value={new Date(employee.joiningDate).toLocaleDateString()}
         />
-      </PageBlock>
+      </Block>
 
       <Card>
         <CardHeader>

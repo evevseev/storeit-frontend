@@ -1,7 +1,7 @@
 "use client";
 import { PageMetadata } from "@/components/header/page-metadata";
 import { Badge } from "@/components/ui/badge";
-import { DataTable } from "@/components/ui/data-table";
+import { DataTable } from "@/components/data-table";
 import {
   useReactTable,
   createColumnHelper,

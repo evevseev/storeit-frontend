@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { DataTable } from "@/components/ui/data-table";
+import { DataTable } from "@/components/data-table";
 
 export type CellKind = {
   id: string;

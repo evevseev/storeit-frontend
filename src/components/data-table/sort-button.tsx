@@ -43,7 +43,7 @@ export function SortButton<TData>({
         </span>
       </button>
       <Input
-        placeholder="Search..."
+        placeholder="Поиск..."
         value={(column.getFilterValue() as string) ?? ""}
         onChange={(e) => column.setFilterValue(e.target.value)}
         className="h-7 px-2 py-1 text-xs"

@@ -8,8 +8,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { CreateGroupDialog } from "./dialogs/CreateGroupDialog";
+import { CreateStorageGroupDialog } from "./dialogs/create-storage-group-dialog";
 import { StorageGroup } from "./types";
+import { CreateCellsGroupDialog } from "./dialogs/create-cells-group-dialog";
 
 interface AddItemButtonProps {
   onAddStorageGroup: (data: {
@@ -26,14 +27,13 @@ interface AddItemButtonProps {
 }
 
 export const AddItemButton = ({
-  onAddStorageGroup,
-  onAddCellGroup,
   className,
   parentPath,
   unitId,
   parentId,
 }: AddItemButtonProps) => {
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
+  const [isCreateCellsGroupOpen, setIsCreateCellsGroupOpen] = useState(false);
 
   return (
     <>
@@ -56,21 +56,30 @@ export const AddItemButton = ({
             <FolderPlus className="mr-2 h-4 w-4" />
             Создать Группу...
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={onAddCellGroup}>
-            <Grid2x2 className="mr-2 h-4 w-4" />
-            Создать Группу ячеек…
-          </DropdownMenuItem>
+          {parentId && (
+            <DropdownMenuItem onClick={() => setIsCreateCellsGroupOpen(true)}>
+              <Grid2x2 className="mr-2 h-4 w-4" />
+              Создать Группу ячеек…
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <CreateGroupDialog
+      <CreateStorageGroupDialog
         open={isCreateGroupOpen}
         onOpenChange={setIsCreateGroupOpen}
         parentPath={parentPath}
-        onSubmit={onAddStorageGroup}
         parentId={parentId}
         unitId={unitId}
       />
+      {parentId && (
+        <CreateCellsGroupDialog
+          open={isCreateCellsGroupOpen}
+          onOpenChange={setIsCreateCellsGroupOpen}
+          parentPath={parentPath}
+          parentId={parentId}
+        />
+      )}
     </>
   );
 };
