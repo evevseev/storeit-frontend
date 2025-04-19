@@ -3,10 +3,10 @@ import Link from "next/link";
 import { ChevronDown, ChevronRight, FolderOpen } from "lucide-react";
 import { StorageGroup } from "./types";
 import { storageGroupMatchesSearch, matchesSearch } from "./utils";
-import { ElementMenu } from "./ElementMenu";
+import { ItemDropdown } from "./item-dropdown";
 import { CellGroupItem } from "./CellGroupItem";
 import { itemOpenAtom, toggleItemAtom } from "./atoms";
-import { AddItemButton } from "./AddItemButton";
+import { GroupsCreationButton } from "./AddItemButton";
 
 interface StorageGroupItemProps {
   item: StorageGroup;
@@ -22,7 +22,6 @@ export const StorageGroupItem = ({
   level = 0,
   searchQuery,
   isLast = false,
-  onAddChild,
   parentPath = [],
 }: StorageGroupItemProps) => {
   const isExpanded = useAtomValue(itemOpenAtom(item.id));
@@ -40,11 +39,7 @@ export const StorageGroupItem = ({
 
   // Filter visible children based on search
   const visibleChildren = item.children.filter((child) => {
-    if (child.type === "cellGroup") {
-      return !searchQuery || matchesSearch(child, searchQuery);
-    } else {
-      return !searchQuery || storageGroupMatchesSearch(child, searchQuery);
-    }
+    return !searchQuery || matchesSearch(child, searchQuery);
   });
 
   return (
@@ -96,17 +91,13 @@ export const StorageGroupItem = ({
             </div>
           </Link>
           <div className="flex items-center">
-            {onAddChild && (
-              <AddItemButton
-                className="mr-2"
-                onAddStorageGroup={() => onAddChild(item.id)}
-                onAddCellGroup={() => onAddChild(item.id)}
-                parentPath={currentPath}
-                unitId={item.unitId}
-                parentId={item.id}
-              />
-            )}
-            <ElementMenu />
+            <GroupsCreationButton
+              className="mr-2"
+              parentPath={currentPath}
+              unitId={item.unitId}
+              parentId={item.id}
+            />
+            <ItemDropdown type="storage-group" id={item.id} />
           </div>
         </div>
       </div>
@@ -116,9 +107,7 @@ export const StorageGroupItem = ({
           {item.children.map((child, _) => {
             // Check if the child should be visible
             const childShouldShow =
-              child.type === "cellGroup"
-                ? !searchQuery || matchesSearch(child, searchQuery)
-                : !searchQuery || storageGroupMatchesSearch(child, searchQuery);
+              !searchQuery || matchesSearch(child, searchQuery);
 
             if (!childShouldShow) return null;
 
@@ -128,28 +117,16 @@ export const StorageGroupItem = ({
             );
             const isLastVisible = visibleIndex === visibleChildren.length - 1;
 
-            if (child.type === "cellGroup") {
-              return (
-                <CellGroupItem
-                  key={child.id}
-                  item={child}
-                  searchQuery={searchQuery}
-                  isLast={isLastVisible}
-                />
-              );
-            } else {
-              return (
-                <StorageGroupItem
-                  key={child.id}
-                  item={child}
-                  level={level + 1}
-                  searchQuery={searchQuery}
-                  isLast={isLastVisible}
-                  onAddChild={onAddChild}
-                  parentPath={currentPath}
-                />
-              );
-            }
+            return (
+              <StorageGroupItem
+                key={child.id}
+                item={child}
+                level={level + 1}
+                searchQuery={searchQuery}
+                isLast={isLastVisible}
+                parentPath={currentPath}
+              />
+            );
           })}
         </div>
       )}

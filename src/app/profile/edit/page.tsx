@@ -1,5 +1,5 @@
 "use client";
-import { useAppForm } from "@/components/form";
+import { useAppForm } from "@/components/common-form";
 import { PageMetadata } from "@/components/header/page-metadata";
 import {
   BlockedPage,

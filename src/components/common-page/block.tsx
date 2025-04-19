@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "../ui/button";
 import { Edit, Pencil, Trash2 } from "lucide-react";
+import { Skeleton } from "../ui/skeleton";
 
 export function BlockedPage({ children }: { children?: React.ReactNode }) {
   return (
@@ -55,17 +56,33 @@ export function BlockCustomElement({
 export function Block({
   title,
   children,
+  isLoading,
 }: {
-  title: string;
+  title?: string;
   children?: React.ReactNode;
+  isLoading?: boolean;
 }) {
   return (
     <Card className="w-full">
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-      </CardHeader>
+      {(title || isLoading) && (
+        <CardHeader>
+          {isLoading ? (
+            <Skeleton className="h-7 w-[200px]" />
+          ) : (
+            <CardTitle>{title}</CardTitle>
+          )}
+        </CardHeader>
+      )}
       <CardContent className="space-y-6">
-        <div className="flex flex-col gap-3">{children}</div>
+        {isLoading ? (
+          <div className="flex flex-col gap-3">
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-3/4" />
+            <Skeleton className="h-12 w-1/2" />
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3">{children}</div>
+        )}
       </CardContent>
     </Card>
   );

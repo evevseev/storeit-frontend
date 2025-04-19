@@ -1,3 +1,4 @@
+"use client";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,13 +9,25 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useState, useRef, useCallback } from "react";
-
+import { useApiQueryClient } from "@/hooks/use-api-query-client";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 interface ElementMenuProps {
   className?: string;
+  type: "storage-group" | "cells-group";
+  id: string;
 }
 
-export const ElementMenu = ({ className }: ElementMenuProps) => {
+export const ItemDropdown = ({ className, type, id }: ElementMenuProps) => {
+  const client = useApiQueryClient();
+  const globalQueryClient = useQueryClient();
+  const mutateStorageGroup = client.useMutation(
+    "delete",
+    "/storage-groups/{id}"
+  );
+
   const [isOpen, setIsOpen] = useState(false);
+
   const openTimeout = useRef<NodeJS.Timeout | undefined>(undefined);
   const closeTimeout = useRef<NodeJS.Timeout | undefined>(undefined);
 
@@ -43,6 +56,24 @@ export const ElementMenu = ({ className }: ElementMenuProps) => {
     }, 300);
   }, [clearTimeouts]);
 
+  const handleStorageGroupDelete = () => {
+    mutateStorageGroup.mutate(
+      {
+        params: {
+          path: {
+            id,
+          },
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Группа хранения удалена");
+          globalQueryClient.invalidateQueries({ queryKey: ["get", "/storage-groups"] });
+        },
+        onError: () => toast.error("Ошибка при удалении группы хранения"),
+      }
+    );
+  };
   return (
     <DropdownMenu open={isOpen} modal={false}>
       <div
@@ -74,9 +105,12 @@ export const ElementMenu = ({ className }: ElementMenuProps) => {
             <Pencil className="mr-2 h-4 w-4" />
             Редактировать...
           </DropdownMenuItem>
-          <DropdownMenuItem className="text-red-600">
+          <DropdownMenuItem
+            className="text-red-600"
+            onClick={handleStorageGroupDelete}
+          >
             <Trash2 className="mr-2 h-4 w-4" />
-            Удалть...
+            Удалить...
           </DropdownMenuItem>
         </DropdownMenuContent>
       </div>

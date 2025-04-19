@@ -1,3 +1,4 @@
+"use client";
 import * as z from "zod";
 import {
   Dialog,
@@ -6,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useAppForm } from "@/components/form";
+import { FormBlock, useAppForm } from "@/components/common-form";
 import React from "react";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import { toast } from "sonner";
@@ -17,8 +18,6 @@ const createGroupSchema = z.interface({
   name: z.string().min(1, "Обязательное поле"),
   alias: z.string().min(1, "Обязательное поле"),
 });
-
-type CreateGroupFormData = z.infer<typeof createGroupSchema>;
 
 interface CreateGroupDialogProps {
   open: boolean;
@@ -49,19 +48,28 @@ export function CreateStorageGroupDialog({
       onChange: createGroupSchema,
     },
     onSubmit: async (values) => {
-      await mutation.mutate({
-        body: {
-          unitId: unitId,
-          parentId: parentId,
-          name: values.value.name,
-          alias: values.value.alias,
+      await mutation.mutate(
+        {
+          body: {
+            unitId: unitId,
+            parentId: parentId,
+            name: values.value.name,
+            alias: values.value.alias,
+          },
         },
-      });
-      toast.success("Группа успешно создана");
-      globalClient.invalidateQueries({
-        queryKey: ["get", "/units"],
-      });
-      onOpenChange(false);
+        {
+          onSuccess: () => {
+            toast.success("Группа успешно создана");
+            globalClient.invalidateQueries({
+              queryKey: ["get", "/storage-groups"],
+            });
+            onOpenChange(false);
+          },
+          onError: () => {
+            toast.error("Ошибка при создании группы хранения");
+          },
+        }
+      );
     },
   });
 
@@ -80,7 +88,7 @@ export function CreateStorageGroupDialog({
             form.handleSubmit();
           }}
         >
-          <div className="grid gap-4 py-4">
+          <FormBlock>
             <div className="grid grid-cols-3 gap-4">
               <div className="col-span-2">
                 <form.AppField
@@ -95,8 +103,7 @@ export function CreateStorageGroupDialog({
                 />
               </div>
             </div>
-            <div></div>
-          </div>
+          </FormBlock>
           <DialogFooter>
             <form.AppForm>
               <form.SubmitButton label="Create" />

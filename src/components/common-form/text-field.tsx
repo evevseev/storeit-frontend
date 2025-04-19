@@ -1,15 +1,23 @@
-import { useFieldContext } from "@/components/form";
+import { useFieldContext } from "@/components/common-form";
 import { Input } from "../ui/input";
 import { cn } from "@/lib/utils";
+import React from "react";
 
 interface TextFieldProps {
   placeholder?: string;
   type?: "text" | "number";
   unit?: string;
   label: string;
+  value?: string | number;
 }
 
-export function TextField({ placeholder, type = "text", unit, label }: TextFieldProps) {
+export function FormInputField({
+  placeholder,
+  type = "text",
+  unit,
+  label,
+  value,
+}: TextFieldProps) {
   const field = useFieldContext<string | number>();
   const hasError = field.state.meta.errors.length > 0;
 

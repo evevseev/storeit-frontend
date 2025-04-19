@@ -2,7 +2,6 @@
 import WarehouseStructure from "@/components/warehouse-structure";
 import { PageMetadata } from "@/components/header/page-metadata";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import {
   OrganizationUnit,
   StorageGroup,
@@ -10,6 +9,9 @@ import {
 import { useState, useEffect } from "react";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import type { paths } from "@/lib/api/storeit";
+import Link from "next/link";
+import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type ApiStorageGroup =
   paths["/storage-groups"]["get"]["responses"]["200"]["content"]["application/json"]["data"][number];
@@ -68,21 +70,46 @@ export default function StoragePage() {
     }
   }, [unitsData, storageGroupsData]);
 
+  useEffect(() => {
+    if (error) {
+      toast.error(`Ошибка загрузки: ${error.message}`);
+    }
+  }, [error]);
+
   return (
     <>
       <PageMetadata
         title="Структура склада"
         breadcrumbs={[{ label: "Хранение" }]}
         actions={[
-          <Button className="whitespace-nowrap" variant="default">
-            <Plus className="h-4 w-4 mr-2" />
-            Создать Подразделение
+          <Button asChild className="whitespace-nowrap" variant="default">
+            <Link href="/units">Управление подразделениями</Link>
           </Button>,
         ]}
       />
-      {isLoading && <div>Loading...</div>}
-      {error && <div>Error: {error.message}</div>}
-      {!isLoading && <WarehouseStructure units={units} />}
+      {isLoading ? (
+        <div className="space-y-4">
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Skeleton className="h-10 w-full" />
+            </div>
+          </div>
+          <div className="space-y-0.5">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="space-y-2">
+                <Skeleton className="h-12 w-full" />
+                <div className="pl-6 space-y-2">
+                  {Array.from({ length: 2 }).map((_, j) => (
+                    <Skeleton key={j} className="h-10 w-[95%]" />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <WarehouseStructure units={units} />
+      )}
     </>
   );
 }

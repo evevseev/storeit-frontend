@@ -1,11 +1,11 @@
 "use client";
 
-import { useAppForm } from "@/components/form";
+import { useAppForm } from "@/components/common-form";
 import { PageMetadata } from "@/components/header/page-metadata";
 import { Block } from "@/components/common-page/block";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
-import { VariantField } from "@/components/form/variant-field";
-import { Variant } from "@/components/form/variant-table";
+import { VariantField } from "@/components/common-form/variant-field";
+import { Variant } from "@/components/common-form/variant-table";
 
 export default function CreateItemPage() {
   const client = useApiQueryClient();

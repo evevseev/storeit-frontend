@@ -24,11 +24,12 @@ interface PathBreadcrumbProps {
   maxVisibleItems?: number;
 }
 
-export function PathBreadcrumb({ path, maxVisibleItems = 3 }: PathBreadcrumbProps) {
+export function PathBreadcrumb({
+  path,
+  maxVisibleItems = 3,
+}: PathBreadcrumbProps) {
   const showFullPath = path.length <= maxVisibleItems;
-  const visibleItems = showFullPath
-    ? path
-    : [path[0], path[path.length - 1]];
+  const visibleItems = showFullPath ? path : [path[0], path[path.length - 1]];
 
   return (
     <Breadcrumb>
@@ -61,4 +62,4 @@ export function PathBreadcrumb({ path, maxVisibleItems = 3 }: PathBreadcrumbProp
       </BreadcrumbList>
     </Breadcrumb>
   );
-} 
+}

@@ -1,7 +1,7 @@
-import { useFormContext } from "@/components/form";
+import { useFormContext } from "@/components/common-form";
 import { Button } from "../ui/button";
 
-export function SubmitButton({
+export function FormSubmitButton({
   label,
   type = "submit",
 }: {

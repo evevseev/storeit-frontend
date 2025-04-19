@@ -6,7 +6,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useAppForm } from "@/components/form";
+import {
+  useAppForm,
+  FormBlock,
+  FormBlockRow,
+  FormBlockTitle,
+} from "@/components/common-form";
 import React from "react";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import { toast } from "sonner";
@@ -19,9 +24,7 @@ const createGroupSchema = z.interface({
   alias: z.string().min(1, "Обязательное поле"),
 });
 
-import { BlockTitle } from "@/components/form/block-title";
-
-type CreateGroupFormData = z.infer<typeof createGroupSchema>;
+// type CreateGroupFormData = z.infer<typeof createGroupSchema>;
 
 interface CreateGroupDialogProps {
   open: boolean;
@@ -49,9 +52,9 @@ export function CreateCellsGroupDialog({
       levels: 0,
       positions: 0,
     },
-    validators: {
-      onChange: createGroupSchema,
-    },
+    // validators: {
+    //   onChange: createGroupSchema,
+    // },
     onSubmit: async (values) => {
       // await mutation.mutate({
       //   body: {
@@ -62,7 +65,7 @@ export function CreateCellsGroupDialog({
       // });
       toast.success("Группа успешно создана");
       globalClient.invalidateQueries({
-        queryKey: ["get", "/units"],
+        queryKey: ["get", "/storage-groups"],
       });
       onOpenChange(false);
     },
@@ -83,23 +86,19 @@ export function CreateCellsGroupDialog({
             form.handleSubmit();
           }}
         >
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-3 gap-4">
-              <div className="col-span-2">
-                <form.AppField
-                  name="name"
-                  children={(field) => <field.TextField label="Название" />}
-                />
-              </div>
-              <div className="col-span-1">
-                <form.AppField
-                  name="alias"
-                  children={(field) => <field.TextField label="Сокращение" />}
-                />
-              </div>
-            </div>
+          <FormBlock>
+            <form.AppField
+              name="name"
+              children={(field) => <field.TextField label="Название" />}
+            />
+            <form.AppField
+              name="alias"
+              children={(field) => <field.TextField label="Сокращение" />}
+            />
             <Button variant="secondary">Создать группу без Ячеек</Button>
-            <BlockTitle title="Предгенерация Ячеек" />
+          </FormBlock>
+          <FormBlockTitle title="Предгенерация Ячеек" />
+          <FormBlock>
             <form.AppField
               name="rows"
               children={(field) => (
@@ -122,7 +121,7 @@ export function CreateCellsGroupDialog({
               )}
             />
             <Button>Создать группу с Ячейками</Button>
-          </div>
+          </FormBlock>
           {/* <form.AppForm>
             <form.SubmitButton label="Создать" />
           </form.AppForm> */}

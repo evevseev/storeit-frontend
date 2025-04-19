@@ -6,7 +6,11 @@ interface BlockTitleProps {
   className?: string;
 }
 
-export function BlockTitle({ title, description, className }: BlockTitleProps) {
+export function FormBlockTitle({
+  title,
+  description,
+  className,
+}: BlockTitleProps) {
   return (
     <div className={cn("space-y-1.5 pt-3", className)}>
       <h3 className="text-md font-medium leading-6">{title}</h3>

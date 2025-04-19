@@ -6,8 +6,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useAppForm } from "@/components/form";
-import { BlockTitle } from "@/components/form/block-title";
+import { useAppForm } from "@/components/common-form";
+import { BlockTitle } from "@/components/common-form/block-title";
 
 const createCellKindFormSchema = z.interface({
   name: z.string().min(1),

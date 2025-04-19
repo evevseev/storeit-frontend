@@ -9,24 +9,16 @@ import {
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { CreateStorageGroupDialog } from "./dialogs/create-storage-group-dialog";
-import { StorageGroup } from "./types";
 import { CreateCellsGroupDialog } from "./dialogs/create-cells-group-dialog";
 
 interface AddItemButtonProps {
-  onAddStorageGroup: (data: {
-    name: string;
-    alias: string;
-    description?: string;
-  }) => void;
-
-  onAddCellGroup: () => void;
   className?: string;
   parentPath: { id: string; name: string }[];
   unitId: string;
   parentId: string | null;
 }
 
-export const AddItemButton = ({
+export const GroupsCreationButton = ({
   className,
   parentPath,
   unitId,

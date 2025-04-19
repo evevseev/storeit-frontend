@@ -31,7 +31,11 @@ export function VariantTable({ value, onChange }: VariantTableProps) {
     onChange([...value, newVariant]);
   };
 
-  const handleChange = (index: number, field: keyof Variant, newValue: string) => {
+  const handleChange = (
+    index: number,
+    field: keyof Variant,
+    newValue: string
+  ) => {
     onChange(
       value.map((variant, i) =>
         i === index ? { ...variant, [field]: newValue } : variant
@@ -120,4 +124,4 @@ export function VariantTable({ value, onChange }: VariantTableProps) {
       </div>
     </div>
   );
-} 
+}

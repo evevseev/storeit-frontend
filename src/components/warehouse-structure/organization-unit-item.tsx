@@ -5,24 +5,15 @@ import Link from "next/link";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { OrganizationUnit } from "./types";
 import { organizationUnitMatchesSearch, matchesSearch } from "./utils";
-import { ElementMenu } from "./ElementMenu";
-import { StorageGroupItem } from "./StorageGroupItem";
+import { StorageGroupItem } from "./storage-group-item";
 import { itemOpenAtom, toggleItemAtom } from "./atoms";
-import { AddItemButton } from "./AddItemButton";
+import { GroupsCreationButton } from "./AddItemButton";
 import { cn } from "@/lib/utils";
 
 interface OrganizationUnitItemProps {
   item: OrganizationUnit;
   searchQuery: string;
 }
-
-const onAddStorageGroup = (organizationId: string) => {
-  alert(`Creating storage group in organization ${organizationId}`);
-};
-
-const onAddChild = (storageGroupId: string) => {
-  alert(`Creating child in storage group ${storageGroupId}`);
-};
 
 export const OrganizationUnitItem = ({
   item,
@@ -74,15 +65,12 @@ export const OrganizationUnitItem = ({
             </div>
           </Link>
           <div className="flex items-center">
-            {onAddStorageGroup && (
-              <AddItemButton
-                className="mr-2"
-                parentPath={[{ id: item.id, name: item.name }]}
-                unitId={item.id}
-                parentId={null}
-              />
-            )}
-            <ElementMenu />
+            <GroupsCreationButton
+              className="mr-2"
+              parentPath={[{ id: item.id, name: item.name }]}
+              unitId={item.id}
+              parentId={null}
+            />
           </div>
         </div>
       </div>
@@ -95,7 +83,6 @@ export const OrganizationUnitItem = ({
               item={storageGroup}
               searchQuery={searchQuery}
               isLast={index === item.children.length - 1}
-              onAddChild={onAddChild}
             />
           ))}
         </div>

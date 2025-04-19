@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Grid3X3 } from "lucide-react";
 import { CellGroup } from "./types";
 import { matchesSearch } from "./utils";
-import { ElementMenu } from "./ElementMenu";
+import { ItemDropdown } from "./item-dropdown";
 
 interface CellGroupItemProps {
   item: CellGroup;

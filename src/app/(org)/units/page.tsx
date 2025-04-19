@@ -1,4 +1,5 @@
 "use client";
+
 import { PageMetadata } from "@/components/header/page-metadata";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Ban, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
-import { useAppForm } from "@/components/form";
+import { useAppForm } from "@/components/common-form";
 import { useQueryClient } from "@tanstack/react-query";
 import React from "react";
 import { toast } from "sonner";
