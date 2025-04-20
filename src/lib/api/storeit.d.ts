@@ -127,100 +127,6 @@ export interface paths {
         patch: operations["patchStorageGroup"];
         trace?: never;
     };
-    "/items": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get list of Items */
-        get: operations["getItems"];
-        put?: never;
-        /** Create Item */
-        post: operations["createItem"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/items/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Item ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        /** Get Item by ID */
-        get: operations["getItemById"];
-        /** Update Item */
-        put: operations["updateItem"];
-        post?: never;
-        /** Delete Item */
-        delete: operations["deleteItem"];
-        options?: never;
-        head?: never;
-        /** Patch Item */
-        patch: operations["patchItem"];
-        trace?: never;
-    };
-    "/auth/oauth2/yandex": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Exchange Yandex Access token for Session token */
-        post: operations["exchangeYandexAccessToken"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/logout": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Logout user */
-        get: operations["logout"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Current User */
-        get: operations["getCurrentUser"];
-        /** Update Current User */
-        put: operations["putCurrentUser"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Update Current User */
-        patch: operations["patchCurrentUser"];
-        trace?: never;
-    };
     "/cells-groups": {
         parameters: {
             query?: never;
@@ -260,6 +166,47 @@ export interface paths {
         head?: never;
         /** Patch Cells Group */
         patch: operations["patchCellsGroup"];
+        trace?: never;
+    };
+    "/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get list of Items */
+        get: operations["getItems"];
+        put?: never;
+        /** Create Item */
+        post: operations["createItem"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/items/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Item ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        /** Get Item by ID */
+        get: operations["getItemById"];
+        /** Update Item */
+        put: operations["updateItem"];
+        post?: never;
+        /** Delete Item */
+        delete: operations["deleteItem"];
+        options?: never;
+        head?: never;
+        /** Patch Item */
+        patch: operations["patchItem"];
         trace?: never;
     };
     "/cells-groups/{groupId}/cells": {
@@ -398,6 +345,59 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/auth/oauth2/yandex": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Exchange Yandex Access token for Session token */
+        post: operations["exchangeYandexAccessToken"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Logout user */
+        get: operations["logout"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Current User */
+        get: operations["getCurrentUser"];
+        /** Update Current User */
+        put: operations["putCurrentUser"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update Current User */
+        patch: operations["patchCurrentUser"];
         trace?: never;
     };
 }
@@ -550,6 +550,38 @@ export interface components {
         PatchStorageGroupResponse: {
             data: components["schemas"]["StorageGroup"][];
         };
+        CellGroupBase: {
+            /** Format: uuid */
+            readonly id: string;
+            name: string;
+            alias: string;
+            /** Format: uuid */
+            storage_group_id: string;
+        };
+        GetCellsGroupsResponse: {
+            data: components["schemas"]["CellGroupBase"][];
+        };
+        CreateCellsGroupRequest: components["schemas"]["CellGroupBase"];
+        CreateCellsGroupResponse: {
+            data: components["schemas"]["CellGroupBase"];
+        };
+        GetCellsGroupByIdResponse: {
+            data: components["schemas"]["CellGroupBase"];
+        };
+        UpdateCellsGroupRequest: components["schemas"]["CellGroupBase"];
+        UpdateCellsGroupResponse: {
+            data: components["schemas"]["CellGroupBase"];
+        };
+        CellGroupPatch: {
+            name?: string;
+            alias?: string;
+            /** Format: uuid */
+            storage_group_id?: string;
+        };
+        PatchCellsGroupRequest: components["schemas"]["CellGroupPatch"];
+        PatchCellsGroupResponse: {
+            data: components["schemas"]["CellGroupBase"];
+        };
         ItemBase: {
             /** Format: uuid */
             readonly id?: string;
@@ -599,24 +631,26 @@ export interface components {
             position: number;
         };
         CellForInstance: components["schemas"]["CellBase"] & {
-            cellPath?: {
+            cellPath: {
                 /** Format: uuid */
-                id?: string;
-                alias?: string;
+                id: string;
+                name: string;
+                alias: string;
                 /** @enum {string} */
-                objectType?: "cell" | "cells_group" | "storage_group";
+                objectType: "cell" | "cells_group" | "storage_group";
             }[];
         };
+        InstanceForItem: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            status: "available" | "reserved" | "consumed";
+            variant: components["schemas"]["ItemVariant"];
+            cell: components["schemas"]["CellForInstance"];
+        };
         ItemFull: components["schemas"]["Item"] & {
-            variants?: components["schemas"]["ItemVariant"][];
-            instances?: {
-                /** Format: uuid */
-                id?: string;
-                /** @enum {string} */
-                status?: "available" | "reserved" | "consumed";
-                variant: components["schemas"]["ItemVariant"];
-                cell?: components["schemas"]["CellForInstance"];
-            }[];
+            variants: components["schemas"]["ItemVariant"][];
+            instances: components["schemas"]["InstanceForItem"][];
         };
         CreateItemResponse: {
             data: components["schemas"]["ItemFull"];
@@ -654,59 +688,6 @@ export interface components {
         PatchItemRequest: components["schemas"]["ItemPatch"];
         PatchItemResponse: {
             data: components["schemas"]["ItemFull"];
-        };
-        User: {
-            /** Format: uuid */
-            id: string;
-            first_name: string;
-            last_name: string;
-            middle_name: string | null;
-            email: string;
-        };
-        GetCurrentUserResponse: components["schemas"]["User"];
-        UserUpdate: {
-            first_name: string;
-            last_name: string;
-            middle_name: string | null;
-        };
-        UpdateCurrentUserRequest: components["schemas"]["UserUpdate"];
-        UserPatch: {
-            first_name: string;
-            last_name: string;
-            middle_name: string | null;
-        };
-        PatchCurrentUserRequest: components["schemas"]["UserPatch"];
-        CellGroupBase: {
-            /** Format: uuid */
-            readonly id: string;
-            name: string;
-            alias: string;
-            /** Format: uuid */
-            storage_group_id: string;
-        };
-        GetCellsGroupsResponse: {
-            data: components["schemas"]["CellGroupBase"][];
-        };
-        CreateCellsGroupRequest: components["schemas"]["CellGroupBase"];
-        CreateCellsGroupResponse: {
-            data: components["schemas"]["CellGroupBase"];
-        };
-        GetCellsGroupByIdResponse: {
-            data: components["schemas"]["CellGroupBase"];
-        };
-        UpdateCellsGroupRequest: components["schemas"]["CellGroupBase"];
-        UpdateCellsGroupResponse: {
-            data: components["schemas"]["CellGroupBase"];
-        };
-        CellGroupPatch: {
-            name?: string;
-            alias?: string;
-            /** Format: uuid */
-            storage_group_id?: string;
-        };
-        PatchCellsGroupRequest: components["schemas"]["CellGroupPatch"];
-        PatchCellsGroupResponse: {
-            data: components["schemas"]["CellGroupBase"];
         };
         GetCellsResponse: {
             data: components["schemas"]["CellBase"][];
@@ -747,14 +728,6 @@ export interface components {
                 components["schemas"]["InstanceFull"]
             ];
         };
-        InstanceForItem: {
-            /** Format: uuid */
-            id: string;
-            /** @enum {string} */
-            status: "available" | "reserved" | "consumed";
-            variant: components["schemas"]["ItemVariant"];
-            cell: components["schemas"]["CellForInstance"];
-        }[];
         GetInstancesByItemIdResponse: {
             data: components["schemas"]["InstanceForItem"][];
         };
@@ -787,6 +760,27 @@ export interface components {
         CreateApiTokenResponse: {
             data: components["schemas"]["Token"];
         };
+        User: {
+            /** Format: uuid */
+            id: string;
+            first_name: string;
+            last_name: string;
+            middle_name: string | null;
+            email: string;
+        };
+        GetCurrentUserResponse: components["schemas"]["User"];
+        UserUpdate: {
+            first_name: string;
+            last_name: string;
+            middle_name: string | null;
+        };
+        UpdateCurrentUserRequest: components["schemas"]["UserUpdate"];
+        UserPatch: {
+            first_name: string;
+            last_name: string;
+            middle_name: string | null;
+        };
+        PatchCurrentUserRequest: components["schemas"]["UserPatch"];
     };
     responses: {
         /** @description General Error */
@@ -1266,258 +1260,6 @@ export interface operations {
             default: components["responses"]["default-error"];
         };
     };
-    getItems: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful operation */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GetItemsResponse"];
-                };
-            };
-            default: components["responses"]["default-error"];
-        };
-    };
-    createItem: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateItemRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful operation */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CreateItemResponse"];
-                };
-            };
-            default: components["responses"]["default-error"];
-        };
-    };
-    getItemById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Item ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful operation */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GetItemByIdResponse"];
-                };
-            };
-            default: components["responses"]["default-error"];
-        };
-    };
-    updateItem: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Item ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateItemRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful operation */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UpdateItemResponse"];
-                };
-            };
-            default: components["responses"]["default-error"];
-        };
-    };
-    deleteItem: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Item ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful operation */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            default: components["responses"]["default-error"];
-        };
-    };
-    patchItem: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Item ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PatchItemRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful operation */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PatchItemResponse"];
-                };
-            };
-            default: components["responses"]["default-error"];
-        };
-    };
-    exchangeYandexAccessToken: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    /** @description Yandex Access token */
-                    access_token: string;
-                };
-            };
-        };
-        responses: {
-            200: components["responses"]["AuthResponse"];
-            default: components["responses"]["default-error"];
-        };
-    };
-    logout: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: components["responses"]["LogoutResponse"];
-            default: components["responses"]["default-error"];
-        };
-    };
-    getCurrentUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful operation */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GetCurrentUserResponse"];
-                };
-            };
-            default: components["responses"]["default-error"];
-        };
-    };
-    putCurrentUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateCurrentUserRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful operation */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GetCurrentUserResponse"];
-                };
-            };
-            default: components["responses"]["default-error"];
-        };
-    };
-    patchCurrentUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PatchCurrentUserRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful operation */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GetCurrentUserResponse"];
-                };
-            };
-            default: components["responses"]["default-error"];
-        };
-    };
     getCellsGroups: {
         parameters: {
             query?: never;
@@ -1661,6 +1403,154 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PatchCellsGroupResponse"];
+                };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    getItems: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetItemsResponse"];
+                };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    createItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateItemRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreateItemResponse"];
+                };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    getItemById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Item ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetItemByIdResponse"];
+                };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    updateItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Item ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateItemRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UpdateItemResponse"];
+                };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    deleteItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Item ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    patchItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Item ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PatchItemRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PatchItemResponse"];
                 };
             };
             default: components["responses"]["default-error"];
@@ -1976,6 +1866,110 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    exchangeYandexAccessToken: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description Yandex Access token */
+                    access_token: string;
+                };
+            };
+        };
+        responses: {
+            200: components["responses"]["AuthResponse"];
+            default: components["responses"]["default-error"];
+        };
+    };
+    logout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: components["responses"]["LogoutResponse"];
+            default: components["responses"]["default-error"];
+        };
+    };
+    getCurrentUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetCurrentUserResponse"];
+                };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    putCurrentUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCurrentUserRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetCurrentUserResponse"];
+                };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    patchCurrentUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PatchCurrentUserRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetCurrentUserResponse"];
+                };
             };
             default: components["responses"]["default-error"];
         };

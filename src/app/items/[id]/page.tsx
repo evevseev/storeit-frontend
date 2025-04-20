@@ -1,9 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { DataTable } from "@/components/data-table";
 import { ColumnDef, flexRender, getCoreRowModel } from "@tanstack/react-table";
 import { Trash2 } from "lucide-react";
 import { PageMetadata } from "@/components/header/page-metadata";
@@ -11,9 +8,7 @@ import {
   Block,
   BlockTextElement,
   BlockCustomElement,
-  EditButton,
   BlockRow,
-  DeleteButton,
   BlockedPageRow,
 } from "@/components/common-page/block";
 import { useParams } from "next/navigation";
@@ -87,27 +82,19 @@ export default function ItemPage() {
     },
   });
 
-  const [item, setItem] = useState<Item | null>(null);
   const table = useReactTable({
-    data: item?.variants ?? [],
+    data: data?.data?.variants ?? [],
     columns: variantColumns,
     getCoreRowModel: getCoreRowModel(),
   });
   useEffect(() => {
     if (data && data.data) {
-      const variants = data.data.variants.map((variant: Variant) => ({
+      const variants = data.data.variants?.map((variant: Variant) => ({
         id: variant.id,
         name: variant.name,
         article: variant.article,
         ean13: variant.ean13,
       }));
-
-      setItem({
-        id: data.data.id,
-        name: data.data.name,
-        description: data.data.description,
-        variants: variants,
-      });
     }
   }, [data]);
 
@@ -119,28 +106,35 @@ export default function ItemPage() {
     return <div>Error</div>;
   }
 
-  if (!item) {
-    return <div>Item not found</div>;
+  if (!data) {
+    return <div>Data not found</div>;
+  }
+
+  if (!data.data) {
+    return <div>Data not found</div>;
   }
 
   return (
     <div className="container py-6 space-y-6">
       <PageMetadata
-        title={item.name}
+        title={data.data.name}
         breadcrumbs={[
           { href: "/items", label: "Товары" },
-          { label: item.name },
+          { label: data.data.name },
         ]}
-        actions={[
-          <DeleteButton onClick={() => {}} />,
-          <EditButton onClick={() => {}} />,
-        ]}
+        // actions={[
+        //   <DeleteButton onClick={() => {}} />,
+        //   <EditButton onClick={() => {}} />,
+        // ]}
       />
       <BlockedPageRow>
         <Block title="Информация о товаре">
-          <BlockTextElement label="Название" value={item.name} />
-          <BlockTextElement label="Описание" value={item.description ?? ""} />
-          <BlockTextElement label="ID" value={item.id} />
+          <BlockTextElement label="Название" value={data.data.name} />
+          <BlockTextElement
+            label="Описание"
+            value={data.data.description ?? ""}
+          />
+          <BlockTextElement label="ID" value={data.data.id} />
         </Block>
         <Block title="Параметры упаковки">
           <BlockRow>
@@ -194,6 +188,24 @@ export default function ItemPage() {
           </Table>
         </Block>
       </BlockedPageRow>
+      <Block title="Инстансы">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Объекты склада</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {data.data.instances.map((instance) => (
+              <TableRow key={instance.id}>
+                <TableCell>
+                  {instance.cellPath.map((cell) => cell.name).join(" / ")}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Block>
     </div>
   );
 }
