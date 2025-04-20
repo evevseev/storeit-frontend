@@ -10,6 +10,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   getExpandedRowModel,
+  Row,
 } from "@tanstack/react-table";
 
 import { Table } from "@/components/ui/table";
@@ -28,6 +29,8 @@ export interface DataTableProps<TData> {
   isLoading?: boolean;
   isError?: boolean;
   errorMessage?: string;
+  getRowCanExpand?: (row: Row<TData>) => boolean;
+  getSubRows?: (row: TData) => TData[] | undefined;
 }
 
 export function DataTable<TData>({
@@ -39,6 +42,8 @@ export function DataTable<TData>({
   isLoading = false,
   isError = false,
   errorMessage,
+  getRowCanExpand,
+  getSubRows,
 }: DataTableProps<TData>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -53,6 +58,9 @@ export function DataTable<TData>({
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
+    filterFromLeafRows: true,
+    getRowCanExpand,
+    getSubRows,
     state: {
       columnFilters,
     },

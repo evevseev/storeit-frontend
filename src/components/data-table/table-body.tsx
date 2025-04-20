@@ -1,10 +1,10 @@
-import { Table as TanStackTable } from "@tanstack/react-table";
+import { Table, flexRender } from "@tanstack/react-table";
 import { TableBody, TableCell, TableRow } from "@/components/ui/table";
-import { flexRender } from "@tanstack/react-table";
-import { cn } from "@/lib/utils";
+import { ChevronRight, ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-interface TableBodyProps<TData> {
-  table: TanStackTable<TData>;
+interface TableBodyComponentProps<TData> {
+  table: Table<TData>;
   columns: number;
   onRowClick?: (row: TData) => void;
 }
@@ -13,42 +13,60 @@ export function TableBodyComponent<TData>({
   table,
   columns,
   onRowClick,
-}: TableBodyProps<TData>) {
-  if (!table.getRowModel().rows?.length) {
-    return (
-      <TableBody>
+}: TableBodyComponentProps<TData>) {
+  return (
+    <TableBody>
+      {table.getRowModel().rows?.length ? (
+        table.getRowModel().rows.map((row) => (
+          <TableRow
+            key={row.id}
+            data-state={row.getIsSelected() && "selected"}
+            onClick={() => onRowClick?.(row.original)}
+            className={onRowClick ? "cursor-pointer" : ""}
+          >
+            {row.getVisibleCells().map((cell, index) => (
+              <TableCell key={cell.id}>
+                <div
+                  style={
+                    index === 0
+                      ? {
+                          paddingLeft: `${row.depth * 2}rem`,
+                          display: row.getCanExpand() ? "flex" : undefined,
+                          gap: row.getCanExpand() ? "0.5rem" : undefined,
+                          alignItems: row.getCanExpand() ? "center" : undefined,
+                        }
+                      : undefined
+                  }
+                >
+                  {index === 0 && row.getCanExpand() ? (
+                    <Button
+                      className="h-6 w-6"
+                      variant="outline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        row.toggleExpanded();
+                      }}
+                    >
+                      {row.getIsExpanded() ? (
+                        <ChevronDown className="h-4 w-4" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4" />
+                      )}
+                    </Button>
+                  ) : null}
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </div>
+              </TableCell>
+            ))}
+          </TableRow>
+        ))
+      ) : (
         <TableRow>
           <TableCell colSpan={columns} className="h-24 text-center">
             No results.
           </TableCell>
         </TableRow>
-      </TableBody>
-    );
-  }
-
-  return (
-    <TableBody>
-      {table.getRowModel().rows.map((row) => (
-        <TableRow
-          key={row.id}
-          className={cn(
-            "hover:cursor-pointer",
-            onRowClick ? "hover:bg-gray-100" : ""
-          )}
-          data-state={row.getIsSelected() && "selected"}
-          onClick={() => onRowClick?.(row.original)}
-        >
-          {row.getVisibleCells().map((cell) => (
-            <TableCell
-              key={cell.id}
-              style={{ width: cell.column.getSize() }}
-              className="whitespace-nowrap"
-            >
-              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-            </TableCell>
-          ))}
-        </TableRow>
-      ))}
+      )}
     </TableBody>
   );
 }

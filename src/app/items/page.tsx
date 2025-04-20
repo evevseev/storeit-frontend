@@ -1,51 +1,56 @@
 "use client";
 
-import { Employee, columns } from "./columns";
+import { Item, ItemVariant, columns } from "./columns";
 import { DataTable } from "@/components/data-table";
 import { PageMetadata } from "@/components/header/page-metadata";
-import { useApiQueryClient } from "@/hooks/use-api-query-client";
+import { Row } from "@tanstack/react-table";
 
-const data: Employee[] = [
+const data: Item[] = [
   {
     id: "1",
-    fullName: "John Doe",
-    email: "john@example.com",
-    status: "Administrator",
-    joiningDate: "2024-01-15",
+    name: "Item 1",
+    description: "Item 1 description",
+    variants: [],
   },
   {
     id: "2",
-    fullName: "Jane Smith",
-    email: "jane@example.com",
-    status: "Invited",
-    joiningDate: "2024-02-20",
-  },
-  {
-    id: "3",
-    fullName: "Bob Johnson",
-    email: "bob@example.com",
-    status: "Blocked",
-    joiningDate: "2024-03-01",
+    name: "Item 2",
+    description: "Item 2 description",
+    variants: [
+      {
+        id: "2.1",
+        name: "Item 2.1",
+        ean: "1234567890123",
+        article: "1234567890123",
+      },
+    ],
   },
 ];
 
-export default function EmployeesPage() {
-  const client = useApiQueryClient();
-  const { data: items } = client.useQuery("get", "/items");
-  
+export default function ItemsPage() {
   return (
-    <div className="container mx-auto">
+    <div className="container mx-auto py-4">
       <PageMetadata
-        title="Сотрудники"
+        title="Items"
         breadcrumbs={[
-          { label: "Организация", href: "/organization" },
-          { label: "Сотрудники" },
+          { label: "Organization", href: "/organization" },
+          { label: "Items" },
         ]}
       />
-      {items?.data?.map((item) => (
-        <div key={item.id}>{item.name}</div>
-      ))}
-      {/* <DataTable columns={columns} data={data} /> */}
+      <DataTable<Item | ItemVariant>
+        columns={columns} 
+        data={data}
+        getRowCanExpand={(row: Row<Item | ItemVariant>) => {
+          const item = row.original as Item;
+          return 'variants' in item && item.variants?.length > 0;
+        }}
+        getSubRows={(row: Item | ItemVariant) => {
+          if ('variants' in row) {
+            return row.variants;
+          }
+          return undefined;
+        }}
+      />
     </div>
   );
 }
