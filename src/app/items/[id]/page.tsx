@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ColumnDef, flexRender, getCoreRowModel } from "@tanstack/react-table";
+import { ColumnDef, flexRender, getCoreRowModel, Row } from "@tanstack/react-table";
 import { Trash2 } from "lucide-react";
 import { PageMetadata } from "@/components/header/page-metadata";
 import {
@@ -15,6 +15,8 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useReactTable, createColumnHelper } from "@tanstack/react-table";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
+import { DataTable } from "@/components/data-table";
+import { ChevronDown, ChevronRight } from "lucide-react";
 
 import {
   Table,
@@ -36,6 +38,44 @@ type Variant = {
   name: string;
   article: string | null;
   ean13: number | null;
+};
+
+type Instance = {
+  id: string;
+  status: "available" | "reserved" | "consumed";
+  variant: {
+    id: string;
+    name: string;
+  };
+  cell: {
+    id: string;
+    alias: string;
+    row: number;
+    level: number;
+    position: number;
+    cellPath: {
+      id: string;
+      name: string;
+      alias: string;
+      objectType: "cell" | "cells_group" | "storage_group";
+    }[];
+  };
+};
+
+type StorageNode = {
+  id: string;
+  name: string;
+  alias: string;
+  type: string;
+  instanceCount: number;
+  cellAlias?: string;
+  cellPosition?: {
+    row: number;
+    level: number;
+    position: number;
+  };
+  subRows?: StorageNode[];
+  instances?: Instance[];
 };
 
 const variantColumnHelper = createColumnHelper<Variant>();
@@ -68,6 +108,136 @@ const variantColumns = [
       </div>
     ),
   }),
+];
+
+const buildStorageTree = (instances: Instance[]): StorageNode[] => {
+  const nodeMap = new Map<string, StorageNode>();
+
+  instances.forEach((instance) => {
+    let currentPath: StorageNode[] = [];
+    // Process path from general to specific
+    const path = instance.cell.cellPath;
+    
+    path.forEach((pathItem, index) => {
+      const nodeId = pathItem.id;
+      let node = nodeMap.get(nodeId);
+
+      if (!node) {
+        node = {
+          id: nodeId,
+          name: pathItem.name,
+          alias: pathItem.alias,
+          type: pathItem.objectType,
+          instanceCount: 0,
+          subRows: [],
+        };
+        nodeMap.set(nodeId, node);
+
+        if (currentPath.length > 0) {
+          currentPath[currentPath.length - 1].subRows?.push(node);
+        }
+      }
+
+      if (index === path.length - 1) {
+        const cellNode: StorageNode = {
+          id: instance.cell.id,
+          name: instance.cell.alias, 
+          alias: instance.cell.alias,
+          type: 'cell',
+          instanceCount: 1,
+          cellAlias: instance.cell.alias,
+          cellPosition: {
+            row: instance.cell.row,
+            level: instance.cell.level,
+            position: instance.cell.position,
+          },
+          instances: [instance],
+        };
+        node.subRows = node.subRows || [];
+        
+        const existingCell = node.subRows.find(cell => cell.id === cellNode.id);
+        if (existingCell) {
+          existingCell.instanceCount++;
+          existingCell.instances = existingCell.instances || [];
+          existingCell.instances.push(instance);
+        } else {
+          node.subRows.push(cellNode);
+        }
+      }
+
+      node.instanceCount++;
+      currentPath.push(node);
+    });
+  });
+
+  // Return only root nodes (those that don't appear as children)
+  const allNodes = Array.from(nodeMap.values());
+  const childNodes = new Set(
+    allNodes.flatMap((node) => node.subRows || []).map((node) => node.id)
+  );
+  return allNodes.filter((node) => !childNodes.has(node.id));
+};
+
+const storageColumns = [
+  {
+    accessorKey: "name",
+    header: "Название",
+    cell: ({ row, getValue }: { row: Row<StorageNode>; getValue: () => string }) => {
+      const value = getValue();
+      const indent = row.depth * 24;
+
+      return (
+        <div
+          style={{ paddingLeft: `${indent}px` }}
+          className="flex items-center gap-2"
+        >
+          <span>{value}</span>
+          {row.original.instanceCount > 0 && (
+            <span className="text-muted-foreground text-sm">
+              ({row.original.instanceCount})
+            </span>
+          )}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "alias",
+    header: "Алиас",
+  },
+  {
+    accessorKey: "cellPosition",
+    header: "Позиция ячейки",
+    cell: ({ row }: { row: Row<StorageNode> }) => {
+      const pos = row.original.cellPosition;
+      if (!pos || row.original.type !== 'cell') return null;
+      return `${pos.row}:${pos.level}:${pos.position}`;
+    },
+  },
+  {
+    accessorKey: "instanceId",
+    header: "ID объекта",
+    cell: ({ row }: { row: Row<StorageNode> }) => {
+      const instances = row.original.instances;
+      if (!instances?.length || row.original.type !== 'cell') return null;
+      
+      return instances.map((instance: Instance) => (
+        <div key={instance.id}>{instance.id}</div>
+      ));
+    },
+  },
+  {
+    accessorKey: "variantName",
+    header: "Название варианта",
+    cell: ({ row }: { row: Row<StorageNode> }) => {
+      const instances = row.original.instances;
+      if (!instances?.length || row.original.type !== 'cell') return null;
+      
+      return instances.map((instance: Instance) => (
+        <div key={instance.id}>{instance.variant.name}</div>
+      ));
+    },
+  },
 ];
 
 export default function ItemPage() {
@@ -189,22 +359,12 @@ export default function ItemPage() {
         </Block>
       </BlockedPageRow>
       <Block title="Инстансы">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Объекты склада</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {data.data.instances.map((instance) => (
-              <TableRow key={instance.id}>
-                <TableCell>
-                  {instance.cellPath.map((cell) => cell.name).join(" / ")}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <DataTable
+          columns={storageColumns}
+          data={buildStorageTree(data.data.instances)}
+          getRowCanExpand={(row) => Boolean(row.original.subRows?.length)}
+          getSubRows={(row) => row.subRows}
+        />
       </Block>
     </div>
   );
