@@ -4,9 +4,7 @@ import * as React from "react";
 import {
   Building2,
   ClipboardList,
-  GalleryVerticalEnd,
   Package,
-  Phone,
   Smartphone,
   Warehouse,
 } from "lucide-react";
@@ -23,18 +21,6 @@ import {
 } from "@/components/ui/sidebar";
 
 const data = {
-  user: {
-    name: "Evgeny Evseev",
-    email: "evgeny@evseevs.ru",
-    avatar: "/avatars/default.png",
-  },
-  teams: [
-    {
-      name: "Acme Inc",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
-    },
-  ],
   navMain: [
     {
       title: "ТСД",
@@ -52,19 +38,9 @@ const data = {
       icon: Package,
     },
     {
-      title: "Хранение",
+      title: "Склад",
       url: "/storage",
       icon: Warehouse,
-      items: [
-        {
-          title: "Склад",
-          url: "/storage",
-        },
-        {
-          title: "Типы ячеек",
-          url: "/storage",
-        },
-      ],
     },
     {
       title: "Организация",

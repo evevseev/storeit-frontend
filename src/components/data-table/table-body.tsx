@@ -2,6 +2,7 @@ import { Table, flexRender } from "@tanstack/react-table";
 import { TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { ChevronRight, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface TableBodyComponentProps<TData> {
   table: Table<TData>;
@@ -22,7 +23,10 @@ export function TableBodyComponent<TData>({
             key={row.id}
             data-state={row.getIsSelected() && "selected"}
             onClick={() => onRowClick?.(row.original)}
-            className={onRowClick ? "cursor-pointer" : ""}
+            className={cn(
+              onRowClick ? "cursor-pointer" : "",
+              row.getCanExpand() ? "bg-muted/70" : ""
+            )}
           >
             {row.getVisibleCells().map((cell, index) => (
               <TableCell key={cell.id}>

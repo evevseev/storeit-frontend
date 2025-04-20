@@ -114,7 +114,7 @@ export function DataTablePagination<TData>({
       </div>
       <div className="flex-1 text-sm text-muted-foreground text-right">
         Показано {table.getRowModel().rows.length} из{" "}
-        {table.getFilteredRowModel().rows.length} записей
+        {table.getRowCount()} записей
       </div>
     </div>
   );

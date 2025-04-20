@@ -11,12 +11,9 @@ import {
   Block,
   BlockTextElement,
   BlockCustomElement,
-  EditButton,
-  BlockRow,
-  DeleteButton,
   BlockedPageRow,
 } from "@/components/common-page/block";
-import client from "@/hooks/client";
+// import client from "@/hooks/client";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -30,7 +27,7 @@ type Task = {
 export default function TaskPage() {
   //   const { id } = useParams();
 
-  const task: Task = {
+  const task = {
     id: "1",
     name: "Отгрузка товара",
     note: "Необходимо выполнить отгрузку на точку выдачи товара клиентам",
@@ -45,8 +42,8 @@ export default function TaskPage() {
           { label: task.name },
         ]}
         actions={[
-          <DeleteButton onClick={() => {}} />,
-          <EditButton onClick={() => {}} />,
+          // <DeleteButton onClick={() => {}} />,
+          // <EditButton onClick={() => {}} />,
         ]}
       />
       <BlockedPageRow>

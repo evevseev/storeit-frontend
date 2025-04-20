@@ -3,7 +3,11 @@
 import { Item, ItemVariant, columns } from "./columns";
 import { DataTable } from "@/components/data-table";
 import { PageMetadata } from "@/components/header/page-metadata";
+import { Button } from "@/components/ui/button";
+import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import { Row } from "@tanstack/react-table";
+import { Plus } from "lucide-react";
+import Link from "next/link";
 
 const data: Item[] = [
   {
@@ -28,24 +32,45 @@ const data: Item[] = [
 ];
 
 export default function ItemsPage() {
+  const client = useApiQueryClient();
+  const { data: response } = client.useQuery("get", "/items");
+
+  const items =
+    response?.data?.map((item: any) => ({
+      id: item.id,
+      name: item.name,
+      description: item.description,
+      variants: item.variants.map((variant: any) => ({
+        id: variant.id,
+        name: variant.name,
+        ean: variant.ean13?.toString() || null,
+        article: variant.article,
+      })),
+    })) || [];
+
   return (
     <div className="container mx-auto py-4">
       <PageMetadata
-        title="Items"
-        breadcrumbs={[
-          { label: "Organization", href: "/organization" },
-          { label: "Items" },
+        title="Товары"
+        breadcrumbs={[{ label: "Товары", href: "/items" }]}
+        actions={[
+          <Button asChild>
+            <Link href="/items/create">
+              <Plus className="h-4 w-4" />
+              Создать товар
+            </Link>
+          </Button>,
         ]}
       />
       <DataTable<Item | ItemVariant>
-        columns={columns} 
-        data={data}
+        columns={columns}
+        data={items}
         getRowCanExpand={(row: Row<Item | ItemVariant>) => {
           const item = row.original as Item;
-          return 'variants' in item && item.variants?.length > 0;
+          return "variants" in item && item.variants?.length > 0;
         }}
         getSubRows={(row: Item | ItemVariant) => {
-          if ('variants' in row) {
+          if ("variants" in row) {
             return row.variants;
           }
           return undefined;

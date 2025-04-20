@@ -29,23 +29,29 @@ export type ItemVariant = {
 export const columns: ColumnDef<Item | ItemVariant>[] = [
   {
     accessorKey: "id",
-    header: "ID",
+    header: "#ID",
+    cell: ({ row }) => {
+      return <span className="text-muted-foreground">{row.original.id}</span>;
+    },
   },
   {
     accessorKey: "name",
-    header: "Name",
+    header: "Наименование",
+    cell: ({ row }) => {
+      return <strong>{row.original.name}</strong>;
+    },
   },
   {
     accessorKey: "description",
-    header: "Description",
+    header: "Описание",
+  },
+  {
+    accessorKey: "article",
+    header: "Артикул",
   },
   {
     accessorKey: "ean",
     header: "EAN",
-  },
-  {
-    accessorKey: "article",
-    header: "Article",
   },
   {
     id: "actions",

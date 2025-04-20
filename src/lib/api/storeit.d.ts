@@ -363,6 +363,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api-tokens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get list of Service API Tokens */
+        get: operations["getApiTokens"];
+        put?: never;
+        /** Create Service API Token */
+        post: operations["createApiToken"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api-tokens/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Revoke Service API Token */
+        delete: operations["revokeApiToken"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -526,9 +563,6 @@ export interface components {
             readonly id: string;
             description: string | null;
         };
-        GetItemsResponse: {
-            data: components["schemas"]["Item"][];
-        };
         ItemVariantBase: {
             /** @example Variant 1 */
             name: string;
@@ -537,10 +571,6 @@ export interface components {
             /** @example 1234567890123 */
             ean13?: number | null;
         };
-        ItemCreate: components["schemas"]["ItemBase"] & {
-            variants: components["schemas"]["ItemVariantBase"][];
-        };
-        CreateItemRequest: components["schemas"]["ItemCreate"];
         ItemVariant: {
             /** Format: uuid */
             readonly id: string;
@@ -550,6 +580,16 @@ export interface components {
             /** @example 1234567890123 */
             ean13: number | null;
         };
+        ItemForList: components["schemas"]["Item"] & {
+            variants: components["schemas"]["ItemVariant"][];
+        };
+        GetItemsResponse: {
+            data: components["schemas"]["ItemForList"][];
+        };
+        ItemCreate: components["schemas"]["ItemBase"] & {
+            variants: components["schemas"]["ItemVariantBase"][];
+        };
+        CreateItemRequest: components["schemas"]["ItemCreate"];
         CellBase: {
             /** Format: uuid */
             readonly id: string;
@@ -568,13 +608,13 @@ export interface components {
             }[];
         };
         ItemFull: components["schemas"]["Item"] & {
-            variants: components["schemas"]["ItemVariant"][];
-            instances: {
+            variants?: components["schemas"]["ItemVariant"][];
+            instances?: {
                 /** Format: uuid */
                 id?: string;
                 /** @enum {string} */
                 status?: "available" | "reserved" | "consumed";
-                variant?: components["schemas"]["ItemVariant"];
+                variant: components["schemas"]["ItemVariant"];
                 cell?: components["schemas"]["CellForInstance"];
             }[];
         };
@@ -695,12 +735,12 @@ export interface components {
              * Format: uuid
              * @description Instance ID
              */
-            readonly id?: string;
+            readonly id: string;
             /** @enum {string} */
-            status?: "available" | "reserved" | "consumed";
+            status: "available" | "reserved" | "consumed";
             item?: components["schemas"]["Item"];
-            variant?: components["schemas"]["ItemVariant"];
-            cell?: components["schemas"]["CellForInstance"];
+            variant: components["schemas"]["ItemVariant"];
+            cell: components["schemas"]["CellForInstance"];
         }[];
         GetInstancesResponse: {
             data: [
@@ -709,11 +749,11 @@ export interface components {
         };
         InstanceForItem: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** @enum {string} */
-            status?: "available" | "reserved" | "consumed";
-            variant?: components["schemas"]["ItemVariant"];
-            cell?: components["schemas"]["CellForInstance"];
+            status: "available" | "reserved" | "consumed";
+            variant: components["schemas"]["ItemVariant"];
+            cell: components["schemas"]["CellForInstance"];
         }[];
         GetInstancesByItemIdResponse: {
             data: components["schemas"]["InstanceForItem"][];
@@ -727,6 +767,25 @@ export interface components {
         CreateInstanceForItemRequest: components["schemas"]["InstanceCreateForItem"];
         CreateInstanceForItemResponse: {
             data: components["schemas"]["InstanceForItem"][];
+        };
+        Token: {
+            /** Format: uuid */
+            readonly id: string;
+            /** @description The name of the token */
+            name: string;
+            /** @description The token secret */
+            token: string;
+        };
+        GetApiTokensResponse: {
+            data: components["schemas"]["Token"][];
+        };
+        TokenCreate: {
+            /** @description The name of the token */
+            name: string;
+        };
+        CreateApiTokenRequest: components["schemas"]["TokenCreate"];
+        CreateApiTokenResponse: {
+            data: components["schemas"]["Token"];
         };
     };
     responses: {
@@ -1431,6 +1490,7 @@ export interface operations {
                     "application/json": components["schemas"]["GetCurrentUserResponse"];
                 };
             };
+            default: components["responses"]["default-error"];
         };
     };
     patchCurrentUser: {
@@ -1838,6 +1898,73 @@ export interface operations {
             path: {
                 /** @description Instance ID */
                 instanceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    getApiTokens: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetApiTokensResponse"];
+                };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    createApiToken: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateApiTokenRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreateApiTokenResponse"];
+                };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    revokeApiToken: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
             };
             cookie?: never;
         };
