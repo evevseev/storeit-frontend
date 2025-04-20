@@ -29,7 +29,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { DropdownMenu } from "@/components/ui/dropdown-menu";
 import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
-import { ConfirmDeletionDialog } from "@/components/dialog/confirm-deletion";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -99,7 +98,7 @@ function CreateUnitDialog() {
         <Button>
           <Plus />
           Создать подразделение
-        </Button>g
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>Создание подразделения</DialogHeader>

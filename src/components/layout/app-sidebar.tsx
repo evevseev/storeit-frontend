@@ -56,9 +56,10 @@ const data = {
           url: "/employees",
         },
         {
-          title: "Роли",
-          url: "#",
+          title: "API токены",
+          url: "/api-tokens",
         },
+
       ],
     },
   ],
