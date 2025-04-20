@@ -1,6 +1,9 @@
+"use client";
+
 import { Employee, columns } from "./columns";
 import { DataTable } from "@/components/data-table";
 import { PageMetadata } from "@/components/header/page-metadata";
+import { useApiQueryClient } from "@/hooks/use-api-query-client";
 
 const data: Employee[] = [
   {
@@ -27,6 +30,9 @@ const data: Employee[] = [
 ];
 
 export default function EmployeesPage() {
+  const client = useApiQueryClient();
+  const { data: items } = client.useQuery("get", "/items");
+  
   return (
     <div className="container mx-auto">
       <PageMetadata
@@ -36,7 +42,10 @@ export default function EmployeesPage() {
           { label: "Сотрудники" },
         ]}
       />
-      <DataTable columns={columns} data={data} />
+      {items?.data?.map((item) => (
+        <div key={item.id}>{item.name}</div>
+      ))}
+      {/* <DataTable columns={columns} data={data} /> */}
     </div>
   );
 }

@@ -8,7 +8,7 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { useAppForm } from "../form";
+import { useAppForm } from "@/components/common-form";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import { useQueryClient } from "@tanstack/react-query";
 
