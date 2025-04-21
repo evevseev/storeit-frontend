@@ -71,7 +71,7 @@ export const OrganizationUnitItem = ({
                 {
                   url: `https://store-it.ru/units/${item.id}`,
                   name: item.alias,
-                  description: item.address,
+                  description: `Подразделение\n${item.address ?? ""}`,
                 },
               ]}
             />

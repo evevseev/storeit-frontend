@@ -7,6 +7,7 @@ import { ItemDropdown } from "./item-dropdown";
 import { CellGroupItem } from "./CellGroupItem";
 import { itemOpenAtom, toggleItemAtom } from "./atoms";
 import { GroupsCreationButton } from "./AddItemButton";
+import { PrintLabelButton } from "./print-label-button";
 
 interface StorageGroupItemProps {
   item: StorageGroup;
@@ -90,7 +91,16 @@ export const StorageGroupItem = ({
               </div>
             </div>
           </Link>
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
+            <PrintLabelButton
+              labels={[
+                {
+                  url: `https://store-it.ru/storage-groups/${item.id}`,
+                  name: item.alias,
+                  description: `Группа хранения\n${item.name}`,
+                },
+              ]}
+            />
             <GroupsCreationButton
               className="mr-2"
               parentPath={currentPath}
