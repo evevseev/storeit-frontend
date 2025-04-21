@@ -54,7 +54,7 @@ export default function ItemsPage() {
         title="Товары"
         breadcrumbs={[{ label: "Товары", href: "/items" }]}
         actions={[
-          <Button asChild>
+          <Button key="create" asChild>
             <Link href="/items/create">
               <Plus className="h-4 w-4" />
               Создать товар
@@ -74,6 +74,12 @@ export default function ItemsPage() {
             return row.variants;
           }
           return undefined;
+        }}
+        getRowHref={(row) => {
+          if ("variants" in row) {
+            return `/items/${row.id}`;
+          }
+          return "";
         }}
       />
     </div>

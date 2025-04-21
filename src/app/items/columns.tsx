@@ -33,6 +33,7 @@ export const columns: ColumnDef<Item | ItemVariant>[] = [
     cell: ({ row }) => {
       return <span className="text-muted-foreground">{row.original.id}</span>;
     },
+    enableSorting: false,
   },
   {
     accessorKey: "name",
@@ -56,9 +57,12 @@ export const columns: ColumnDef<Item | ItemVariant>[] = [
   {
     id: "actions",
     size: 50,
+    meta: {
+      isDisplay: true,
+    },  
     cell: ({ row }) => {
       return (
-        <div className="text-right">
+        <div className="text-right" onClick={(e) => e.stopPropagation()}>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
