@@ -3,17 +3,20 @@ import { TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { ChevronRight, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 interface TableBodyComponentProps<TData> {
   table: Table<TData>;
   columns: number;
   onRowClick?: (row: TData) => void;
+  getRowHref?: (row: TData) => string;
 }
 
 export function TableBodyComponent<TData>({
   table,
   columns,
   onRowClick,
+  getRowHref,
 }: TableBodyComponentProps<TData>) {
   return (
     <TableBody>
@@ -22,19 +25,14 @@ export function TableBodyComponent<TData>({
           <TableRow
             key={row.id}
             data-state={row.getIsSelected() && "selected"}
-            onClick={() => onRowClick?.(row.original)}
+            onClick={() => !getRowHref && onRowClick?.(row.original)}
             className={cn(
-              onRowClick ? "cursor-pointer" : "",
+              (onRowClick || getRowHref) ? "cursor-pointer hover:bg-muted/50" : "",
               row.getCanExpand() ? "bg-muted/70" : ""
             )}
           >
-            {row.getVisibleCells().map((cell, index) => (
-              <TableCell 
-                key={cell.id}
-                className={cn(
-                  (cell.column.columnDef.meta as any)?.isDisplay && "text-right"
-                )}
-              >
+            {row.getVisibleCells().map((cell, index) => {
+              const content = (
                 <div
                   style={
                     index === 0
@@ -65,8 +63,31 @@ export function TableBodyComponent<TData>({
                   ) : null}
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </div>
-              </TableCell>
-            ))}
+              );
+
+              return (
+                <TableCell 
+                  key={cell.id}
+                  className={cn(
+                    (cell.column.columnDef.meta as any)?.isDisplay && "text-right",
+                    "p-0"
+                  )}
+                >
+                  {getRowHref ? (
+                    <Link 
+                      href={getRowHref(row.original)}
+                      className="block h-full py-2 px-4"
+                    >
+                      {content}
+                    </Link>
+                  ) : (
+                    <div className="py-2 px-4">
+                      {content}
+                    </div>
+                  )}
+                </TableCell>
+              );
+            })}
           </TableRow>
         ))
       ) : (

@@ -31,6 +31,7 @@ export interface DataTableProps<TData> {
   errorMessage?: string;
   getRowCanExpand?: (row: Row<TData>) => boolean;
   getSubRows?: (row: TData) => TData[] | undefined;
+  getRowHref?: (row: TData) => string;
 }
 
 export function DataTable<TData>({
@@ -44,6 +45,7 @@ export function DataTable<TData>({
   errorMessage,
   getRowCanExpand,
   getSubRows,
+  getRowHref,
 }: Readonly<DataTableProps<TData>>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -92,6 +94,7 @@ export function DataTable<TData>({
             table={table}
             columns={columns.length}
             onRowClick={onRowClick}
+            getRowHref={getRowHref}
           />
         )}
       </Table>

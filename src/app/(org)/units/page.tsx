@@ -180,9 +180,7 @@ export default function UnitsPage() {
     }
   }, [data]);
 
-  const handleRowClick = (unit: Unit) => {
-    redirect(`/units/${unit.id}`, RedirectType.push);
-  };
+  const getRowHref = (unit: Unit) => `/units/${unit.id}`;
 
   const columns = [
     columnHelper.accessor("name", {
@@ -264,6 +262,7 @@ export default function UnitsPage() {
         data={units}
         isLoading={isPending}
         isError={isError}
+        getRowHref={getRowHref}
       />
     </>
   );
