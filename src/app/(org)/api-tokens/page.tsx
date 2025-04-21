@@ -96,6 +96,9 @@ export default function ApiTokensPage() {
     }),
     columnHelper.display({
       id: "actions",
+      meta: {
+        isDisplay: true,
+      },
       cell: ({ row }) => (
         <Button
           variant="ghost"

@@ -196,7 +196,9 @@ export default function UnitsPage() {
     }),
     columnHelper.display({
       id: "actions",
-      header: "Действия",
+      meta: {
+        isDisplay: true,
+      },
       cell: ({ row }) => {
         return (
           <div className="text-right">

@@ -70,6 +70,11 @@ export function DataTable<TData>({
       },
     },
     sortDescFirst: false,
+    enableColumnFilters: true,
+    enableFilters: true,
+    getColumnCanGlobalFilter: (column) => {
+      return !(column.columnDef.meta as any)?.isDisplay;
+    },
   });
 
   if (isError) {

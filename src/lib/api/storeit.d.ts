@@ -400,6 +400,84 @@ export interface paths {
         patch: operations["patchCurrentUser"];
         trace?: never;
     };
+    "/employees": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get employees of the organization
+         * @description Get all employees
+         */
+        get: operations["getEmployees"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/employees/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        /** Get employee by id */
+        get: operations["getEmployeeById"];
+        put?: never;
+        post?: never;
+        /** Delete employee by id */
+        delete: operations["deleteEmployeeById"];
+        options?: never;
+        head?: never;
+        /** Update employee by id */
+        patch: operations["patchEmployeeById"];
+        trace?: never;
+    };
+    "/employees/invite": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Invite employee to the organization
+         * @description Invite employee to the organization
+         */
+        post: operations["inviteEmployee"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/app/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get all roles in system */
+        get: operations["getRoles"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -722,7 +800,7 @@ export interface components {
             item?: components["schemas"]["Item"];
             variant: components["schemas"]["ItemVariant"];
             cell: components["schemas"]["CellForInstance"];
-        }[];
+        };
         GetInstancesResponse: {
             data: [
                 components["schemas"]["InstanceFull"]
@@ -781,6 +859,36 @@ export interface components {
             middle_name: string | null;
         };
         PatchCurrentUserRequest: components["schemas"]["UserPatch"];
+        Role: {
+            id: number;
+            name: string;
+            displayName: string;
+            description: string;
+        };
+        Employee: {
+            /** Format: uuid */
+            userId: string;
+            firstName: string;
+            lastName: string;
+            middleName: string | null;
+            email: string;
+            role: components["schemas"]["Role"];
+        };
+        GetEmployeesResponse: {
+            data: components["schemas"]["Employee"][];
+        };
+        GetEmployeeResponse: {
+            data: components["schemas"]["Employee"];
+        };
+        PatchEmployeeRequest: {
+            /** Format: uuid */
+            userId: string;
+            roleId?: number;
+        };
+        InviteEmployeeRequest: {
+            email: string;
+            roleId: number;
+        };
     };
     responses: {
         /** @description General Error */
@@ -1969,6 +2077,146 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["GetCurrentUserResponse"];
+                };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    getEmployees: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A list of employees */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetEmployeesResponse"];
+                };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    getEmployeeById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A single employee */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetEmployeeResponse"];
+                };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    deleteEmployeeById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Employee deleted successfully */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    patchEmployeeById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PatchEmployeeRequest"];
+            };
+        };
+        responses: {
+            /** @description A single employee */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetEmployeeResponse"];
+                };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    inviteEmployee: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InviteEmployeeRequest"];
+            };
+        };
+        responses: {
+            /** @description Employee invited successfully */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetEmployeeResponse"];
+                };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    getRoles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List of roles */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["Role"][];
+                    };
                 };
             };
             default: components["responses"]["default-error"];

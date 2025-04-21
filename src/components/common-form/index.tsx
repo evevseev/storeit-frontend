@@ -1,5 +1,5 @@
 import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
-import { FormInputField } from "./text-field";
+import { FormInputField, FormInputDropdown } from "./text-field";
 import { FormSubmitButton } from "./submit-button";
 import React from "react";
 
@@ -11,6 +11,7 @@ export const { useAppForm } = createFormHook({
   formContext,
   fieldComponents: {
     TextField: FormInputField,
+    Dropdown: FormInputDropdown,
   },
   formComponents: {
     SubmitButton: FormSubmitButton,
@@ -31,4 +32,4 @@ export function FormBlockRow({
 
 export { FormBlockTitle } from "./block-title";
 export { FormSubmitButton } from "./submit-button";
-export { FormInputField } from "./text-field";
+export { FormInputField, FormInputDropdown } from "./text-field";

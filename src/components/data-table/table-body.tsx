@@ -29,7 +29,12 @@ export function TableBodyComponent<TData>({
             )}
           >
             {row.getVisibleCells().map((cell, index) => (
-              <TableCell key={cell.id}>
+              <TableCell 
+                key={cell.id}
+                className={cn(
+                  (cell.column.columnDef.meta as any)?.isDisplay && "text-right"
+                )}
+              >
                 <div
                   style={
                     index === 0
