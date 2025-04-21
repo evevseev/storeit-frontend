@@ -81,34 +81,45 @@ export default function OrganizationSelect({
   );
 }
 
+interface OrganizationSelectorProps {
+  id: string;
+  name: string;
+  subdomain: string;
+  className?: string;
+}
+
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "";
+
 export function OrganizationSelector({
   id,
   name,
   subdomain,
-}: {
-  id: string;
-  name: string;
-  subdomain: string;
-}) {
+  className,
+}: Readonly<OrganizationSelectorProps>) {
   const setActiveOrgId = useSetAtom(activeOrganizationIdAtom);
+
+  const handleOrgSelect = () => {
+    setActiveOrgId(id);
+  };
 
   return (
     <Link
-      href={`${process.env.NEXT_PUBLIC_APP_URL}`}
-      className="rounded-lg border-black border-2 shadow-sm hover:shadow-md transition-colors"
-      onClick={() => {
-        setActiveOrgId(id);
-      }}
+      href={APP_URL}
+      className={cn(
+        "rounded-lg border-black border-2 shadow-sm hover:shadow-md transition-colors",
+        className
+      )}
+      onClick={handleOrgSelect}
     >
-      <div className="flex items-center gap-6 p-3 w-full">
+      <article className="flex items-center gap-6 p-3 w-full">
         <Avatar className="w-10 h-10">
           <AvatarFallback>{name.slice(0, 2)}</AvatarFallback>
         </Avatar>
         <div className="flex flex-col items-start">
-          <div className="text-sm font-medium">{name}</div>
-          <div className="text-xs text-muted-foreground">{subdomain}</div>
+          <h3 className="text-sm font-medium">{name}</h3>
+          <p className="text-xs text-muted-foreground">{subdomain}</p>
         </div>
-      </div>
+      </article>
     </Link>
   );
 }
@@ -117,9 +128,9 @@ export function ChangeAccountButton() {
   const { logout, isLoading } = useAuth();
 
   return (
-    <Button 
-      variant="outline" 
-      className="gap-2" 
+    <Button
+      variant="outline"
+      className="gap-2"
       onClick={logout}
       disabled={isLoading}
     >

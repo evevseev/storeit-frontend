@@ -14,9 +14,9 @@ const PAGE_SIZES = [50, 100, 200, 1500] as const;
 
 function DataTablePageSizeSelector<TData>({
   table,
-}: {
+}: Readonly<{
   table: TableInstance<TData>;
-}) {
+}>) {
   const currentPageSize = table.getState().pagination.pageSize;
 
   return (
@@ -47,9 +47,9 @@ function DataTablePageSizeSelector<TData>({
 
 function DataTableNavigation<TData>({
   table,
-}: {
+}: Readonly<{
   table: TableInstance<TData>;
-}) {
+}>) {
   return (
     <div className="flex items-center space-x-2">
       <Button
@@ -103,9 +103,9 @@ function DataTableNavigation<TData>({
 
 export function DataTablePagination<TData>({
   table,
-}: {
+}: Readonly<{
   table: TableInstance<TData>;
-}) {
+}>) {
   return (
     <div className="flex flex-col gap-2 py-4">
       <div className="flex items-center justify-between">
@@ -113,8 +113,8 @@ export function DataTablePagination<TData>({
         <DataTableNavigation table={table} />
       </div>
       <div className="flex-1 text-sm text-muted-foreground text-right">
-        Показано {table.getRowModel().rows.length} из{" "}
-        {table.getRowCount()} записей
+        Показано {table.getRowModel().rows.length} из {table.getRowCount()}{" "}
+        записей
       </div>
     </div>
   );

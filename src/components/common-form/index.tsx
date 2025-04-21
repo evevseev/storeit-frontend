@@ -1,6 +1,8 @@
 import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
 import { FormInputField } from "./text-field";
 import { FormSubmitButton } from "./submit-button";
+import React from "react";
+
 export const { fieldContext, formContext, useFieldContext, useFormContext } =
   createFormHookContexts();
 
@@ -15,11 +17,15 @@ export const { useAppForm } = createFormHook({
   },
 });
 
-export function FormBlock({ children }: { children?: React.ReactNode }) {
+export function FormBlock({
+  children,
+}: Readonly<{ children?: React.ReactNode }>) {
   return <div className="flex flex-col gap-4 pb-6">{children}</div>;
 }
 
-export function FormBlockRow({ children }: { children: React.ReactNode }) {
+export function FormBlockRow({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   return <div className="flex flex-col gap-3">{children}</div>;
 }
 

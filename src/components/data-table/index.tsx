@@ -4,13 +4,13 @@ import * as React from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
-  useReactTable,
   getCoreRowModel,
+  getExpandedRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  getExpandedRowModel,
   Row,
+  useReactTable,
 } from "@tanstack/react-table";
 
 import { Table } from "@/components/ui/table";
@@ -44,7 +44,7 @@ export function DataTable<TData>({
   errorMessage,
   getRowCanExpand,
   getSubRows,
-}: DataTableProps<TData>) {
+}: Readonly<DataTableProps<TData>>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );

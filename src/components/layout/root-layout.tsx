@@ -17,6 +17,7 @@ import { Providers } from "@/components/layout/providers";
 import { useAtomValue } from "jotai";
 import React from "react";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/hooks/use-auth";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -69,13 +70,41 @@ function Header() {
         {metadata.actions && (
           <div className="flex items-center gap-2">
             {metadata.actions.map((action, index) => (
-              <React.Fragment key={index}>{action}</React.Fragment>
+              <React.Fragment key={index + 1}>{action}</React.Fragment>
             ))}
           </div>
         )}
       </div>
     </header>
-);
+  );
+}
+
+// This component uses hooks that require the QueryClient
+function AuthenticatedContent({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
+  const pathname = usePathname();
+  const { isLoading } = useAuth();
+
+  const isLoginPage = /\/login/.test(pathname) || /\/dct/.test(pathname);
+
+  if (isLoading && !isLoginPage) {
+    return null; // Show nothing while authentication status is being determined
+  }
+
+  if (!isLoginPage) {
+    return (
+      <>
+        <AppSidebar />
+        <SidebarInset>
+          <Header />
+          <main className="px-4 py-6">{children}</main>
+        </SidebarInset>
+      </>
+    );
+  }
+
+  return <main className="w-full h-full">{children}</main>;
 }
 
 export function RootLayoutContent({
@@ -83,24 +112,10 @@ export function RootLayoutContent({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const pathname = usePathname();
-
-  const isLoginPage = /\/login/.test(pathname) || /\/dct/.test(pathname);
-
   return (
     <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
       <Providers>
-        {!isLoginPage ? (
-          <>
-            <AppSidebar />
-            <SidebarInset>
-              <Header />
-              <main className="px-4 py-6">{children}</main>
-            </SidebarInset>
-          </>
-        ) : (
-          <main className="w-full h-full">{children}</main>
-        )}
+        <AuthenticatedContent>{children}</AuthenticatedContent>
         <Toaster />
       </Providers>
     </body>

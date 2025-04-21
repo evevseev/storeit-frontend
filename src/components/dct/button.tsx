@@ -1,21 +1,21 @@
-import { Search } from "lucide-react";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
+
 type DctButtonProps = {
   onClick?: () => void;
   className?: string;
   children: React.ReactNode;
   href?: string;
 };
-import { buttonVariants } from "@/components/ui/button";
 
 export function DctButton({
   onClick,
   className,
   children,
   href,
-}: DctButtonProps) {
+}: Readonly<DctButtonProps>) {
   const btn = (
     <Button onClick={onClick} className={cn(className, "py-10")}>
       {children}

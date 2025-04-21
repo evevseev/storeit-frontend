@@ -1,8 +1,6 @@
-import { Plus } from "lucide-react";
+import { ClipboardList, Package, Plus, Search } from "lucide-react";
 
 import { DctButton } from "@/components/dct/button";
-import { Button } from "@/components/ui/button";
-import { ClipboardList, Package, Search } from "lucide-react";
 
 export default function DctPage() {
   return (
