@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet } from "@react-pdf/renderer";
 import QR from "../QR";
 import { Label } from "@/hooks/use-print-labels";
+import "@/utils/fonts";
 
 const styles = StyleSheet.create({
   label: {
@@ -10,11 +11,13 @@ const styles = StyleSheet.create({
     padding: "2mm",
     flexDirection: "row",
     gap: "2mm",
+    fontFamily: "Roboto",
   },
   labelWithoutQR: {
     width: "100%",
     height: "100%",
     padding: "2mm",
+    fontFamily: "Roboto",
   },
   qrContainer: {
     width: "20mm",
@@ -39,15 +42,18 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "bold",
     marginBottom: "2mm",
+    fontFamily: "Roboto",
   },
   description: {
     fontSize: 9,
     lineHeight: 1.3,
+    fontFamily: "Roboto",
   },
   url: {
     fontSize: 8,
     color: "#666666",
     marginTop: "auto",
+    fontFamily: "Roboto",
   },
 });
 

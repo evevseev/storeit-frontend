@@ -2,6 +2,7 @@ import React from "react";
 import { Document, Page, StyleSheet } from "@react-pdf/renderer";
 import PrintableLabel from "@/components/labels/printable-label";
 import { Label } from "@/hooks/use-print-labels";
+import "@/utils/fonts";
 
 interface LabelsDocumentProps {
   labels: Label[];
