@@ -17,7 +17,7 @@ import { Eye, EyeOff, Plus, Trash2 } from "lucide-react";
 import z from "zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 type Token = {
   id: string;
@@ -25,30 +25,20 @@ type Token = {
   token: string;
 };
 
-const columnHelper = createColumnHelper<Token>();
+type ApiResponse = {
+  data: Token[];
+};
 
-export default function ApiTokensPage() {
+function useTokenManagement() {
   const client = useApiQueryClient();
+  const queryClient = useQueryClient();
   const { data, isPending } = client.useQuery("get", "/api-tokens");
   const [tokens, setTokens] = useState<Token[]>([]);
-  const [visibleTokens, setVisibleTokens] = useState<Set<string>>(new Set());
+
   const { mutate: deleteToken } = client.useMutation(
     "delete",
     "/api-tokens/{id}"
   );
-  const queryClient = useQueryClient();
-
-  const toggleTokenVisibility = (tokenId: string) => {
-    setVisibleTokens((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(tokenId)) {
-        newSet.delete(tokenId);
-      } else {
-        newSet.add(tokenId);
-      }
-      return newSet;
-    });
-  };
 
   const handleDeleteToken = (tokenId: string) => {
     deleteToken(
@@ -67,7 +57,47 @@ export default function ApiTokensPage() {
     );
   };
 
-  const columns = [
+  useEffect(() => {
+    if (data) {
+      setTokens(
+        data.data.map((token) => ({
+          id: token.id,
+          name: token.name,
+          token: token.token,
+        }))
+      );
+    }
+  }, [data]);
+
+  return { tokens, isPending, handleDeleteToken };
+}
+
+function useTokenVisibility() {
+  const [visibleTokens, setVisibleTokens] = useState<Set<string>>(new Set());
+
+  const toggleTokenVisibility = (tokenId: string) => {
+    setVisibleTokens((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(tokenId)) {
+        newSet.delete(tokenId);
+      } else {
+        newSet.add(tokenId);
+      }
+      return newSet;
+    });
+  };
+
+  return { visibleTokens, toggleTokenVisibility };
+}
+
+function useTokenColumns(
+  visibleTokens: Set<string>,
+  toggleTokenVisibility: (id: string) => void,
+  handleDeleteToken: (id: string) => void
+) {
+  const columnHelper = createColumnHelper<Token>();
+
+  return [
     columnHelper.accessor("name", {
       header: "Название",
     }),
@@ -110,35 +140,6 @@ export default function ApiTokensPage() {
       ),
     }),
   ];
-
-  useEffect(() => {
-    if (data) {
-      setTokens(
-        data.data.map((token) => ({
-          id: token.id,
-          name: token.name,
-          token: token.token,
-        }))
-      );
-    }
-  }, [data]);
-  return (
-    <BlockedPage>
-      <PageMetadata
-        title="API токены"
-        breadcrumbs={[
-          { label: "Организация" },
-          { label: "API токены", href: "/api-tokens" },
-        ]}
-        actions={[<CreateTokenDialog />]}
-      />
-      {isPending ? (
-        <div>Loading...</div>
-      ) : (
-        <DataTable columns={columns} data={tokens ?? []} />
-      )}
-    </BlockedPage>
-  );
 }
 
 function CreateTokenDialog() {
@@ -146,38 +147,43 @@ function CreateTokenDialog() {
   const client = useApiQueryClient();
   const globalClient = useQueryClient();
   const { mutate } = client.useMutation("post", "/api-tokens");
+
+  const validators = {
+    onChange: z.object({
+      name: z.string().min(1),
+    }),
+  };
+
+  const handleSubmit = (data: { value: { name: string } }) => {
+    mutate(
+      {
+        body: {
+          name: data.value.name,
+        },
+      },
+      {
+        onSuccess: () => {
+          globalClient.invalidateQueries({
+            queryKey: ["get", "/api-tokens"],
+          });
+          toast.success("Токен успешно создан");
+          setIsOpen(false);
+        },
+        onError: (error) => {
+          toast.error("Не удалось создать токен", {
+            description: error.message,
+          });
+        },
+      }
+    );
+  };
+
   const form = useAppForm({
     defaultValues: {
       name: "",
     },
-    validators: {
-      onChange: z.object({
-        name: z.string().min(1),
-      }),
-    },
-    onSubmit: (data) => {
-      mutate(
-        {
-          body: {
-            name: data.value.name,
-          },
-        },
-        {
-          onSuccess: () => {
-            globalClient.invalidateQueries({
-              queryKey: ["get", "/api-tokens"],
-            });
-            toast.success("Токен успешно создан");
-            setIsOpen(false);
-          },
-          onError: (error) => {
-            toast.error("Не удалось создать токен", {
-              description: error.message,
-            });
-          },
-        }
-      );
-    },
+    validators,
+    onSubmit: handleSubmit,
   });
 
   return (
@@ -217,5 +223,33 @@ function CreateTokenDialog() {
         </form>
       </DialogContent>
     </Dialog>
+  );
+}
+
+export default function ApiTokensPage() {
+  const { tokens, isPending, handleDeleteToken } = useTokenManagement();
+  const { visibleTokens, toggleTokenVisibility } = useTokenVisibility();
+  const columns = useTokenColumns(
+    visibleTokens,
+    toggleTokenVisibility,
+    handleDeleteToken
+  );
+
+  return (
+    <BlockedPage>
+      <PageMetadata
+        title="API токены"
+        breadcrumbs={[
+          { label: "Организация" },
+          { label: "API токены", href: "/api-tokens" },
+        ]}
+        actions={[<CreateTokenDialog />]}
+      />
+      {isPending ? (
+        <div>Loading...</div>
+      ) : (
+        <DataTable columns={columns} data={tokens ?? []} />
+      )}
+    </BlockedPage>
   );
 }

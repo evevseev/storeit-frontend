@@ -93,7 +93,7 @@ export function TableBodyComponent<TData>({
       ) : (
         <TableRow>
           <TableCell colSpan={columns} className="h-24 text-center">
-            No results.
+            Нет данных.
           </TableCell>
         </TableRow>
       )}
