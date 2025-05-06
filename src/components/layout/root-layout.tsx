@@ -109,13 +109,19 @@ function AuthenticatedContent({
 
 export function RootLayoutContent({
   children,
+  auth = true,
 }: Readonly<{
   children: React.ReactNode;
+  auth?: boolean;
 }>) {
   return (
     <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
       <Providers>
-        <AuthenticatedContent>{children}</AuthenticatedContent>
+        {auth ? (
+          <AuthenticatedContent>{children}</AuthenticatedContent>
+        ) : (
+          children
+        )}
         <Toaster />
       </Providers>
     </body>

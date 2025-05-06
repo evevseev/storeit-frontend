@@ -336,30 +336,6 @@ paths:
           $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
-    patch:
-      tags:
-        - storage-group
-      summary: Patch Storage Group
-      operationId: patchStorageGroup
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchStorageGroupRequest'
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PatchStorageGroupResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        default:
-          $ref: '#/components/responses/default-error'
     put:
       tags:
         - storage-group
@@ -462,30 +438,6 @@ paths:
       responses:
         '204':
           description: Successful operation
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
-        default:
-          $ref: '#/components/responses/default-error'
-    patch:
-      tags:
-        - storage-group
-      summary: Patch Cells Group
-      operationId: patchCellsGroup
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchCellsGroupRequest'
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PatchCellsGroupResponse'
         '401':
           $ref: '#/components/responses/default-unauthorized'
         '403':
@@ -600,32 +552,8 @@ paths:
       summary: Delete Cell
       operationId: deleteCell
       responses:
-        '200':
+        '204':
           description: Successful operation
-        default:
-          $ref: '#/components/responses/default-error'
-    patch:
-      tags:
-        - cells-group
-      summary: Patch Cell
-      operationId: patchCell
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchCellRequest'
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PatchCellResponse'
-        '401':
-          $ref: '#/components/responses/default-unauthorized'
-        '403':
-          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
     put:
@@ -695,6 +623,129 @@ paths:
           $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
+  /items/{id}/variants:
+    parameters:
+      - name: id
+        in: path
+        description: Item ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - item
+      summary: Get Item Variants
+      operationId: getItemVariants
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetItemVariantsResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
+        default:
+          $ref: '#/components/responses/default-error'
+    post:
+      tags:
+        - item
+      summary: Create Item Variant
+      operationId: createItemVariant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateItemVariantRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateItemVariantResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
+        default:
+          $ref: '#/components/responses/default-error'
+  /items/{id}/variants/{variantId}:
+    parameters:
+      - name: id
+        in: path
+        description: Item ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: variantId
+        in: path
+        description: Variant ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - item
+      summary: Get Item Variant By ID
+      operationId: getItemVariantById
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetItemVariantByIdResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
+        default:
+          $ref: '#/components/responses/default-error'
+    put:
+      tags:
+        - item
+      summary: Update Item Variant By ID
+      operationId: updateItemVariant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateItemVariantRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateItemVariantResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
+        default:
+          $ref: '#/components/responses/default-error'
+    delete:
+      tags:
+        - item
+      summary: Delete Item Variant By ID
+      operationId: deleteItemVariant
+      responses:
+        '204':
+          description: Successful operation
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
+        default:
+          $ref: '#/components/responses/default-error'
   /items/{id}:
     parameters:
       - name: id
@@ -716,6 +767,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetItemByIdResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
     delete:
@@ -726,26 +781,10 @@ paths:
       responses:
         '204':
           description: Successful operation
-        default:
-          $ref: '#/components/responses/default-error'
-    patch:
-      tags:
-        - item
-      summary: Patch Item
-      operationId: patchItem
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchItemRequest'
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PatchItemResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
     put:
@@ -766,6 +805,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UpdateItemResponse'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
   /instances:
@@ -918,7 +959,7 @@ paths:
       summary: Revoke Service API Token
       operationId: revokeApiToken
       responses:
-        '200':
+        '204':
           description: Successful operation
         '401':
           $ref: '#/components/responses/default-unauthorized'
@@ -1024,6 +1065,109 @@ paths:
                 $ref: '#/components/schemas/GetCurrentUserResponse'
         '401':
           $ref: '#/components/responses/default-unauthorized'
+        default:
+          $ref: '#/components/responses/default-error'
+  /tasks:
+    get:
+      tags:
+        - tasks
+      summary: Get all tasks for organization
+      operationId: getTasks
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetTasksResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
+        default:
+          $ref: '#/components/responses/default-error'
+    post:
+      tags:
+        - tasks
+      summary: Create a task
+      operationId: createTask
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTaskRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateTaskResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
+        default:
+          $ref: '#/components/responses/default-error'
+  /tasks/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - tasks
+      summary: Get Task by ID
+      operationId: getTaskById
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetTaskResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
+        default:
+          $ref: '#/components/responses/default-error'
+  /tasks/{id}/pick-instance:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      tags:
+        - tasks
+      summary: Pick an item from cell
+      operationId: pickInstanceFromCell
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                instanceId:
+                  type: string
+                  format: uuid
+              required:
+                - instanceId
+      responses:
+        '204':
+          description: Successful operation
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
   /employees:
@@ -1192,6 +1336,95 @@ paths:
           $ref: '#/components/responses/default-unauthorized'
         '403':
           $ref: '#/components/responses/default-forbidden'
+        default:
+          $ref: '#/components/responses/default-error'
+  /tv-boards:
+    get:
+      tags:
+        - tv-boards
+      summary: Get list of TV Boards
+      operationId: getTvBoards
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetTvBoardsResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
+        default:
+          $ref: '#/components/responses/default-error'
+    post:
+      tags:
+        - tv-boards
+      summary: Create TV Board
+      operationId: createTvBoard
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTvBoardRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateTvBoardResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
+        default:
+          $ref: '#/components/responses/default-error'
+  /tv-boards/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    delete:
+      tags:
+        - tv-boards
+      summary: Delete TV Board
+      operationId: deleteTvBoard
+      responses:
+        '204':
+          description: Successful operation
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
+        default:
+          $ref: '#/components/responses/default-error'
+  /tv-boards/{tvToken}/data:
+    parameters:
+      - name: tvToken
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      security: []
+      tags:
+        - tv-boards
+      summary: Get data for rendering on TV Board
+      operationId: getTvBoardsData
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetTvBoardDataResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
         default:
           $ref: '#/components/responses/default-error'
 components:
@@ -1518,37 +1751,6 @@ components:
               $ref: '#/components/schemas/StorageGroup'
           required:
             - data
-    StorageGroupPatch:
-      type: object
-      properties:
-        parentId:
-          type: string
-          format: uuid
-          nullable: true
-          example: def3df1a-7b8f-4552-b437-a1eab851403f
-        name:
-          type: string
-          example: Main Warehouse
-        alias:
-          type: string
-          example: MW
-        unitId:
-          type: string
-          format: uuid
-          example: def3df1a-7b8f-4552-b437-a1eab851403f
-    PatchStorageGroupRequest:
-      allOf:
-        - $ref: '#/components/schemas/StorageGroupPatch'
-    PatchStorageGroupResponse:
-      type: object
-      allOf:
-        - type: object
-          properties:
-            data:
-              type: object
-              $ref: '#/components/schemas/StorageGroup'
-          required:
-            - data
     CellGroupBase:
       type: object
       properties:
@@ -1580,9 +1782,6 @@ components:
         - $ref: '#/components/schemas/CellGroupBase'
         - type: object
           properties:
-            unitId:
-              type: string
-              format: uuid
             storageGroupId:
               type: string
               format: uuid
@@ -1626,36 +1825,9 @@ components:
           $ref: '#/components/schemas/CellGroup'
       required:
         - data
-    CellGroupPatch:
-      type: object
-      properties:
-        name:
-          type: string
-        alias:
-          $ref: '#/components/schemas/storage-alias'
-        storageGroupId:
-          type: string
-          format: uuid
-        unitId:
-          type: string
-          format: uuid
-    PatchCellsGroupRequest:
-      allOf:
-        - $ref: '#/components/schemas/CellGroupPatch'
-    PatchCellsGroupResponse:
-      type: object
-      properties:
-        data:
-          $ref: '#/components/schemas/CellGroup'
-      required:
-        - data
     CellBase:
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-          readOnly: true
         alias:
           type: string
         row:
@@ -1668,18 +1840,28 @@ components:
           type: integer
           minimum: 1
       required:
-        - id
         - alias
         - row
         - level
         - position
+    Cell:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+              readOnly: true
+          required:
+            - id
+        - $ref: '#/components/schemas/CellBase'
     GetCellsResponse:
       type: object
       properties:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/CellBase'
+            $ref: '#/components/schemas/Cell'
       required:
         - data
     CreateCellRequest:
@@ -1689,12 +1871,16 @@ components:
       type: object
       properties:
         data:
-          $ref: '#/components/schemas/CellBase'
+          $ref: '#/components/schemas/Cell'
       required:
         - data
     GetCellByIdResponse:
-      allOf:
-        - $ref: '#/components/schemas/CellBase'
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Cell'
+      required:
+        - data
     UpdateCellRequest:
       allOf:
         - $ref: '#/components/schemas/CellBase'
@@ -1702,31 +1888,7 @@ components:
       type: object
       properties:
         data:
-          $ref: '#/components/schemas/CellBase'
-      required:
-        - data
-    CellPatch:
-      type: object
-      properties:
-        alias:
-          type: string
-        row:
-          type: integer
-          minimum: 1
-        level:
-          type: integer
-          minimum: 1
-        position:
-          type: integer
-          minimum: 1
-    PatchCellRequest:
-      allOf:
-        - $ref: '#/components/schemas/CellPatch'
-    PatchCellResponse:
-      type: object
-      properties:
-        data:
-          $ref: '#/components/schemas/CellBase'
+          $ref: '#/components/schemas/Cell'
       required:
         - data
     ItemBase:
@@ -1772,6 +1934,7 @@ components:
           example: 123456789012
         ean13:
           type: integer
+          format: int32
           nullable: true
           example: 1234567890123
       required:
@@ -1797,6 +1960,7 @@ components:
             ean13:
               type: integer
               nullable: true
+              format: int32
               example: 1234567890123
           required:
             - article
@@ -1827,22 +1991,16 @@ components:
     ItemCreate:
       allOf:
         - $ref: '#/components/schemas/ItemBase'
-        - type: object
-          properties:
-            variants:
-              type: array
-              items:
-                $ref: '#/components/schemas/ItemVariantBase'
-      required:
-        - variants
     CreateItemRequest:
       type: object
       allOf:
         - $ref: '#/components/schemas/ItemCreate'
     CellForInstance:
       allOf:
-        - $ref: '#/components/schemas/CellBase'
+        - nullable: true
+          $ref: '#/components/schemas/Cell'
         - type: object
+          nullable: true
           properties:
             cellPath:
               type: array
@@ -1900,13 +2058,13 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/ItemVariant'
-            instances:
+            items:
               type: array
               items:
                 $ref: '#/components/schemas/InstanceForItem'
           required:
             - variants
-            - instances
+            - items
     CreateItemResponse:
       type: object
       allOf:
@@ -1917,6 +2075,44 @@ components:
               $ref: '#/components/schemas/ItemFull'
           required:
             - data
+    GetItemVariantsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemVariant'
+      required:
+        - data
+    CreateItemVariantRequest:
+      allOf:
+        - $ref: '#/components/schemas/ItemVariantBase'
+    CreateItemVariantResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ItemVariant'
+      required:
+        - data
+    GetItemVariantByIdResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          $ref: '#/components/schemas/ItemVariant'
+      required:
+        - data
+    UpdateItemVariantRequest:
+      allOf:
+        - $ref: '#/components/schemas/ItemVariantBase'
+    UpdateItemVariantResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          $ref: '#/components/schemas/ItemVariant'
+      required:
+        - data
     GetItemByIdResponse:
       type: object
       allOf:
@@ -1927,76 +2123,11 @@ components:
               $ref: '#/components/schemas/ItemFull'
           required:
             - data
-    ItemVariantEdit:
-      type: object
-      allOf:
-        - type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-          required:
-            - id
-        - $ref: '#/components/schemas/ItemVariantBase'
     UpdateItemRequest:
       type: object
       allOf:
         - $ref: '#/components/schemas/ItemCreate'
-        - type: object
-          properties:
-            variants:
-              type: array
-              items:
-                $ref: '#/components/schemas/ItemVariantEdit'
     UpdateItemResponse:
-      type: object
-      allOf:
-        - type: object
-          properties:
-            data:
-              type: object
-              $ref: '#/components/schemas/ItemFull'
-          required:
-            - data
-    ItemVariantPatchInItem:
-      type: object
-      allOf:
-        - type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-            name:
-              type: string
-              example: Variant 1
-            article:
-              type: string
-              nullable: true
-              example: 123456789012
-            ean13:
-              type: integer
-              nullable: true
-              example: 1234567890123
-    ItemPatch:
-      allOf:
-        - type: object
-          properties:
-            name:
-              type: string
-              example: Item 1
-            description:
-              type: string
-              example: Description
-              nullable: true
-            variants:
-              type: array
-              items:
-                $ref: '#/components/schemas/ItemVariantPatchInItem'
-    PatchItemRequest:
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/ItemPatch'
-    PatchItemResponse:
       type: object
       allOf:
         - type: object
@@ -2022,10 +2153,11 @@ components:
             - consumed
         item:
           type: object
-          $ref: '#/components/schemas/Item'
+          $ref: '#/components/schemas/ItemForList'
         variant:
           $ref: '#/components/schemas/ItemVariant'
         cell:
+          nullable: true
           $ref: '#/components/schemas/CellForInstance'
       required:
         - id
@@ -2033,6 +2165,7 @@ components:
         - status
         - variant
         - cell
+        - item
     GetInstancesResponse:
       type: object
       properties:
@@ -2061,9 +2194,9 @@ components:
         cellId:
           type: string
           format: uuid
-          nullable: true
       required:
         - variantId
+        - cellId
     CreateInstanceForItemRequest:
       allOf:
         - $ref: '#/components/schemas/InstanceCreateForItem'
@@ -2071,10 +2204,7 @@ components:
       type: object
       properties:
         data:
-          type: array
-          items:
-            allOf:
-              - $ref: '#/components/schemas/InstanceForItem'
+          $ref: '#/components/schemas/InstanceForItem'
       required:
         - data
     Token:
@@ -2219,6 +2349,161 @@ components:
         - middleName
         - email
         - role
+    EmployeeOptional:
+      type: object
+      nullable: true
+      allOf:
+        - $ref: '#/components/schemas/Employee'
+    TaskBase:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        type:
+          type: string
+          enum:
+            - pick
+            - movement
+        status:
+          type: string
+          enum:
+            - pending
+            - in_progress
+            - awaiting_to_collect
+            - completed
+            - failed
+        createdAt:
+          type: string
+          format: date-time
+        unit:
+          type: object
+          $ref: '#/components/schemas/Unit'
+        assignedTo:
+          $ref: '#/components/schemas/EmployeeOptional'
+        assignedAt:
+          type: string
+          format: date-time
+          nullable: true
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - id
+        - status
+        - unit
+        - name
+        - type
+        - createdAt
+        - description
+        - assignedTo
+        - assignedAt
+        - completedAt
+    GetTasksResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskBase'
+      required:
+        - data
+    TaskCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        type:
+          type: string
+          enum:
+            - pick
+            - movement
+        unitId:
+          type: string
+          format: uuid
+        assignedTo:
+          type: string
+          nullable: true
+          format: uuid
+        items:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            properties:
+              instanceId:
+                type: string
+                format: uuid
+              targetCellId:
+                type: string
+                format: uuid
+            required:
+              - instanceId
+      required:
+        - name
+        - type
+        - unitId
+        - instances
+    CreateTaskRequest:
+      allOf:
+        - $ref: '#/components/schemas/TaskCreate'
+    TaskItem:
+      type: object
+      properties:
+        instance:
+          $ref: '#/components/schemas/InstanceFull'
+        sourceCell:
+          $ref: '#/components/schemas/CellForInstance'
+        targetCell:
+          nullable: true
+          $ref: '#/components/schemas/CellForInstance'
+        status:
+          type: string
+          enum:
+            - pending
+            - picked
+      required:
+        - sourceCell
+        - targetCell
+        - instance
+        - id
+        - status
+    TaskFull:
+      allOf:
+        - $ref: '#/components/schemas/TaskBase'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/TaskItem'
+          required:
+            - items
+    CreateTaskResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/TaskFull'
+      required:
+        - data
+    GetTaskResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          $ref: '#/components/schemas/TaskFull'
+      required:
+        - data
     GetEmployeesResponse:
       allOf:
         - type: object
@@ -2314,6 +2599,77 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AuditLog'
+      required:
+        - data
+    TvBoard:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          description: The name of the TV Board
+        token:
+          type: string
+          readOnly: true
+        unit:
+          type: object
+          nullable: true
+          $ref: '#/components/schemas/Unit'
+      required:
+        - id
+        - token
+        - unit
+        - name
+    GetTvBoardsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TvBoard'
+      required:
+        - data
+    TvBoardBase:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the TV Board
+        unitId:
+          type: string
+          format: uuid
+          description: The ID of the unit that the TV Board belongs to
+      required:
+        - name
+        - unitId
+    CreateTvBoardRequest:
+      allOf:
+        - $ref: '#/components/schemas/TvBoardBase'
+    CreateTvBoardResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/TvBoard'
+      required:
+        - data
+    GetTvBoardDataResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            tvBoard:
+              type: object
+              $ref: '#/components/schemas/TvBoard'
+            tasks:
+              type: array
+              items:
+                $ref: '#/components/schemas/TaskBase'
+          required:
+            - tvBoard
+            - tasks
       required:
         - data
   responses:
