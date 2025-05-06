@@ -26,40 +26,14 @@ const getAllDescendantIds = (item: StorageGroup | OrganizationUnit): string[] =>
 };
 
 // Create an atom family for each item's open state
-export const itemOpenAtom = atomFamily((itemId: string) =>
-    atom((get) => {
-        const openItems = get(openItemsAtom);
-        return !!openItems[itemId];
-    })
-);
+export const itemOpenAtom = (itemId: string) =>
+    atom(false);
 
 export const toggleItemAtom = atom(
     null,
-    (get, set, params: {
-        itemId: string,
-        item?: OrganizationUnit | StorageGroup | CellGroup,
-        isClosing?: boolean
-    }) => {
-        const { itemId, item, isClosing } = params;
-        const openItems = get(openItemsAtom);
-        const newState = { ...openItems };
-
-        // If we're closing an item or it's currently open and we're toggling it closed
-        if (isClosing || openItems[itemId]) {
-            delete newState[itemId];
-
-            // If this is a parent item, also close all descendants
-            if (item && 'children' in item) {
-                const descendantIds = getAllDescendantIds(item);
-                descendantIds.forEach(id => {
-                    delete newState[id];
-                });
-            }
-        } else {
-            newState[itemId] = true;
-        }
-
-        set(openItemsAtom, newState);
+    (get, set, { itemId, item }: { itemId: string; item: any }) => {
+        const isOpen = get(itemOpenAtom(itemId));
+        set(itemOpenAtom(itemId), !isOpen);
     }
 );
 
@@ -92,4 +66,6 @@ export const cleanupRemovedItemsAtom = atom(
             set(openItemsAtom, newState);
         }
     }
-); 
+);
+
+export const searchQueryAtom = atom(""); 

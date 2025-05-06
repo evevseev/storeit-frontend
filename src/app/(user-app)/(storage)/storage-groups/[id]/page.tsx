@@ -6,17 +6,17 @@ import {
 } from "@/components/common-page/block";
 import { useParams } from "next/navigation";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
-import { useQueryClient } from "@tanstack/react-query";
 import { PageMetadata } from "@/components/header/page-metadata";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import Link from "next/link";
+import { HistoryTable } from "@/components/history-table";
+import { ObjectType } from "@/components/history-table/types";
 
 export default function StorageGroupPage() {
   const { id } = useParams();
 
   const client = useApiQueryClient();
-  const globalClient = useQueryClient();
   const { data: storageGroup, isPending } = client.useQuery(
     "get",
     "/storage-groups/{id}",
@@ -55,6 +55,9 @@ export default function StorageGroupPage() {
       <Block title="Основная информация" isLoading={isPending}>
         <BlockTextElement label="Название" value={storageGroup?.data.name} />
         <BlockTextElement label="Алиас" value={storageGroup?.data.alias} />
+      </Block>
+      <Block title="История изменений">
+        <HistoryTable objectType={ObjectType.StorageGroup} objectId={id as string} />
       </Block>
     </BlockedPage>
   );

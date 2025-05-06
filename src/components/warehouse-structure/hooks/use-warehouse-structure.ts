@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import { toast } from "sonner";
-import { OrganizationUnit, StorageGroup } from "../types";
-import { ApiStorageGroup, ApiUnit } from "../api-types";
+import { OrganizationUnit, StorageGroup, CellGroup } from "../types";
+import { ApiStorageGroup, ApiUnit, ApiCellGroup } from "../api-types";
 
 export function useWarehouseStructure() {
   const queryClient = useApiQueryClient();
@@ -20,45 +20,76 @@ export function useWarehouseStructure() {
     isLoading: storageGroupsIsLoading,
   } = queryClient.useQuery("get", "/storage-groups");
 
-  const isLoading = unitsIsLoading || storageGroupsIsLoading;
-  const error = unitsError || storageGroupsError;
+  const {
+    data: cellsGroupsData,
+    error: cellsGroupsError,
+    isLoading: cellsGroupsIsLoading,
+  } = queryClient.useQuery("get", "/cells-groups");
+
+  const isLoading = unitsIsLoading || storageGroupsIsLoading || cellsGroupsIsLoading;
+  const error = unitsError || storageGroupsError || cellsGroupsError;
 
   // Transform storage groups into a hierarchical structure
-  const buildStorageGroupTree = (
+  const buildStorageGroupTree = useMemo(() => (
     unitId: string,
     parentId: string | null = null
   ): StorageGroup[] => {
-    const groupsForParent =
-      storageGroupsData?.data.filter(
+    if (!storageGroupsData?.data || !cellsGroupsData?.data) return [];
+
+    // Get storage groups for this parent
+    const storageGroupsForParent =
+      storageGroupsData.data.filter(
         (group: ApiStorageGroup) =>
           group.unitId === unitId && group.parentId === parentId
-      ) || [];
+      );
 
-    return groupsForParent.map((group: ApiStorageGroup) => ({
-      id: group.id,
-      unitId: group.unitId,
-      parentId: group.parentId,
-      name: group.name,
-      alias: group.alias,
-      children: buildStorageGroupTree(unitId, group.id),
-    }));
-  };
+    // Transform storage groups
+    return storageGroupsForParent.map((group: ApiStorageGroup) => {
+      // Get cells groups for this storage group
+      const cellGroups = cellsGroupsData.data
+        .filter((cg: ApiCellGroup) => cg.storageGroupId === group.id)
+        .map((cg: ApiCellGroup): CellGroup => ({
+          id: cg.id,
+          unitId: cg.unitId,
+          storageGroupId: cg.storageGroupId,
+          name: cg.name,
+          alias: cg.alias,
+          type: 'cellGroup',
+        }));
+
+      // Recursively build the tree for nested storage groups
+      const childStorageGroups = buildStorageGroupTree(unitId, group.id);
+
+      return {
+        id: group.id,
+        unitId: group.unitId,
+        parentId: group.parentId,
+        name: group.name,
+        alias: group.alias,
+        type: 'storageGroup',
+        children: [...childStorageGroups, ...cellGroups],
+      };
+    });
+  }, [storageGroupsData?.data, cellsGroupsData?.data]);
 
   useEffect(() => {
-    if (unitsData) {
+    if (unitsData?.data && storageGroupsData?.data && cellsGroupsData?.data) {
       const transformedData: OrganizationUnit[] = unitsData.data.map(
         (unit: ApiUnit) => ({
-          ...unit,
+          id: unit.id,
+          name: unit.name,
+          alias: unit.alias,
+          address: unit.address,
           children: buildStorageGroupTree(unit.id),
         })
       );
       setUnits(transformedData);
     }
-  }, [unitsData, storageGroupsData]);
+  }, [unitsData?.data, storageGroupsData?.data, cellsGroupsData?.data, buildStorageGroupTree]);
 
   useEffect(() => {
     if (error) {
-      toast.error(`Ошибка загрузки: ${error.message}`);
+      toast.error(`Ошибка загрузки: ${(error as any)?.error?.message || 'Неизвестная ошибка'}`);
     }
   }, [error]);
 

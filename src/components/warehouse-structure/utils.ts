@@ -1,4 +1,4 @@
-import { ElementBase, StorageGroup, OrganizationUnit } from './types';
+import { ElementBase, StorageGroup, OrganizationUnit, CellGroup } from './types';
 
 export const matchesSearch = (item: ElementBase, searchQuery: string): boolean => {
   if (!searchQuery) return true;
@@ -17,11 +17,10 @@ export const storageGroupMatchesSearch = (
   if (matchesSearch(item, searchQuery)) return true;
 
   return item.children.some((child) => {
-    if (child.type === "cellGroup") {
+    if (child.type === 'cellGroup') {
       return matchesSearch(child, searchQuery);
-    } else {
-      return storageGroupMatchesSearch(child, searchQuery);
     }
+    return storageGroupMatchesSearch(child, searchQuery);
   });
 };
 

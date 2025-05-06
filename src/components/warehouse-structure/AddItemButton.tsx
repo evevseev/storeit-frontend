@@ -48,12 +48,10 @@ export const GroupsCreationButton = ({
             <FolderPlus className="mr-2 h-4 w-4" />
             Создать Группу...
           </DropdownMenuItem>
-          {parentId && (
-            <DropdownMenuItem onClick={() => setIsCreateCellsGroupOpen(true)}>
-              <Grid2x2 className="mr-2 h-4 w-4" />
-              Создать Группу ячеек…
-            </DropdownMenuItem>
-          )}
+          <DropdownMenuItem onClick={() => setIsCreateCellsGroupOpen(true)}>
+            <Grid2x2 className="mr-2 h-4 w-4" />
+            Создать Группу ячеек…
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -64,14 +62,13 @@ export const GroupsCreationButton = ({
         parentId={parentId}
         unitId={unitId}
       />
-      {parentId && (
-        <CreateCellsGroupDialog
-          open={isCreateCellsGroupOpen}
-          onOpenChange={setIsCreateCellsGroupOpen}
-          parentPath={parentPath}
-          parentId={parentId}
-        />
-      )}
+      <CreateCellsGroupDialog
+        open={isCreateCellsGroupOpen}
+        onOpenChange={setIsCreateCellsGroupOpen}
+        parentPath={parentPath}
+        parentId={parentId}
+        unitId={unitId}
+      />
     </>
   );
 };

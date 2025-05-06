@@ -4,4 +4,7 @@ export type ApiStorageGroup =
   paths["/storage-groups"]["get"]["responses"]["200"]["content"]["application/json"]["data"][number];
 
 export type ApiUnit =
-  paths["/units"]["get"]["responses"]["200"]["content"]["application/json"]["data"][number]; 
+  paths["/units"]["get"]["responses"]["200"]["content"]["application/json"]["data"][number];
+
+export type ApiCellGroup =
+  paths["/cells-groups"]["get"]["responses"]["200"]["content"]["application/json"]["data"][number]; 

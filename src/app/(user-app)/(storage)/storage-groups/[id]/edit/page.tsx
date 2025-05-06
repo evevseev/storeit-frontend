@@ -1,9 +1,5 @@
 "use client";
-import {
-  Block,
-  BlockedPage,
-  BlockTextElement,
-} from "@/components/common-page/block";
+import { Block, BlockedPage } from "@/components/common-page/block";
 import { useParams } from "next/navigation";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import { useQueryClient } from "@tanstack/react-query";
