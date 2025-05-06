@@ -27,7 +27,7 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 
 export function OrgSwitcher() {
-  const { getOrganizationId } = useAuth();
+  const { getOrganizationId, setOrganizationId } = useAuth();
   const queryClient = useApiQueryClient();
   const globalQueryClient = useQueryClient();
   const [isCreateOrgDialogOpen, setIsCreateOrgDialogOpen] = useState(false);
@@ -44,7 +44,7 @@ export function OrgSwitcher() {
   const { isMobile } = useSidebar();
 
   const changeOrg = (orgId: string) => {
-    setActiveOrgId(orgId);
+    setOrganizationId(orgId);
     globalQueryClient.invalidateQueries();
   };
 

@@ -10,6 +10,8 @@ import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { HistoryTable } from "@/components/history-table";
+import { ObjectType } from "@/components/history-table/types";
 
 export default function UnitPage() {
   const { id } = useParams();
@@ -48,6 +50,9 @@ export default function UnitPage() {
         <BlockTextElement label="Название" value={data.data.name} />
         <BlockTextElement label="Аббревиатура" value={data.data.alias} />
         <BlockTextElement label="Адрес" value={data.data.address ?? ""} />
+      </Block>
+      <Block title="История изменения">
+        <HistoryTable objectType={ObjectType.Unit} objectId={data.data.id} />
       </Block>
     </BlockedPage>
   );

@@ -6,7 +6,6 @@ import { useAppForm } from "@/components/common-form";
 import { useParams, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { createUnitFormSchema } from "../../types";
 import { Block, BlockedPage } from "@/components/common-page/block";
 
 export default function EditUnitPage() {
@@ -23,7 +22,7 @@ export default function EditUnitPage() {
     },
   });
 
-  const mutation = client.useMutation("patch", "/units/{id}");
+  const mutation = client.useMutation("put", "/units/{id}");
 
   const form = useAppForm({
     defaultValues: {
@@ -31,9 +30,9 @@ export default function EditUnitPage() {
       alias: unitData?.data.alias ?? "",
       address: unitData?.data.address ?? "",
     },
-    validators: {
-      onChange: createUnitFormSchema,
-    },
+    // validators: {
+    //   onChange: createUnitFormSchema,
+    // },
     onSubmit: (data) => {
       mutation.mutate(
         {
