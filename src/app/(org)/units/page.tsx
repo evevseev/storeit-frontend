@@ -10,10 +10,7 @@ import { Unit } from "./types";
 
 export default function UnitsPage() {
   const client = useApiQueryClient();
-  const { data, isPending, isError, refetch } = client.useQuery(
-    "get",
-    "/units"
-  );
+  const { data, isPending } = client.useQuery("get", "/units");
   const [units, setUnits] = useState<Unit[]>([]);
 
   useEffect(() => {
@@ -30,13 +27,16 @@ export default function UnitsPage() {
   }, [data]);
 
   const getRowHref = (unit: Unit) => `/units/${unit.id}`;
-  const columns = createUnitColumns(refetch);
+  const columns = createUnitColumns();
 
   return (
     <>
       <PageMetadata
         title="Подразделения"
-        breadcrumbs={[{ label: "Организация" }, { label: "Подразделения" }]}
+        breadcrumbs={[
+          { label: "Организация" },
+          { label: "Подразделения", href: "/units" },
+        ]}
         actions={[<CreateUnitDialog key="create" />]}
       />
       <DataTable

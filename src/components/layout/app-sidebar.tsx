@@ -59,7 +59,10 @@ const data = {
           title: "API токены",
           url: "/api-tokens",
         },
-
+        {
+          title: "Организация",
+          url: "/org",
+        },
       ],
     },
   ],

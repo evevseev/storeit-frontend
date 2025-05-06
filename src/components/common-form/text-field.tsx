@@ -1,5 +1,5 @@
 import { useFieldContext } from "@/components/common-form";
-import { Input } from "../ui/input";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import React from "react";
 import {
@@ -8,14 +8,15 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
+} from "@/components/ui/select";
+import { ValidationErrorText } from "./validation-error-text";
 
 interface TextFieldProps {
   placeholder?: string;
-  type?: "text" | "number";
+  type?: "text" | "number" | "nullabletext";
   unit?: string;
   label: string;
-  value?: string | number;
+  value?: string | number | null;
 }
 
 interface DropdownOption {
@@ -62,14 +63,7 @@ export function FormInputDropdown({
             ))}
           </SelectContent>
         </Select>
-        {hasError && (
-          <div className="absolute -top-2 left-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-out">
-            <div className="bg-red-500 text-white px-2 py-1 rounded text-sm whitespace-nowrap">
-              {field.state.meta.errors.join(", ")}
-            </div>
-            <div className="w-2 h-2 bg-red-500 rotate-45 translate-x-2 -translate-y-1"></div>
-          </div>
-        )}
+        {hasError && <ValidationErrorText errors={field.state.meta.errors} />}
       </div>
     </div>
   );
@@ -82,33 +76,38 @@ export function FormInputField({
   label,
   value,
 }: TextFieldProps) {
-  const field = useFieldContext<string | number>();
+  const field = useFieldContext<string | number | null>();
   const hasError = field.state.meta.errors.length > 0;
+
+  React.useEffect(() => {
+    if (value !== undefined && field.state.value === undefined) {
+      field.handleChange(value);
+    }
+  }, [value, field]);
 
   const handleChange = (value: string) => {
     if (type === "number") {
       const numValue = value === "" ? "" : Number(value);
       field.handleChange(numValue);
+    } else if (type === "nullabletext") {
+      field.handleChange(value === "" ? null : value);
     } else {
       field.handleChange(value);
     }
   };
-  // {field.state.meta.errors.length > 0 ? (
-  //   <em role="alert">{field.state.meta.errors.join(', ')}</em>
-  // ) : null}
   return (
     <div>
       <div className="text-sm text-muted-foreground mb-2">{label}</div>
       <div className="relative group">
         <Input
           type={type}
-          value={field.state.value}
+          value={field.state.value ?? ""}
           placeholder={placeholder}
           onChange={(e) => handleChange(e.target.value)}
           onBlur={field.handleBlur}
           className={cn(
             unit ? "pr-8" : "",
-            hasError ? "border-red-500 focus:border-red-500" : ""
+            hasError ? "border-red-500 focus:border-red-500 border-2" : ""
           )}
         />
         {unit && (
@@ -116,14 +115,7 @@ export function FormInputField({
             {unit}
           </div>
         )}
-        {hasError && (
-          <div className="absolute -top-2 left-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-out">
-            <div className="bg-red-500 text-white px-2 py-1 rounded text-sm whitespace-nowrap">
-              {field.state.meta.errors.join(", ")}
-            </div>
-            <div className="w-2 h-2 bg-red-500 rotate-45 translate-x-2 -translate-y-1"></div>
-          </div>
-        )}
+        {hasError && <ValidationErrorText errors={field.state.meta.errors} />}
       </div>
     </div>
   );

@@ -7,7 +7,7 @@ import z from "zod";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useAppForm } from "@/components/common-form";
+import { FormBlock, useAppForm } from "@/components/common-form";
 import { FormInputDropdown } from "@/components/common-form/text-field";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +15,7 @@ import {
   DialogContent,
   DialogFooter,
   DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
@@ -90,9 +91,18 @@ function AddEmployeeDialog() {
             setIsOpen(false);
           },
           onError: (error) => {
-            toast.error("Не удалось добавить сотрудника", {
-              description: error.message,
-            });
+            if (error.error.message == "user not found") {
+              toast.error("Пользователь не найден", {
+                description:
+                  "Пользователь должен быть зарегистрирован в системе перед добавлением",
+              });
+            } else if (error.error.message == "cannot invite yourself") {
+              toast.error("Вы не можете добавить себя в качестве сотрудника");
+            } else {
+              toast.error("Не удалось добавить сотрудника", {
+                description: error.error.message,
+              });
+            }
           },
         }
       );
@@ -108,7 +118,7 @@ function AddEmployeeDialog() {
         </Button>
       </DialogTrigger>
       <DialogContent>
-        <DialogHeader>Добавление сотрудника</DialogHeader>
+        <DialogTitle>Добавление сотрудника</DialogTitle>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -116,7 +126,7 @@ function AddEmployeeDialog() {
             form.handleSubmit();
           }}
         >
-          <div className="flex flex-col gap-4">
+          <FormBlock>
             <form.AppField
               name="email"
               children={(field) => (
@@ -146,7 +156,7 @@ function AddEmployeeDialog() {
                 <form.SubmitButton label="Создать" />
               </form.AppForm>
             </DialogFooter>
-          </div>
+          </FormBlock>
         </form>
       </DialogContent>
     </Dialog>

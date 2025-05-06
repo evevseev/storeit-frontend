@@ -4,8 +4,8 @@ import { useAppForm } from "@/components/common-form";
 import { PageMetadata } from "@/components/header/page-metadata";
 import { Block } from "@/components/common-page/block";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
-import { VariantField } from "@/components/common-form/variant-field";
-import { Variant } from "@/components/common-form/variant-table";
+import { VariantField } from "@/components/variant-field";
+import { Variant } from "@/components/variant-table";
 
 export default function CreateItemPage() {
   const client = useApiQueryClient();

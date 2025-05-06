@@ -13,10 +13,12 @@ import { Unit } from "../types";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 const columnHelper = createColumnHelper<Unit>();
 
-export const createUnitColumns = (refetch: () => void) => {
+export function createUnitColumns() {
+  const queryClient = useQueryClient();
   const client = useApiQueryClient();
   const mutation = client.useMutation("delete", "/units/{id}");
   const router = useRouter();
@@ -48,7 +50,9 @@ export const createUnitColumns = (refetch: () => void) => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Действия</DropdownMenuLabel>
-                <DropdownMenuItem onClick={() => router.push(`/units/${row.original.id}/edit`)}>
+                <DropdownMenuItem
+                  onClick={() => router.push(`/units/${row.original.id}/edit`)}
+                >
                   <Pencil className="mr-2 h-4 w-4" />
                   Редактировать
                 </DropdownMenuItem>
@@ -67,7 +71,9 @@ export const createUnitColumns = (refetch: () => void) => {
                       {
                         onSuccess: () => {
                           toast.success("Подразделение успешно удалено");
-                          refetch();
+                          queryClient.invalidateQueries({
+                            queryKey: ["get", "/units"],
+                          });
                         },
                         onError: (error) => {
                           toast.error("Ошибка при удалении подразделения", {
@@ -88,4 +94,4 @@ export const createUnitColumns = (refetch: () => void) => {
       },
     }),
   ];
-}; 
+}
