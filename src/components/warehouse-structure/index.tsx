@@ -25,7 +25,6 @@ const WarehouseStructure = () => {
     return null;
   }
 
-  // Filter units based on search
   const visibleUnits = units.filter((unit) =>
     organizationUnitMatchesSearch(unit, searchQuery)
   );

@@ -34,9 +34,11 @@ export const OrganizationUnitItem = ({
 
   if (!shouldShow) return null;
 
-  // Filter visible children based on search
   const visibleChildren = item.children.filter((child: StorageGroup) =>
-    organizationUnitMatchesSearch({ ...child, address: null, children: [] }, searchQuery)
+    organizationUnitMatchesSearch(
+      { ...child, address: null, children: [] },
+      searchQuery
+    )
   );
 
   return (
@@ -44,7 +46,7 @@ export const OrganizationUnitItem = ({
       <div
         className={cn("py-2 rounded-lg border border-gray-200", highlightClass)}
       >
-        <div className="flex items-center group px-2">
+        {/* <div className="flex items-center group px-2">
           {item.children && item.children.length > 0 && (
             <button
               onClick={() => toggleItem({ itemId: item.id, item })}
@@ -96,10 +98,10 @@ export const OrganizationUnitItem = ({
             />
             <ItemDropdown type="unit" id={item.id} />
           </div>
-        </div>
+        </div> */}
       </div>
 
-      {isExpanded && visibleChildren.length > 0 && (
+      {/* {isExpanded && visibleChildren.length > 0 && (
         <div className="mt-2 pl-8">
           {visibleChildren.map((storageGroup, index) => (
             <StorageGroupItem
@@ -111,7 +113,7 @@ export const OrganizationUnitItem = ({
             />
           ))}
         </div>
-      )}
+      )} */}
     </div>
   );
 };
