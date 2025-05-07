@@ -32,12 +32,12 @@ const columns = [
         <Badge
           variant="outline"
           className={
-            type === "pick"
+            type === "pickment"
               ? "bg-blue-500 text-white"
               : "bg-green-500 text-white"
           }
         >
-          {type === "pick" ? "Подбор" : "Перемещение"}
+          {type === "pickment" ? "Подбор" : "Перемещение"}
         </Badge>
       );
     },
@@ -100,9 +100,9 @@ export default function TasksPage() {
 
   return (
     <>
-      <PageMetadata 
-        title="Задания" 
-        breadcrumbs={[{ label: "Задания" }]} 
+      <PageMetadata
+        title="Задания"
+        breadcrumbs={[{ label: "Задания" }]}
         actions={[<CreateTaskDialog key="create" />]}
       />
       <DataTable

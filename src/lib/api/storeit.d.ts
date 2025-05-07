@@ -864,7 +864,7 @@ export interface components {
         };
         ItemCreate: components["schemas"]["ItemBase"];
         CreateItemRequest: components["schemas"]["ItemCreate"];
-        CellForInstance: components["schemas"]["Cell"] & ({
+        CellForInstance: components["schemas"]["Cell"] & {
             cellPath: {
                 /** Format: uuid */
                 id: string;
@@ -873,7 +873,7 @@ export interface components {
                 /** @enum {string} */
                 objectType: "cell" | "cells_group" | "storage_group" | "unit";
             }[];
-        } | null);
+        };
         InstanceForItem: {
             /** Format: uuid */
             id: string;
@@ -1007,7 +1007,7 @@ export interface components {
             name: string;
             description: string | null;
             /** @enum {string} */
-            type: "pick" | "movement";
+            type: "pickment" | "movement";
             /** @enum {string} */
             status: "pending" | "in_progress" | "awaiting_to_collect" | "completed" | "failed";
             /** Format: date-time */
@@ -1026,7 +1026,7 @@ export interface components {
             name: string;
             description?: string | null;
             /** @enum {string} */
-            type: "pick" | "movement";
+            type: "pickment" | "movement";
             /** Format: uuid */
             unitId: string;
             /** Format: uuid */
@@ -1039,10 +1039,11 @@ export interface components {
             }[];
         };
         CreateTaskRequest: components["schemas"]["TaskCreate"];
+        CellForInstanceOptional: components["schemas"]["CellForInstance"] | null;
         TaskItem: {
             instance: components["schemas"]["InstanceFull"];
             sourceCell: components["schemas"]["CellForInstance"];
-            targetCell: components["schemas"]["CellForInstance"];
+            targetCell: components["schemas"]["CellForInstanceOptional"];
             /** @enum {string} */
             status: "pending" | "picked";
         };
