@@ -381,9 +381,7 @@ export default function ItemPage() {
           getSubRows={(row) => row.subRows}
         />
       </Block>
-      <Block title="История изменений">
-        <HistoryTable objectType={ObjectType.Item} objectId={id as string} />
-      </Block>
+      <HistoryTable objectType={ObjectType.Item} objectId={id as string} />
     </div>
   );
 }

@@ -25,12 +25,10 @@ export default function CellsGroupPage() {
       <PageMetadata title={`Группа ячеек #${id}`} breadcrumbs={breadcrumbs} />
       <GroupInfoCard id={id as string} />
       <GroupCellsList id={id as string} />
-      <Block title="История изменений">
-        <HistoryTable
-          objectType={ObjectType.CellsGroup}
-          objectId={id as string}
-        />
-      </Block>
+      <HistoryTable
+        objectType={ObjectType.CellsGroup}
+        objectId={id as string}
+      />
     </BlockedPage>
   );
 }

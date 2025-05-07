@@ -1,6 +1,6 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import {
   MoreHorizontal,
   Pencil,
@@ -56,6 +56,8 @@ export default function CellsList({
   const [editedValues, setEditedValues] = useState<
     Record<string, Partial<Cell>>
   >({});
+
+  const columnHelper = createColumnHelper<Cell>();
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -158,8 +160,8 @@ export default function CellsList({
     );
   };
 
-  const columns: ColumnDef<Cell>[] = [
-    {
+  const columns = [
+    columnHelper.display({
       id: "select",
       header: ({ table }) => (
         <Checkbox
@@ -172,17 +174,22 @@ export default function CellsList({
         />
       ),
       cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
+        <div className="flex justify-start">
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            aria-label="Select row"
+          />
+        </div>
       ),
       enableSorting: false,
       enableHiding: false,
-    },
-    {
-      accessorKey: "alias",
+      meta: {
+        isDisplay: true,
+        isSelector: true,
+      },
+    }),
+    columnHelper.accessor("alias", {
       header: "Название",
       size: 150,
       sortingFn: "alphanumeric",
@@ -199,9 +206,8 @@ export default function CellsList({
         }
         return cell.alias;
       },
-    },
-    {
-      accessorKey: "rackNumber",
+    }),
+    columnHelper.accessor("rackNumber", {
       header: "№ стеллажа",
       size: 120,
       sortingFn: "basic",
@@ -221,9 +227,8 @@ export default function CellsList({
         }
         return cell.rackNumber;
       },
-    },
-    {
-      accessorKey: "levelNumber",
+    }),
+    columnHelper.accessor("levelNumber", {
       header: "№ уровня",
       size: 120,
       sortingFn: "basic",
@@ -243,9 +248,8 @@ export default function CellsList({
         }
         return cell.levelNumber;
       },
-    },
-    {
-      accessorKey: "positionNumber",
+    }),
+    columnHelper.accessor("positionNumber", {
       header: "№ позиции",
       size: 120,
       sortingFn: "basic",
@@ -271,39 +275,32 @@ export default function CellsList({
         }
         return cell.positionNumber;
       },
-    },
-    {
-      accessorKey: "cellKind.name",
+    }),
+    columnHelper.accessor("cellKind.name", {
       header: "Тип ячейки",
       size: 150,
       sortingFn: "alphanumeric",
-    },
-    {
-      accessorKey: "dimensions",
+    }),
+    columnHelper.display({
+      id: "dimensions",
       header: "Размеры (ВxШxГ)",
       size: 150,
       cell: ({ row }) => {
         const cell = row.original;
         return `${cell.cellKind.height}x${cell.cellKind.width}x${cell.cellKind.depth}`;
       },
-    },
-    {
-      accessorKey: "maxWeight",
+    }),
+    columnHelper.accessor("cellKind.maxWeight", {
       header: "Макс. вес (кг)",
       size: 120,
       sortingFn: "basic",
-      cell: ({ row }) => {
-        const cell = row.original;
-        return cell.cellKind.maxWeight;
-      },
-    },
-    {
+    }),
+    columnHelper.display({
       id: "actions",
       size: 50,
       header: () => null,
       cell: ({ row }) => {
         const cell = row.original;
-
         return (
           <div className="text-right">
             <DropdownMenu>
@@ -327,7 +324,7 @@ export default function CellsList({
           </div>
         );
       },
-    },
+    }),
   ];
 
   return (
