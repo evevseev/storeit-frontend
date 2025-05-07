@@ -77,7 +77,7 @@ export function Scanner({ onScan, validateUrl = true }: ScannerProps) {
   );
 
   return (
-    <div className="w-screen h-screen flex items-center justify-center">
+    <div className="flex items-center justify-center w-full">
       <Html5QrcodePlugin
         fps={10}
         qrbox={200}
