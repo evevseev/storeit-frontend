@@ -8,6 +8,7 @@ import {
   X,
   Trash2,
   Plus,
+  Printer,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { DataTable } from "@/components/data-table";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export type CellKind = {
   id: string;
@@ -39,9 +41,18 @@ export type Cell = {
   cellKind: CellKind;
 };
 
-export default function CellsList() {
-  const [data, setData] = useState<Cell[]>(testData);
+interface CellsListProps {
+  cells: Cell[];
+  onPrintLabels?: (selectedCells: Cell[]) => void;
+}
+
+export default function CellsList({
+  cells: initialCells,
+  onPrintLabels,
+}: CellsListProps) {
+  const [data, setData] = useState<Cell[]>(initialCells);
   const [isEditing, setIsEditing] = useState(false);
+  const [selectedCells, setSelectedCells] = useState<Cell[]>([]);
   const [editedValues, setEditedValues] = useState<
     Record<string, Partial<Cell>>
   >({});
@@ -102,35 +113,74 @@ export default function CellsList() {
     console.log("Create cell clicked");
   };
 
+  const handlePrintLabels = () => {
+    if (onPrintLabels && selectedCells.length > 0) {
+      onPrintLabels(selectedCells);
+    }
+  };
+
   const renderTopToolbar = () => {
     return (
       <div className="flex items-center gap-4">
         <Button variant="outline" size="sm" onClick={handleCreateCell}>
           <Plus className="mr-2 h-4 w-4" />
-          Create Cell
+          Создать ячейку
         </Button>
         {isEditing ? (
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={handleCancel}>
               <X className="mr-2 h-4 w-4" />
-              Cancel
+              Отмена
             </Button>
             <Button size="sm" onClick={handleSave}>
               <Save className="mr-2 h-4 w-4" />
-              Save Changes
+              Сохранить
             </Button>
           </div>
         ) : (
-          <Button size="sm" onClick={handleEdit}>
-            <Pencil className="mr-2 h-4 w-4" />
-            Edit Cells
-          </Button>
+          <>
+            <Button size="sm" onClick={handleEdit}>
+              <Pencil className="mr-2 h-4 w-4" />
+              Редактировать
+            </Button>
+
+            <Button
+              size="sm"
+              onClick={handlePrintLabels}
+              disabled={selectedCells.length === 0}
+            >
+              <Printer className="mr-2 h-4 w-4" />
+              Печать этикеток ({selectedCells.length})
+            </Button>
+          </>
         )}
       </div>
     );
   };
 
   const columns: ColumnDef<Cell>[] = [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
     {
       accessorKey: "alias",
       header: "Название",
@@ -285,58 +335,15 @@ export default function CellsList() {
       <div className="flex justify-end py-4">{renderTopToolbar()}</div>
       <div className="border rounded-md">
         <div className="overflow-x-auto">
-          <DataTable columns={columns} data={data} />
+          <DataTable
+            columns={columns}
+            data={data}
+            onRowSelectionChange={(selectedRows) => {
+              setSelectedCells(selectedRows);
+            }}
+          />
         </div>
       </div>
     </div>
   );
 }
-
-// Test data
-const testData: Cell[] = [
-  {
-    id: "1",
-    alias: "A1",
-    rackNumber: 1,
-    levelNumber: 1,
-    positionNumber: 1,
-    cellKind: {
-      id: "1",
-      name: "Standard",
-      height: 100,
-      width: 100,
-      depth: 100,
-      maxWeight: 50,
-    },
-  },
-  {
-    id: "2",
-    alias: "A2",
-    rackNumber: 1,
-    levelNumber: 1,
-    positionNumber: 2,
-    cellKind: {
-      id: "2",
-      name: "Large",
-      height: 200,
-      width: 200,
-      depth: 200,
-      maxWeight: 100,
-    },
-  },
-  {
-    id: "3",
-    alias: "B1",
-    rackNumber: 2,
-    levelNumber: 1,
-    positionNumber: 1,
-    cellKind: {
-      id: "1",
-      name: "Standard",
-      height: 100,
-      width: 100,
-      depth: 100,
-      maxWeight: 50,
-    },
-  },
-];

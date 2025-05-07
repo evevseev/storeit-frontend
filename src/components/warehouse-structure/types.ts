@@ -6,7 +6,8 @@ export type ElementBase = {
 
 export type OrganizationUnit = ElementBase & {
   address: string | null;
-  children: StorageGroup[];
+  children: (StorageGroup | CellGroup)[];
+  type: "organizationUnit";
 };
 
 export type CellGroup = ElementBase & {

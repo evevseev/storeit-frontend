@@ -1,7 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ColumnDef, flexRender, getCoreRowModel, Row } from "@tanstack/react-table";
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  Row,
+} from "@tanstack/react-table";
 import { Trash2 } from "lucide-react";
 import { PageMetadata } from "@/components/header/page-metadata";
 import {
@@ -119,7 +124,7 @@ const buildStorageTree = (instances: Instance[]): StorageNode[] => {
     let currentPath: StorageNode[] = [];
     // Process path from general to specific
     const path = instance.cell.cellPath;
-    
+
     path.forEach((pathItem, index) => {
       const nodeId = pathItem.id;
       let node = nodeMap.get(nodeId);
@@ -143,9 +148,9 @@ const buildStorageTree = (instances: Instance[]): StorageNode[] => {
       if (index === path.length - 1) {
         const cellNode: StorageNode = {
           id: instance.cell.id,
-          name: instance.cell.alias, 
+          name: instance.cell.alias,
           alias: instance.cell.alias,
-          type: 'cell',
+          type: "cell",
           instanceCount: 1,
           cellAlias: instance.cell.alias,
           cellPosition: {
@@ -156,8 +161,10 @@ const buildStorageTree = (instances: Instance[]): StorageNode[] => {
           instances: [instance],
         };
         node.subRows = node.subRows || [];
-        
-        const existingCell = node.subRows.find(cell => cell.id === cellNode.id);
+
+        const existingCell = node.subRows.find(
+          (cell) => cell.id === cellNode.id
+        );
         if (existingCell) {
           existingCell.instanceCount++;
           existingCell.instances = existingCell.instances || [];
@@ -184,7 +191,13 @@ const storageColumns = [
   {
     accessorKey: "name",
     header: "Название",
-    cell: ({ row, getValue }: { row: Row<StorageNode>; getValue: () => string }) => {
+    cell: ({
+      row,
+      getValue,
+    }: {
+      row: Row<StorageNode>;
+      getValue: () => string;
+    }) => {
       const value = getValue();
       const indent = row.depth * 24;
 
@@ -212,7 +225,7 @@ const storageColumns = [
     header: "Позиция ячейки",
     cell: ({ row }: { row: Row<StorageNode> }) => {
       const pos = row.original.cellPosition;
-      if (!pos || row.original.type !== 'cell') return null;
+      if (!pos || row.original.type !== "cell") return null;
       return `${pos.row}:${pos.level}:${pos.position}`;
     },
   },
@@ -221,8 +234,8 @@ const storageColumns = [
     header: "ID объекта",
     cell: ({ row }: { row: Row<StorageNode> }) => {
       const instances = row.original.instances;
-      if (!instances?.length || row.original.type !== 'cell') return null;
-      
+      if (!instances?.length || row.original.type !== "cell") return null;
+
       return instances.map((instance: Instance) => (
         <div key={instance.id}>{instance.id}</div>
       ));
@@ -233,8 +246,8 @@ const storageColumns = [
     header: "Название варианта",
     cell: ({ row }: { row: Row<StorageNode> }) => {
       const instances = row.original.instances;
-      if (!instances?.length || row.original.type !== 'cell') return null;
-      
+      if (!instances?.length || row.original.type !== "cell") return null;
+
       return instances.map((instance: Instance) => (
         <div key={instance.id}>{instance.variant.name}</div>
       ));

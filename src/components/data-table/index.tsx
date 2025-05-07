@@ -11,6 +11,7 @@ import {
   getSortedRowModel,
   Row,
   useReactTable,
+  RowSelectionState,
 } from "@tanstack/react-table";
 
 import { Table } from "@/components/ui/table";
@@ -32,6 +33,7 @@ export interface DataTableProps<TData> {
   getRowCanExpand?: (row: Row<TData>) => boolean;
   getSubRows?: (row: TData) => TData[] | undefined;
   getRowHref?: (row: TData) => string;
+  onRowSelectionChange?: (selectedRows: TData[]) => void;
 }
 
 export function DataTable<TData>({
@@ -46,10 +48,10 @@ export function DataTable<TData>({
   getRowCanExpand,
   getSubRows,
   getRowHref,
+  onRowSelectionChange,
 }: Readonly<DataTableProps<TData>>) {
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
 
   const table = useReactTable({
     data: data ?? [],
@@ -65,6 +67,17 @@ export function DataTable<TData>({
     getSubRows,
     state: {
       columnFilters,
+      rowSelection,
+    },
+    enableRowSelection: true,
+    onRowSelectionChange: (updater) => {
+      const newSelection = typeof updater === 'function' ? updater(rowSelection) : updater;
+      setRowSelection(newSelection);
+      
+      if (onRowSelectionChange) {
+        const selectedRows = table.getSelectedRowModel().rows.map(row => row.original);
+        onRowSelectionChange(selectedRows);
+      }
     },
     initialState: {
       pagination: {
