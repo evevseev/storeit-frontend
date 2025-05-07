@@ -5,8 +5,8 @@ import CellsList from "@/components/cells-group/cells-list";
 import GroupInfoCard from "@/components/cells-group/group-info-card";
 import { useParams } from "next/navigation";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
-import { HistoryTable } from "@/components/history-table";
-import { ObjectType } from "@/components/history-table/types";
+import { HistoryTable } from "@/components/common-page/history-table";
+import { ObjectType } from "@/components/common-page/history-table/types";
 import { Block, BlockedPage } from "@/components/common-page/block";
 import GroupCellsList from "@/components/cells-group/group-cells-list";
 

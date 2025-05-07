@@ -2,11 +2,12 @@
 
 import { createColumnHelper } from "@tanstack/react-table";
 import { DataTable } from "@/components/data-table";
-import { ObjectType, HistoryTableProps } from "./types";
+import { HistoryTableProps } from "./types";
 import { computeDiff } from "./utils";
 import { Badge } from "@/components/ui/badge";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import type { components } from "@/lib/api/storeit";
+import { Block } from "../block";
 
 type AuditLog = components["schemas"]["AuditLog"];
 
@@ -84,7 +85,10 @@ function DiffCell({
 }
 
 function ChangeTypeBadge({ type }: { type: AuditLog["action"] }) {
-  const variants: Record<AuditLog["action"], "default" | "secondary" | "destructive"> = {
+  const variants: Record<
+    AuditLog["action"],
+    "default" | "secondary" | "destructive"
+  > = {
     create: "default",
     update: "secondary",
     delete: "destructive",
@@ -120,9 +124,11 @@ export function HistoryTable({ objectType, objectId }: HistoryTableProps) {
       header: "Пользователь",
       cell: (info) => {
         const employee = info.getValue();
-        return employee 
-          ? `${employee.lastName} ${employee.firstName}${employee.middleName ? ` ${employee.middleName}` : ""}`
-          : "Система";
+        return employee
+          ? `${employee.lastName} ${employee.firstName}${
+              employee.middleName ? ` ${employee.middleName}` : ""
+            }`
+          : "";
       },
     }),
     columnHelper.display({
@@ -137,12 +143,14 @@ export function HistoryTable({ objectType, objectId }: HistoryTableProps) {
     }),
   ];
 
-  const historyData = data?.data 
-    ? data.data.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+  const historyData = data?.data
+    ? data.data.sort(
+        (a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()
+      )
     : [];
 
   return (
-    <div>
+    <Block title="История изменений">
       <DataTable
         columns={columns}
         data={historyData}
@@ -150,6 +158,6 @@ export function HistoryTable({ objectType, objectId }: HistoryTableProps) {
         isLoading={isPending}
         isError={isError}
       />
-    </div>
+    </Block>
   );
 }

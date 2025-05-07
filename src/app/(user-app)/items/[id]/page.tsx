@@ -22,8 +22,8 @@ import { useReactTable, createColumnHelper } from "@tanstack/react-table";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import { DataTable } from "@/components/data-table";
 import { ChevronDown, ChevronRight } from "lucide-react";
-import { HistoryTable } from "@/components/history-table";
-import { ObjectType } from "@/components/history-table/types";
+import { HistoryTable } from "@/components/common-page/history-table";
+import { ObjectType } from "@/components/common-page/history-table/types";
 
 import {
   Table,

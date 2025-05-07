@@ -10,8 +10,8 @@ import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { HistoryTable } from "@/components/history-table";
-import { ObjectType } from "@/components/history-table/types";
+import { HistoryTable } from "@/components/common-page/history-table";
+import { ObjectType } from "@/components/common-page/history-table/types";
 
 export default function UnitPage() {
   const { id } = useParams();
