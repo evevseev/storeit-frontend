@@ -44,7 +44,7 @@ const Html5QrcodePlugin: React.FC<Html5QrcodePluginProps> = (props) => {
     const initializeScanner = async () => {
       const config = createConfig(props);
       const verbose = props.verbose === true;
-      
+
       if (!props.qrCodeSuccessCallback) {
         throw new Error("qrCodeSuccessCallback is required callback.");
       }
@@ -77,7 +77,15 @@ const Html5QrcodePlugin: React.FC<Html5QrcodePluginProps> = (props) => {
         });
       }
     };
-  }, [props.qrCodeSuccessCallback, props.qrCodeErrorCallback, props.fps, props.qrbox, props.aspectRatio, props.disableFlip, props.verbose]);
+  }, [
+    props.qrCodeSuccessCallback,
+    props.qrCodeErrorCallback,
+    props.fps,
+    props.qrbox,
+    props.aspectRatio,
+    props.disableFlip,
+    props.verbose,
+  ]);
 
   return <div id={qrcodeRegionId} />;
 };
