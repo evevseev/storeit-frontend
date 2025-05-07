@@ -189,8 +189,13 @@ export default function CellsList({
         isSelector: true,
       },
     }),
+    columnHelper.accessor("id", {
+      header: "ID",
+      size: 100,
+      sortingFn: "alphanumeric",
+    }),
     columnHelper.accessor("alias", {
-      header: "Название",
+      header: "Обозначение",
       size: 150,
       sortingFn: "alphanumeric",
       cell: ({ row }) => {

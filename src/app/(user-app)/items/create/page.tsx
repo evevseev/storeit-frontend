@@ -14,12 +14,14 @@ import { z } from "zod";
 const validator = z.object({
   name: z.string().min(1),
   description: z.string(),
-  variants: z.array(z.object({
-    id: z.null(),
-    name: z.string().min(1),
-    sku: z.string(),
-    ean13: z.string(),
-  })),
+  variants: z.array(
+    z.object({
+      id: z.null(),
+      name: z.string().min(1),
+      sku: z.string(),
+      ean13: z.string(),
+    })
+  ),
 });
 
 export default function CreateItemPage() {
@@ -28,7 +30,10 @@ export default function CreateItemPage() {
   const router = useRouter();
 
   const createItemMutation = client.useMutation("post", "/items");
-  const createVariantMutation = client.useMutation("post", "/items/{id}/variants");
+  const createVariantMutation = client.useMutation(
+    "post",
+    "/items/{id}/variants"
+  );
 
   const form = useAppForm({
     defaultValues: {
@@ -41,7 +46,6 @@ export default function CreateItemPage() {
     },
     onSubmit: async (data) => {
       try {
-        // First phase: Create the item
         createItemMutation.mutate(
           {
             body: {
@@ -53,7 +57,6 @@ export default function CreateItemPage() {
             onSuccess: (itemResponse) => {
               const itemId = itemResponse.data.id;
 
-              // Second phase: Create variants
               Promise.all(
                 data.value.variants.map((variant) =>
                   createVariantMutation.mutate({
@@ -108,7 +111,9 @@ export default function CreateItemPage() {
             />
             <form.AppField
               name="description"
-              children={(field) => <field.TextField label="Описание" type="nullabletext" />}
+              children={(field) => (
+                <field.TextField label="Описание" type="nullabletext" />
+              )}
             />
             {/* <BlockRow>
               <form.AppField

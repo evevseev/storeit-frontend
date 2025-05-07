@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
-import { pageMetadataAtom } from "@/components/header/page-header";
+import { pageMetadataAtom } from "@/store/page-metadata";
 import { Providers } from "@/components/layout/providers";
 import { useAtomValue } from "jotai";
 import React from "react";

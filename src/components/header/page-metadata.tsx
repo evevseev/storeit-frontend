@@ -1,20 +1,19 @@
 "use client";
 
 import { useEffect } from "react";
-import { useSetAtom } from "jotai";
-import { pageMetadataAtom } from "@/components/header/page-header";
-import { PageMetadataConfig } from "@/components/header/page-header";
+import { usePageMetadata } from "@/hooks/use-page-metadata";
+import { PageMetadataConfig } from "@/store/page-metadata";
 
 export function PageMetadata({
   title,
   breadcrumbs,
   actions,
 }: PageMetadataConfig) {
-  const setMetadata = useSetAtom(pageMetadataAtom);
+  const { setPageMetadata } = usePageMetadata();
 
   useEffect(() => {
-    setMetadata({ title, breadcrumbs, actions });
-  }, [title, breadcrumbs, actions, setMetadata]);
+    setPageMetadata({ title, breadcrumbs, actions });
+  }, [title, breadcrumbs, actions, setPageMetadata]);
 
   return null;
 }
