@@ -1,11 +1,52 @@
+"use client";
+
 import { ClipboardList, Package, Plus, Search } from "lucide-react";
+import { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { useApiQueryClient } from "@/hooks/use-api-query-client";
 
 import { DctButton } from "@/components/dct/button";
+import { ScannerDialog } from "@/app/(dct)/dct/scanner/scanner-dialog";
+import { ScannerResult } from "@/app/(dct)/dct/scanner/scanner";
 
 export default function DctPage() {
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const router = useRouter();
+  const client = useApiQueryClient();
+  const { data: items } = client.useQuery("get", "/items");
+
+  const findItemByEan = useCallback(
+    (ean: string) => {
+      if (!items || !items.data) return null;
+
+      const item = items.data.find((item) =>
+        item.variants.some(
+          (variant) => variant.ean13 && String(variant.ean13) === ean
+        )
+      );
+      if (item) {
+        return item.id;
+      }
+
+      return null;
+    },
+    [items]
+  );
+
+  function handleScanResult(result: ScannerResult) {
+    if (result.source === "ean") {
+      const itemId = findItemByEan(result.value);
+      if (itemId) {
+        router.push(`/items/${itemId}`);
+      }
+    } else {
+      router.push(result.value);
+    }
+  }
+
   return (
     <div className="flex flex-col w-full p-5 gap-4">
-      <DctButton href="/dct/scanner">
+      <DctButton onClick={() => setScannerOpen(true)}>
         <Search />
         Поиск товара / Ячейки / Экземпляра
       </DctButton>
@@ -28,6 +69,12 @@ export default function DctPage() {
         <Package />
         Структура склада
       </DctButton>
+
+      <ScannerDialog
+        open={scannerOpen}
+        onOpenChange={setScannerOpen}
+        onScan={handleScanResult}
+      />
     </div>
   );
 }

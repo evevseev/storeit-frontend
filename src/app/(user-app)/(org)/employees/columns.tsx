@@ -83,7 +83,7 @@ export const columns = [
                 },
                 onError: (error) => {
                   toast.error("Не удалось изменить роль", {
-                    description: error.message,
+                    description: error.error.message,
                   });
                 },
               }
@@ -106,6 +106,9 @@ export const columns = [
   }),
   columnHelper.display({
     id: "actions",
+    meta: {
+      isDisplay: true,
+    },
     cell: ({ row }) => {
       const employee = row.original;
       const client = useApiQueryClient();
@@ -144,7 +147,7 @@ export const columns = [
                     },
                     onError: (error) => {
                       toast.error("Не удалось удалить сотрудника", {
-                        description: error.message,
+                        description: error.error.message,
                       });
                     },
                   }

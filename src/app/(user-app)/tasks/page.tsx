@@ -11,6 +11,7 @@ import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import { redirect } from "next/navigation";
 import type { components } from "@/lib/api/storeit";
 import { CreateTaskDialog } from "./create-task-dialog";
+import { CopyableText } from "@/components/ui/copyable-text";
 
 type Task = components["schemas"]["TaskBase"];
 
@@ -18,7 +19,7 @@ const columnHelper = createColumnHelper<Task>();
 const columns = [
   columnHelper.accessor("id", {
     header: "ID",
-    cell: (props) => props.getValue().substring(0, 8),
+    cell: (props) => <CopyableText>{props.getValue()}</CopyableText>,
   }),
   columnHelper.accessor("name", {
     header: "Название",
@@ -108,7 +109,7 @@ export default function TasksPage() {
       <DataTable
         columns={columns}
         data={tasks}
-        onRowClick={(row) => redirect(`/tasks/${row.id}`)}
+        onRowClick={(row) => redirect(`/dct/tasks/${row.id}`)}
         isLoading={isPending}
       />
     </>

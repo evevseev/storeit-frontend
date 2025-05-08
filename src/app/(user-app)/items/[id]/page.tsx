@@ -6,8 +6,9 @@ import {
   flexRender,
   getCoreRowModel,
   Row,
+  RowSelectionState,
 } from "@tanstack/react-table";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Pencil, Save, X } from "lucide-react";
 import { PageMetadata } from "@/components/header/page-metadata";
 import {
   Block,
@@ -52,6 +53,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { CopyableText } from "@/components/ui/copyable-text";
+import { defaultColumn, EditedCellValue } from "@/lib/tanstack-table";
+
 type Item = {
   id: string;
   name: string;
@@ -105,36 +108,6 @@ type StorageNode = {
 };
 
 const variantColumnHelper = createColumnHelper<Variant>();
-const variantColumns = [
-  variantColumnHelper.accessor("name", {
-    header: "Название",
-    cell: (props) => props.getValue(),
-  }),
-  variantColumnHelper.accessor("article", {
-    header: "Артикул",
-    cell: (props) => <CopyableText>{props.getValue()}</CopyableText>,
-  }),
-  variantColumnHelper.accessor("ean13", {
-    header: "EAN13",
-    cell: (props) => <CopyableText>{props.getValue()}</CopyableText>,
-  }),
-  variantColumnHelper.display({
-    id: "actions",
-    cell: (props) => (
-      <div className="text-right">
-        <Button
-          variant="ghost"
-          className="h-8 w-8 p-0 hover:cursor-pointer"
-          onClick={() => {
-            alert(props.row.original.id);
-          }}
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
-      </div>
-    ),
-  }),
-];
 
 const buildStorageTree = (instances: Instance[]): StorageNode[] => {
   const nodeMap = new Map<string, StorageNode>();
@@ -202,6 +175,9 @@ export default function ItemPage() {
   const [selectedVariant, setSelectedVariant] = useState<string>("");
   const [cellUuid, setCellUuid] = useState<string>("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isVariantsEditing, setIsVariantsEditing] = useState(false);
+  const [editedVariantValues, setEditedVariantValues] = useState<EditedCellValue[]>([]);
+  const [selectedVariants, setSelectedVariants] = useState<RowSelectionState>({});
 
   const { data, isLoading, isError } = client.useQuery("get", "/items/{id}", {
     params: {
@@ -220,6 +196,16 @@ export default function ItemPage() {
     "/instances/{instanceId}"
   );
 
+  const { mutate: updateVariant } = client.useMutation(
+    "put",
+    "/items/{id}/variants/{variantId}"
+  );
+
+  const { mutate: deleteVariant } = client.useMutation(
+    "delete",
+    "/items/{id}/variants/{variantId}"
+  );
+
   const handleDeleteInstance = async (instanceId: string) => {
     deleteInstanceMutation.mutate(
       {
@@ -231,11 +217,11 @@ export default function ItemPage() {
       },
       {
         onSuccess: () => {
-          toast.success("Инстанс успешно удален");
+          toast.success("Экземпляр успешно удален");
           globalClient.invalidateQueries({ queryKey: ["get", "/items/{id}"] });
         },
         onError: (error) => {
-          toast.error("Ошибка при удалении инстанса", {
+          toast.error("Ошибка при удалении экземпляра", {
             description: error.error?.message || "Неизвестная ошибка",
           });
         },
@@ -263,7 +249,7 @@ export default function ItemPage() {
       },
       {
         onSuccess: () => {
-          toast.success("Инстанс успешно создан");
+          toast.success("Экземпляр успешно создан");
           globalClient.invalidateQueries({ queryKey: ["get", "/items/{id}"] });
           // Reset form
           setSelectedVariant("");
@@ -271,12 +257,83 @@ export default function ItemPage() {
           setIsDialogOpen(false);
         },
         onError: (error) => {
-          toast.error("Ошибка при создании инстанса", {
+          toast.error("Ошибка при создании экземпляра", {
             description: error.error?.message || "Неизвестная ошибка",
           });
         },
       }
     );
+  };
+
+  const handleEditVariants = () => {
+    setIsVariantsEditing(true);
+    setEditedVariantValues([]);
+  };
+
+  const handleSaveVariants = () => {
+    const editsByVariant = editedVariantValues.reduce((acc, edit) => {
+      const variant = data?.data?.variants[edit.rowIndex];
+      if (!variant) return acc;
+
+      if (!acc[variant.id]) {
+        acc[variant.id] = { ...variant };
+      }
+
+      switch (edit.columnId) {
+        case "name":
+          acc[variant.id].name = edit.value as string;
+          break;
+        case "article":
+          acc[variant.id].article = edit.value as string;
+          break;
+        case "ean13":
+          acc[variant.id].ean13 = edit.value as number;
+          break;
+      }
+
+      return acc;
+    }, {} as Record<string, Variant>);
+
+    Object.entries(editsByVariant).forEach(([variantId, updatedVariant]) => {
+      updateVariant(
+        {
+          params: {
+            path: {
+              id: id as string,
+              variantId,
+            },
+          },
+          body: updatedVariant,
+        },
+        {
+          onSuccess: () => {
+            globalClient.invalidateQueries({
+              queryKey: ["get", "/items/{id}"],
+            });
+          },
+          onError: (error: { error: { message: string } }) => {
+            toast.error("Ошибка при обновлении варианта", {
+              description: error.error?.message || "Неизвестная ошибка",
+            });
+          },
+        }
+      );
+    });
+
+    if (Object.keys(editsByVariant).length > 0) {
+      toast.success("Изменения сохранены");
+    }
+
+    setIsVariantsEditing(false);
+    setEditedVariantValues([]);
+  };
+
+  const handleCancelVariants = () => {
+    setIsVariantsEditing(false);
+    setEditedVariantValues([]);
+    globalClient.invalidateQueries({
+      queryKey: ["get", "/items/{id}"],
+    });
   };
 
   const getStorageColumns = () => [
@@ -341,7 +398,9 @@ export default function ItemPage() {
     },
     {
       id: "actions",
-      header: "Действия",
+      meta: {
+        isDisplay: true,
+      },
       cell: ({ row }: { row: Row<StorageNode> }) => {
         const instances = row.original.instances;
         if (!instances?.length || row.original.type !== "instance") return null;
@@ -364,10 +423,98 @@ export default function ItemPage() {
     },
   ];
 
+  const variantColumns = [
+    variantColumnHelper.accessor("name", {
+      header: "Название",
+    }),
+    variantColumnHelper.accessor("article", {
+      header: "Артикул",
+    }),
+    variantColumnHelper.accessor("ean13", {
+      header: "EAN13",
+    }),
+    variantColumnHelper.display({
+      id: "actions",
+      meta: {
+        isDisplay: true,
+      },
+      cell: (props) => (
+        <div className="text-right">
+          <Button
+            variant="ghost"
+            className="h-8 w-8 p-0 hover:cursor-pointer"
+            onClick={() => {
+              alert(props.row.original.id);
+            }}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      ),
+    }),
+  ];
+
+  const handleDeleteVariant = (variantId: string) => {
+    deleteVariant(
+      {
+        params: {
+          path: {
+            id: id as string,
+            variantId,
+          },
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Вариант успешно удален");
+          globalClient.invalidateQueries({
+            queryKey: ["get", "/items/{id}"],
+          });
+        },
+        onError: (error: { error: { message: string } }) => {
+          toast.error("Ошибка при удалении варианта", {
+            description: error.error?.message || "Неизвестная ошибка",
+          });
+        },
+      }
+    );
+  };
+
+  // Update the actions column to use delete handler
+  variantColumns[3].cell = (props) => (
+    <div className="text-right">
+      <Button
+        variant="ghost"
+        className="h-8 w-8 p-0 hover:cursor-pointer"
+        onClick={(e) => {
+          e.stopPropagation();
+          handleDeleteVariant(props.row.original.id);
+        }}
+      >
+        <Trash2 className="h-4 w-4" />
+      </Button>
+    </div>
+  );
+
   const table = useReactTable({
     data: data?.data?.variants ?? [],
     columns: variantColumns,
     getCoreRowModel: getCoreRowModel(),
+    defaultColumn,
+    meta: {
+      addEditedValue: (value: EditedCellValue) => {
+        setEditedVariantValues((prev) => {
+          const filtered = prev.filter(
+            (edit) =>
+              !(
+                edit.rowIndex === value.rowIndex &&
+                edit.columnId === value.columnId
+              )
+          );
+          return [...filtered, value];
+        });
+      },
+    },
   });
 
   useEffect(() => {
@@ -420,58 +567,63 @@ export default function ItemPage() {
       </BlockedPageRow>
       <BlockedPageRow>
         <Block title="Варианты">
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow>
-                  {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  className="hover:cursor-pointer"
-                  onClick={() => {
-                    alert(row.original.id);
-                  }}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <div className="flex justify-end py-4">
+            {isVariantsEditing ? (
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={handleCancelVariants}>
+                  <X className="mr-2 h-4 w-4" />
+                  Отмена
+                </Button>
+                <Button size="sm" onClick={handleSaveVariants}>
+                  <Save className="mr-2 h-4 w-4" />
+                  Сохранить
+                </Button>
+              </div>
+            ) : (
+              <Button size="sm" onClick={handleEditVariants}>
+                <Pencil className="mr-2 h-4 w-4" />
+                Редактировать
+              </Button>
+            )}
+          </div>
+          <div className="border rounded-md">
+            <div className="overflow-x-auto">
+              <DataTable
+                columns={variantColumns}
+                data={data?.data?.variants}
+                defaultColumn={defaultColumn}
+                editMode={isVariantsEditing}
+                meta={{
+                  addEditedValue: (value: EditedCellValue) => {
+                    setEditedVariantValues((prev) => {
+                      const filtered = prev.filter(
+                        (edit) =>
+                          !(
+                            edit.rowIndex === value.rowIndex &&
+                            edit.columnId === value.columnId
+                          )
+                      );
+                      return [...filtered, value];
+                    });
+                  },
+                }}
+              />
+            </div>
+          </div>
         </Block>
       </BlockedPageRow>
-      <Block title="Инстансы">
+      <Block title="Экземпляры">
         <div className="flex justify-end mb-4">
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button>
                 <Plus className="h-4 w-4 mr-2" />
-                Создать инстанс
+                Создать экземпляр
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Создать инстанс товара</DialogTitle>
+                <DialogTitle>Создать экземпляр товара</DialogTitle>
               </DialogHeader>
               <div className="grid gap-4 py-4">
                 <div className="grid gap-2">

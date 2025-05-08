@@ -4,8 +4,6 @@ import Html5QrcodePlugin from "@/components/Html5QrcodePlugin";
 import { Html5QrcodeResult } from "html5-qrcode";
 import { toast } from "sonner";
 import { useCallback, useRef } from "react";
-import { useApiQueryClient } from "@/hooks/use-api-query-client";
-import { useRouter } from "next/navigation";
 
 const ERROR_COOLDOWN_MS = 3000;
 const SUPPORTED_FORMATS = {
@@ -73,7 +71,7 @@ export function Scanner({ onScan, validateUrl = true }: ScannerProps) {
           );
       }
     },
-    [onScan, showError]
+    [onScan, showError, validateUrl]
   );
 
   return (
@@ -86,41 +84,4 @@ export function Scanner({ onScan, validateUrl = true }: ScannerProps) {
       />
     </div>
   );
-}
-
-export default function ScannerPage() {
-  const client = useApiQueryClient();
-  const { data: items } = client.useQuery("get", "/items");
-  const router = useRouter();
-
-  const findItemByEan = useCallback(
-    (ean: string) => {
-      if (!items || !items.data) return null;
-
-      const item = items.data.find((item) =>
-        item.variants.some(
-          (variant) => variant.ean13 && String(variant.ean13) === ean
-        )
-      );
-      if (item) {
-        return item.id;
-      }
-
-      return null;
-    },
-    [items]
-  );
-
-  function handleScanResult(result: ScannerResult) {
-    if (result.source === "ean") {
-      const itemId = findItemByEan(result.value);
-      if (itemId) {
-        router.push(`/items/${itemId}`);
-      }
-    } else {
-      router.push(result.value);
-    }
-  }
-
-  return <Scanner onScan={handleScanResult} validateUrl={false} />;
-}
+} 
