@@ -1,6 +1,6 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,69 +27,71 @@ export type ItemVariant = {
   article: string | null;
 };
 
-export const columns: ColumnDef<Item | ItemVariant>[] = [
-  {
-    accessorKey: "id",
+const columnHelper = createColumnHelper<Item | ItemVariant>();
+
+export const columns = [
+  columnHelper.accessor("id", {
     header: "ID",
+    cell: ({ row }) => (
+      <CopyableText>
+        <span className="text-muted-foreground">{row.original.id}</span>
+      </CopyableText>
+    ),
+    enableSorting: false,
+  }),
+  columnHelper.accessor("name", {
+    header: "Наименование",
+    cell: ({ row }) => <strong>{row.original.name}</strong>,
+  }),
+  columnHelper.accessor("description", {
+    header: "Описание",
+  }),
+  columnHelper.accessor("article", {
+    header: "Артикул",
     cell: ({ row }) => {
+      const isVariant = "article" in row.original;
+      if (!isVariant) return null;
       return (
-        <CopyableText>
-          <span className="text-muted-foreground">{row.original.id}</span>
-        </CopyableText>
+        <CopyableText>{(row.original as ItemVariant).article}</CopyableText>
       );
     },
-    enableSorting: false,
-  },
-  {
-    accessorKey: "name",
-    header: "Наименование",
-    cell: ({ row }) => {
-      return <strong>{row.original.name}</strong>;
-    },
-  },
-  {
-    accessorKey: "description",
-    header: "Описание",
-  },
-  {
-    accessorKey: "article",
-    header: "Артикул",
-  },
-  {
-    accessorKey: "ean",
+  }),
+  columnHelper.accessor("ean", {
     header: "EAN",
-  },
-  {
+    cell: ({ row }) => {
+      const isVariant = "ean" in row.original;
+      if (!isVariant) return null;
+      return <CopyableText>{(row.original as ItemVariant).ean}</CopyableText>;
+    },
+  }),
+  columnHelper.display({
     id: "actions",
-    size: 50,
     meta: {
       isDisplay: true,
     },
-    cell: () => {
-      return (
-        <div className="text-right" onClick={(e) => e.stopPropagation()}>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Действия</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Действия</DropdownMenuLabel>
-              <DropdownMenuItem>
-                <Pencil className="mr-2 h-4 w-4" />
-                Редактировать
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-destructive">
-                <Trash2 className="mr-2 h-4 w-4" />
-                Удалить
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      );
-    },
-  },
+    cell: () => (
+      <div className="text-right" onClick={(e) => e.stopPropagation()}>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Действия</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Действия</DropdownMenuLabel>
+            <DropdownMenuItem>
+              <Pencil className="mr-2 h-4 w-4" />
+              Редактировать
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="text-destructive">
+              <Trash2 className="mr-2 h-4 w-4" />
+              Удалить
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    ),
+  }),
 ];

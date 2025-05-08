@@ -9,6 +9,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { ScannerDialog } from "./scanner-dialog";
+import { CopyableText } from "@/components/ui/copyable-text";
 
 const statusLabels = {
   pending: "Ожидает",
@@ -116,10 +117,20 @@ export default function TaskPage() {
                   <span className="font-medium">{item.instance.item.name}</span>
                   <div className="flex gap-3 text-sm text-gray-500">
                     {item.instance.variant.ean13 && (
-                      <span>EAN: {item.instance.variant.ean13}</span>
+                      <span>
+                        EAN:{" "}
+                        <CopyableText>
+                          {item.instance.variant.ean13}
+                        </CopyableText>
+                      </span>
                     )}
                     {item.instance.variant.article && (
-                      <span>Артикул: {item.instance.variant.article}</span>
+                      <span>
+                        Артикул:{" "}
+                        <CopyableText>
+                          {item.instance.variant.article}
+                        </CopyableText>
+                      </span>
                     )}
                   </div>
                 </div>

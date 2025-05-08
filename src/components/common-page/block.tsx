@@ -21,10 +21,12 @@ export function BlockTextElement({
   label,
   unitLabel,
   value,
+  children,
 }: {
   label: string;
   unitLabel?: string;
   value?: string;
+  children?: React.ReactNode;
 }) {
   return (
     <div>
@@ -34,6 +36,7 @@ export function BlockTextElement({
         {unitLabel && (
           <span className="text-muted-foreground"> {unitLabel}</span>
         )}
+        {children}
       </div>
     </div>
   );
