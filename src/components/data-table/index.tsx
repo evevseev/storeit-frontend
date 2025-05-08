@@ -98,10 +98,6 @@ export function DataTable<TData>({
     meta: editMode ? meta : undefined,
   });
 
-  // React.useEffect(() => {
-  //   onRowSelectionChange?.(table.getSelectedRowModel().rows);
-  // }, [table.getSelectedRowModel().rows]);
-
   if (isError) {
     return <TableError message={errorMessage} />;
   }

@@ -58,7 +58,6 @@ const styles = StyleSheet.create({
 });
 
 function PrintableLabel({ url, name, description }: Label) {
-  // If no URL is provided, use full width layout
   if (!url) {
     return (
       <View style={styles.labelWithoutQR}>

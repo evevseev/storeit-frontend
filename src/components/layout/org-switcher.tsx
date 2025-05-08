@@ -61,10 +61,10 @@ export function OrgSwitcher() {
             <DropdownMenuTrigger asChild>
               <SidebarMenuButton
                 size="lg"
-                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground bg-white border rounded-lg px-3"
               >
-                <Avatar>
-                  <AvatarFallback>
+                <Avatar className="h-8 w-8 rounded-lg">
+                  <AvatarFallback className="bg-gray-100 border border-gray-300 rounded-lg">
                     {currentOrg?.data.name.slice(0, 2)}
                   </AvatarFallback>
                 </Avatar>
@@ -91,8 +91,10 @@ export function OrgSwitcher() {
                   onClick={() => changeOrg(org.id)}
                   className=" p-2 break-all gap-4 "
                 >
-                  <Avatar>
-                    <AvatarFallback>{org.name.slice(0, 2)}</AvatarFallback>
+                  <Avatar className="h-8 w-8 rounded-lg">
+                    <AvatarFallback className="bg-gray-100 border border-gray-300 rounded-lg">
+                      {org.name.slice(0, 2)}
+                    </AvatarFallback>
                   </Avatar>
                   {org.name}
                 </DropdownMenuItem>
