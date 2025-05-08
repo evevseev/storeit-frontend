@@ -134,7 +134,7 @@ function CreateTokenDialog() {
     },
     validators: {
       onChange: z.object({
-        name: z.string().min(1).max(100).regex(/^[^\s]+$/, { message: 'Название не должно содержать пробелы' }),
+        name: z.string().min(1).max(100),
       }),
     },
     onSubmit: handleSubmit,

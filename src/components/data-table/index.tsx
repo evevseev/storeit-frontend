@@ -12,6 +12,7 @@ import {
   Row,
   useReactTable,
   RowSelectionState,
+  OnChangeFn,
 } from "@tanstack/react-table";
 
 import { Table } from "@/components/ui/table";
@@ -34,7 +35,9 @@ export interface DataTableProps<TData> {
   getRowCanExpand?: (row: Row<TData>) => boolean;
   getSubRows?: (row: TData) => TData[] | undefined;
   getRowHref?: (row: TData) => string;
-  onRowSelectionChange?: (selectedRows: TData[]) => void;
+  getRowId?: (row: TData) => string;
+  setRowSelection?: OnChangeFn<RowSelectionState>;
+  rowSelection?: RowSelectionState;
 }
 
 export function DataTable<TData>({
@@ -49,13 +52,13 @@ export function DataTable<TData>({
   getRowCanExpand,
   getSubRows,
   getRowHref,
-  onRowSelectionChange,
+  getRowId,
+  setRowSelection,
+  rowSelection,
 }: Readonly<DataTableProps<TData>>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
-  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
-
   const table = useReactTable({
     data: data ?? [],
     columns,
@@ -68,27 +71,10 @@ export function DataTable<TData>({
     filterFromLeafRows: true,
     getRowCanExpand,
     getSubRows,
+    onRowSelectionChange: setRowSelection,
     state: {
-      columnFilters,
       rowSelection,
-    },
-    enableRowSelection: true,
-    onRowSelectionChange: (updater) => {
-      const newSelection =
-        typeof updater === "function" ? updater(rowSelection) : updater;
-      setRowSelection(newSelection);
-
-      if (onRowSelectionChange) {
-        const selectedRows = table
-          .getSelectedRowModel()
-          .rows.map((row) => row.original);
-        onRowSelectionChange(selectedRows);
-      }
-    },
-    initialState: {
-      pagination: {
-        pageSize,
-      },
+      columnFilters,
     },
     sortDescFirst: false,
     enableColumnFilters: true,
@@ -97,7 +83,12 @@ export function DataTable<TData>({
       const meta = column.columnDef.meta as any;
       return !(meta?.isDisplay || meta?.isSelector);
     },
+    getRowId,
   });
+
+  // React.useEffect(() => {
+  //   onRowSelectionChange?.(table.getSelectedRowModel().rows);
+  // }, [table.getSelectedRowModel().rows]);
 
   if (isError) {
     return <TableError message={errorMessage} />;
@@ -128,4 +119,4 @@ export function DataTable<TData>({
 }
 
 export { DataTablePagination } from "./pagination";
-export { SortButton } from "./sort-button";
+export { SortFilterButton as SortButton } from "./sort-filter-button";

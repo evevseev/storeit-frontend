@@ -1,7 +1,6 @@
 "use client";
 
 import { PageMetadata } from "@/components/header/page-metadata";
-import CellsList from "@/components/cells-group/cells-list";
 import GroupInfoCard from "@/components/cells-group/group-info-card";
 import { useParams } from "next/navigation";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
@@ -24,7 +23,7 @@ export default function CellsGroupPage() {
     <BlockedPage>
       <PageMetadata title={`Группа ячеек #${id}`} breadcrumbs={breadcrumbs} />
       <GroupInfoCard id={id as string} />
-      <GroupCellsList id={id as string} />
+      <GroupCellsList cellsGroupId={id as string} />
       <HistoryTable
         objectType={ObjectType.CellsGroup}
         objectId={id as string}

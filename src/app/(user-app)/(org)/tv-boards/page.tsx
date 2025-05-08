@@ -38,7 +38,7 @@ type TVBoard = {
   id: string;
   name: string;
   token: string;
-  unitId: string;
+  unit: Unit;
 };
 
 type Unit = {
@@ -81,6 +81,13 @@ function useTokenColumns(
   return [
     columnHelper.accessor("name", {
       header: "Название",
+    }),
+    columnHelper.accessor("unit.name", {
+      header: "Подразделение",
+      cell: ({ row }) => {
+        const board = row.original;
+        return board.unit.name;
+      },
     }),
     columnHelper.accessor("token", {
       header: "Ссылка для подключения",
@@ -276,7 +283,7 @@ export default function TVBoardsPage() {
           id: board.id,
           name: board.name,
           token: board.token,
-          unitId: board.unit.id,
+          unit: board.unit,
         }))
       );
     }
