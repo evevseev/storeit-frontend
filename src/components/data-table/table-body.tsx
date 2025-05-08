@@ -37,6 +37,7 @@ export function TableBodyComponent<TData>({
               )}
             >
               {row.getVisibleCells().map((cell, index) => {
+                const isDisplay = cell.column.columnDef.meta as any;
                 const expandButton =
                   index === 0 && row.getCanExpand() ? (
                     <Button
@@ -79,6 +80,9 @@ export function TableBodyComponent<TData>({
                 return (
                   <TableCell
                     key={cell.id}
+                    style={{
+                      width: isDisplay ? cell.column.getSize() : undefined,
+                    }}
                     className={cn(
                       (cell.column.columnDef.meta as any)?.isDisplay &&
                         "text-center"

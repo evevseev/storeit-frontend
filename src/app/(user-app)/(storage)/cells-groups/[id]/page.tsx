@@ -11,17 +11,30 @@ import GroupCellsList from "@/components/cells-group/group-cells-list";
 
 export default function CellsGroupPage() {
   const { id } = useParams();
+  const client = useApiQueryClient();
+  const { data: group } = client.useQuery("get", "/cells-groups/{groupId}", {
+    params: {
+      path: {
+        groupId: id as string,
+      },
+    },
+  });
 
   const breadcrumbs = [
-    { label: "Хранение" },
-    { label: "Москва" },
-    { label: "1ый этаж" },
-    { label: `Группа ячеек #${id}` },
+    { label: "Хранение", href: "/storage" },
+    { label: "Группы ячеек" },
+    {
+      label: group?.data.name ?? "Группа ячеек",
+      href: `/storage/cells-groups/${id}`,
+    },
   ];
 
   return (
     <BlockedPage>
-      <PageMetadata title={`Группа ячеек #${id}`} breadcrumbs={breadcrumbs} />
+      <PageMetadata
+        title={group?.data.name ?? "Группа ячеек"}
+        breadcrumbs={breadcrumbs}
+      />
       <GroupInfoCard id={id as string} />
       <GroupCellsList cellsGroupId={id as string} />
       <HistoryTable

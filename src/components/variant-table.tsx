@@ -1,9 +1,8 @@
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { X, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { DataTable } from "@/components/data-table";
-import { memo } from "react";
+import { EditedCellValue, defaultColumn } from "@/lib/tanstack-table";
 
 export type Variant = {
   id: string | null;
@@ -16,24 +15,6 @@ interface VariantTableProps {
   value: Variant[];
   onChange: (variants: Variant[]) => void;
 }
-
-const InputCell = memo(({ 
-  value, 
-  onChange 
-}: { 
-  value: string; 
-  onChange: (value: string) => void;
-}) => {
-  return (
-    <Input
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="h-8"
-    />
-  );
-});
-
-InputCell.displayName = "InputCell";
 
 export function VariantTable({ value, onChange }: VariantTableProps) {
   const handleDelete = (index: number) => {
@@ -50,62 +31,24 @@ export function VariantTable({ value, onChange }: VariantTableProps) {
     onChange([...value, newVariant]);
   };
 
-  const handleChange = (
-    index: number,
-    field: keyof Variant,
-    newValue: string
-  ) => {
-    onChange(
-      value.map((variant, i) =>
-        i === index ? { ...variant, [field]: newValue } : variant
-      )
-    );
-  };
+  const columnHelper = createColumnHelper<Variant>();
 
-  const columns: ColumnDef<Variant>[] = [
-    {
-      accessorKey: "name",
+  const columns = [
+    columnHelper.accessor("name", {
       header: "Название",
       size: 200,
-      cell: ({ row }) => {
-        return (
-          <InputCell
-            value={row.original.name}
-            onChange={(value) => handleChange(row.index, "name", value)}
-          />
-        );
-      },
-    },
-    {
-      accessorKey: "sku",
+    }),
+    columnHelper.accessor("sku", {
       header: "Артикул",
       size: 150,
-      cell: ({ row }) => {
-        return (
-          <InputCell
-            value={row.original.sku}
-            onChange={(value) => handleChange(row.index, "sku", value)}
-          />
-        );
-      },
-    },
-    {
-      accessorKey: "ean13",
+    }),
+    columnHelper.accessor("ean13", {
       header: "EAN13",
       size: 150,
-      cell: ({ row }) => {
-        return (
-          <InputCell
-            value={row.original.ean13}
-            onChange={(value) => handleChange(row.index, "ean13", value)}
-          />
-        );
-      },
-    },
-    {
+    }),
+    columnHelper.display({
       id: "actions",
       size: 50,
-      header: () => null,
       cell: ({ row }) => {
         return (
           <Button
@@ -118,13 +61,38 @@ export function VariantTable({ value, onChange }: VariantTableProps) {
           </Button>
         );
       },
-    },
+      meta: {
+        isDisplay: true,
+      },
+    }),
   ];
 
   return (
     <div className="flex flex-col gap-4">
       <div className="border rounded-md">
-        <DataTable columns={columns} data={value} pagination={false} />
+        <DataTable 
+          columns={columns} 
+          data={value} 
+          pagination={false} 
+          editMode={true}
+          defaultColumn={defaultColumn}
+          meta={{
+            updateData: (rowIndex: number, columnId: string, newValue: unknown) => {
+              onChange(
+                value.map((variant: Variant, index: number) =>
+                  index === rowIndex ? { ...variant, [columnId]: newValue } : variant
+                )
+              );
+            },
+            addEditedValue: (editedValue: EditedCellValue) => {
+              onChange(
+                value.map((variant: Variant, index: number) =>
+                  index === editedValue.rowIndex ? { ...variant, [editedValue.columnId]: editedValue.value } : variant
+                )
+              );
+            }
+          }}
+        />
       </div>
       <div className="flex justify-end">
         <Button

@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { CopyableText } from "@/components/ui/copyable-text";
 
 export type Item = {
   id: string;
@@ -29,9 +30,13 @@ export type ItemVariant = {
 export const columns: ColumnDef<Item | ItemVariant>[] = [
   {
     accessorKey: "id",
-    header: "#ID",
+    header: "ID",
     cell: ({ row }) => {
-      return <span className="text-muted-foreground">{row.original.id}</span>;
+      return (
+        <CopyableText>
+          <span className="text-muted-foreground">{row.original.id}</span>
+        </CopyableText>
+      );
     },
     enableSorting: false,
   },
@@ -59,27 +64,27 @@ export const columns: ColumnDef<Item | ItemVariant>[] = [
     size: 50,
     meta: {
       isDisplay: true,
-    },  
-    cell: ({ row }) => {
+    },
+    cell: () => {
       return (
         <div className="text-right" onClick={(e) => e.stopPropagation()}>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
+                <span className="sr-only">Действия</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuLabel>Действия</DropdownMenuLabel>
               <DropdownMenuItem>
                 <Pencil className="mr-2 h-4 w-4" />
-                Edit
+                Редактировать
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="text-destructive">
                 <Trash2 className="mr-2 h-4 w-4" />
-                Delete
+                Удалить
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

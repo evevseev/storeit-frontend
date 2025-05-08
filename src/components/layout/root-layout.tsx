@@ -15,7 +15,7 @@ import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { pageMetadataAtom } from "@/store/page-metadata";
 import { Providers } from "@/components/layout/providers";
 import { useAtomValue } from "jotai";
-import React from "react";
+import React, { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -31,6 +31,15 @@ const geistMono = Geist_Mono({
 
 function Header() {
   const metadata = useAtomValue(pageMetadataAtom);
+
+  useEffect(() => {
+    const title = "StoreIt";
+    if (metadata.title) {
+      document.title = metadata.title + " - " + title;
+    } else {
+      document.title = title;
+    }
+  }, [metadata]);
 
   return (
     <header className="flex flex-col gap-2 py-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:py-2">
