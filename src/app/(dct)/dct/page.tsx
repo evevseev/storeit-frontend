@@ -9,7 +9,7 @@ export default function DctPage() {
         <Search />
         Поиск товара
       </DctButton>
-      <DctButton href="/dct/search" className="bg-blue-500 hover:bg-blue-600">
+      <DctButton href="/tasks" className="bg-blue-500 hover:bg-blue-600">
         <ClipboardList />
         Задания
       </DctButton>
@@ -32,7 +32,7 @@ export default function DctPage() {
         className="bg-green-500 hover:bg-green-600"
       >
         <Package />
-        Инвентаризация ячейки
+        Просмотр ячеек
       </DctButton>
     </div>
   );

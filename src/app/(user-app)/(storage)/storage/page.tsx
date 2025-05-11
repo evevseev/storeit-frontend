@@ -13,7 +13,7 @@ export default function StoragePage() {
         breadcrumbs={[{ label: "Хранение" }]}
         actions={[
           <Button asChild className="whitespace-nowrap" variant="default">
-            <Link href="/units">Управление подразделениями</Link>
+            <Link href="/units">Управление Подразделениями</Link>
           </Button>,
         ]}
       />
