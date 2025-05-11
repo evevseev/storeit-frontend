@@ -4,7 +4,6 @@ import WarehouseStructure from "@/components/warehouse-structure";
 import { PageMetadata } from "@/components/header/page-metadata";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Skeleton } from "@/components/ui/skeleton";
 
 export default function StoragePage() {
   return (

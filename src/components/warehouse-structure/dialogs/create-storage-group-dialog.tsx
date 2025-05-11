@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { PathBreadcrumb } from "./path-breadcrumb";
 
-const createGroupSchema = z.interface({
+const createGroupSchema = z.object({
   name: z.string().min(1, "Обязательное поле"),
   alias: z.string().min(1, "Обязательное поле"),
 });
@@ -48,28 +48,27 @@ export function CreateStorageGroupDialog({
       onChange: createGroupSchema,
     },
     onSubmit: async (values) => {
-      await mutation.mutate(
-        {
+      try {
+        await mutation.mutateAsync({
           body: {
             unitId: unitId,
             parentId: parentId,
             name: values.value.name,
             alias: values.value.alias,
           },
-        },
-        {
-          onSuccess: () => {
-            toast.success("Группа успешно создана");
-            globalClient.invalidateQueries({
-              queryKey: ["get", "/storage-groups"],
-            });
-            onOpenChange(false);
-          },
-          onError: () => {
-            toast.error("Ошибка при создании группы хранения");
-          },
-        }
-      );
+        });
+
+        toast.success("Группа успешно создана");
+        globalClient.invalidateQueries({
+          queryKey: ["get", "/storage-groups"],
+        });
+        onOpenChange(false);
+      } catch (error: any) {
+        toast.error("Ошибка при создании группы хранения", {
+          description: error.message,
+        });
+        onOpenChange(false);
+      }
     },
   });
 

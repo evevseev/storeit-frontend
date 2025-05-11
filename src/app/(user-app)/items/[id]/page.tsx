@@ -17,6 +17,8 @@ import { useReactTable, createColumnHelper } from "@tanstack/react-table";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import { DataTable } from "@/components/data-table";
 import { ChevronDown, ChevronRight } from "lucide-react";
+import { HistoryTable } from "@/components/history-table";
+import { ObjectType } from "@/components/history-table/types";
 
 import {
   Table,
@@ -361,10 +363,13 @@ export default function ItemPage() {
       <Block title="Инстансы">
         <DataTable
           columns={storageColumns}
-          data={buildStorageTree(data.data.instances)}
+          data={buildStorageTree(data.data.items)}
           getRowCanExpand={(row) => Boolean(row.original.subRows?.length)}
           getSubRows={(row) => row.subRows}
         />
+      </Block>
+      <Block title="История изменений">
+        <HistoryTable objectType={ObjectType.Item} objectId={id as string} />
       </Block>
     </div>
   );
