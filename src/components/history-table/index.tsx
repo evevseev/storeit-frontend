@@ -2,13 +2,15 @@
 
 import { createColumnHelper } from "@tanstack/react-table";
 import { DataTable } from "@/components/data-table";
-import { HistoryChange, ChangeType, HistoryTableProps } from "./types";
+import { ObjectType, HistoryTableProps } from "./types";
 import { computeDiff } from "./utils";
 import { Badge } from "@/components/ui/badge";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import type { components } from "@/lib/api/storeit";
 
-const changeTypeLabels: Record<ChangeType, string> = {
+type AuditLog = components["schemas"]["AuditLog"];
+
+const changeTypeLabels: Record<AuditLog["action"], string> = {
   create: "Создание",
   update: "Изменение",
   delete: "Удаление",
@@ -59,7 +61,6 @@ function DiffCell({
     );
   }
 
-  // Both prechange and postchange exist, show the diff
   const diffs = computeDiff(prechange, postchange);
 
   return (
@@ -82,35 +83,14 @@ function DiffCell({
   );
 }
 
-function ChangeTypeBadge({ type }: { type: ChangeType }) {
-  const variants: Record<ChangeType, "default" | "secondary" | "destructive"> =
-    {
-      create: "default",
-      update: "secondary",
-      delete: "destructive",
-    };
+function ChangeTypeBadge({ type }: { type: AuditLog["action"] }) {
+  const variants: Record<AuditLog["action"], "default" | "secondary" | "destructive"> = {
+    create: "default",
+    update: "secondary",
+    delete: "destructive",
+  };
 
   return <Badge variant={variants[type]}>{changeTypeLabels[type]}</Badge>;
-}
-
-function transformApiData(
-  entry: components["schemas"]["AuditLog"]
-): HistoryChange {
-  return {
-    id: entry.id,
-    timestamp: entry.time,
-    action: entry.action as ChangeType,
-    user: entry.employee
-      ? {
-          id: entry.employee.userId,
-          name: `${entry.employee.lastName} ${entry.employee.firstName}${
-            entry.employee.middleName ? ` ${entry.employee.middleName}` : ""
-          }`,
-        }
-      : null,
-    prechangeData: entry.prechangeState ?? undefined,
-    postchangeData: entry.postchangeState ?? undefined,
-  };
 }
 
 export function HistoryTable({ objectType, objectId }: HistoryTableProps) {
@@ -124,38 +104,41 @@ export function HistoryTable({ objectType, objectId }: HistoryTableProps) {
     },
   });
 
-  const columnHelper = createColumnHelper<HistoryChange>();
+  const columnHelper = createColumnHelper<AuditLog>();
 
   const columns = [
-    columnHelper.accessor("timestamp", {
+    columnHelper.accessor("time", {
       header: "Время",
-      cell: (info) => info.row.original.timestamp,
+      cell: (info) => info.getValue(),
       sortDescFirst: true,
     }),
     columnHelper.accessor("action", {
       header: "Действие",
-      cell: (info) => <ChangeTypeBadge type={info.row.original.action} />,
+      cell: (info) => <ChangeTypeBadge type={info.getValue()} />,
     }),
-    columnHelper.accessor("user", {
+    columnHelper.accessor("employee", {
       header: "Пользователь",
-      cell: (info) => info.row.original.user?.name ?? "Система",
+      cell: (info) => {
+        const employee = info.getValue();
+        return employee 
+          ? `${employee.lastName} ${employee.firstName}${employee.middleName ? ` ${employee.middleName}` : ""}`
+          : "Система";
+      },
     }),
     columnHelper.display({
       id: "changes",
       header: "Изменения",
       cell: (info) => (
         <DiffCell
-          prechange={info.row.original.prechangeData}
-          postchange={info.row.original.postchangeData}
+          prechange={info.row.original.prechangeState ?? undefined}
+          postchange={info.row.original.postchangeState ?? undefined}
         />
       ),
     }),
   ];
 
   const historyData = data?.data 
-    ? data.data
-        .map(transformApiData)
-        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+    ? data.data.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
     : [];
 
   return (

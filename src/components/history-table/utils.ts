@@ -4,12 +4,19 @@ function isObject(value: any): value is Record<string, any> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
+type Diff = {
+  key: string;
+  path: string[];
+  oldValue: any;
+  newValue: any;
+};
+
 export function computeDiff(
   prechange: Record<string, any>, 
   postchange: Record<string, any>,
   parentPath: string[] = []
-): HistoryDiff[] {
-  const diffs: HistoryDiff[] = [];
+): Diff[] {
+  const diffs: Diff[] = [];
   
   // Get all keys from both objects
   const allKeys = new Set([...Object.keys(prechange), ...Object.keys(postchange)]);
