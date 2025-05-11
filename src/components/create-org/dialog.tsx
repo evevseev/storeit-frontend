@@ -1,4 +1,5 @@
 "use client";
+
 import {
   Dialog,
   DialogContent,
@@ -6,13 +7,42 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../ui/dialog";
-import { Button } from "../ui/button";
-import { useAppForm } from "@/components/common-form";
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { FormBlock, useAppForm } from "@/components/common-form";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
-export default function CreateOrgDialog() {
+import { useState } from "react";
+import { z } from "@/lib/zod";
+
+const createOrgSchema = z.object({
+  name: z.string().min(1).max(100),
+  subdomain: z
+    .string()
+    .min(1)
+    .max(100)
+    .regex(/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/, {
+      message:
+        "Поддомен должен содержать только латинские буквы, цифры и дефисы",
+    }),
+});
+
+export default function CreateOrgDialog({
+  withTrigger = true,
+  isOpen,
+  onOpenChange,
+}: {
+  withTrigger?: boolean;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}) {
+  const [internalOpen, setInternalOpen] = useState(false);
+
+  const dialogOpen = isOpen ?? internalOpen;
+  const setDialogOpen = onOpenChange ?? setInternalOpen;
+
   const globalQueryClient = useQueryClient();
   const queryClient = useApiQueryClient();
   const mutate = queryClient.useMutation("post", "/orgs");
@@ -21,6 +51,9 @@ export default function CreateOrgDialog() {
     defaultValues: {
       name: "",
       subdomain: "",
+    },
+    validators: {
+      onChange: createOrgSchema,
     },
     onSubmit: (data) => {
       mutate.mutate(
@@ -32,17 +65,30 @@ export default function CreateOrgDialog() {
         },
         {
           onSuccess: () => {
+            toast.success("Организация успешно создана");
             globalQueryClient.invalidateQueries({ queryKey: ["get", "/orgs"] });
+            setDialogOpen(false);
+          },
+          onError: (error) => {
+            if (error.error.message == "subdomain already exists") {
+              toast.warning("Организация с таким поддоменом уже существует");
+            } else {
+              toast.error("Ошибка при создании организации", {
+                description: error.error.message,
+              });
+            }
           },
         }
       );
     },
   });
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button>Создать организацию</Button>
-      </DialogTrigger>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      {withTrigger && (
+        <DialogTrigger asChild>
+          <Button>Создать организацию</Button>
+        </DialogTrigger>
+      )}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Создание организации</DialogTitle>
@@ -57,19 +103,26 @@ export default function CreateOrgDialog() {
             form.handleSubmit();
           }}
         >
-          <form.AppField
-            name="name"
-            children={(field) => (
-              <field.TextField placeholder="Название организации" />
-            )}
-          />
-          <form.AppField
-            name="subdomain"
-            children={(field) => <field.TextField placeholder="Поддомен" />}
-          />
-          <form.AppForm>
-            <form.SubmitButton label="Создать" />
-          </form.AppForm>
+          <FormBlock>
+            <form.AppField
+              name="name"
+              children={(field) => (
+                <field.TextField
+                  label="Название организации"
+                  placeholder="StoreIt"
+                />
+              )}
+            />
+            <form.AppField
+              name="subdomain"
+              children={(field) => (
+                <field.TextField label="Поддомен" placeholder="storeit" />
+              )}
+            />
+            <form.AppForm>
+              <form.SubmitButton label="Создать" />
+            </form.AppForm>
+          </FormBlock>
         </form>
       </DialogContent>
     </Dialog>

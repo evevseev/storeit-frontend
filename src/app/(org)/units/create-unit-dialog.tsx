@@ -3,16 +3,23 @@ import {
   Dialog,
   DialogContent,
   DialogFooter,
-  DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
-import { useAppForm } from "@/components/common-form";
+import { FormBlock, useAppForm } from "@/components/common-form";
 import { useQueryClient } from "@tanstack/react-query";
 import React from "react";
 import { toast } from "sonner";
-import { createUnitFormSchema } from "./types";
+import { z } from "@/lib/zod";
+import { aliasRegex } from "./types";
+
+const createUnitFormSchema = z.object({
+  name: z.string().min(1).max(100),
+  alias: aliasRegex,
+  address: z.nullable(z.string().min(1).max(100)),
+});
 
 export function CreateUnitDialog() {
   const globalQueryClient = useQueryClient();
@@ -40,13 +47,15 @@ export function CreateUnitDialog() {
         },
         {
           onSuccess: () => {
-            globalQueryClient.invalidateQueries({ queryKey: ["units"] });
+            globalQueryClient.invalidateQueries({
+              queryKey: ["get", "/units"],
+            });
             setOpen(false);
             toast.success("Подразделение успешно создано");
           },
           onError: (error) => {
             toast.error("Ошибка при создании подразделения", {
-              description: JSON.stringify(error),
+              description: error.error.message,
             });
           },
         }
@@ -63,7 +72,7 @@ export function CreateUnitDialog() {
         </Button>
       </DialogTrigger>
       <DialogContent>
-        <DialogHeader>Создание подразделения</DialogHeader>
+        <DialogTitle>Создание подразделения</DialogTitle>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -71,7 +80,7 @@ export function CreateUnitDialog() {
             form.handleSubmit();
           }}
         >
-          <div className="flex flex-col gap-4">
+          <FormBlock>
             <form.AppField
               name="name"
               children={(field) => (
@@ -87,6 +96,7 @@ export function CreateUnitDialog() {
                 <field.TextField
                   label="Адрес подразделения"
                   placeholder="Москва, ул. Ленина, 1"
+                  type="nullabletext"
                 />
               )}
             />
@@ -104,9 +114,9 @@ export function CreateUnitDialog() {
                 <form.SubmitButton label="Создать" />
               </form.AppForm>
             </DialogFooter>
-          </div>
+          </FormBlock>
         </form>
       </DialogContent>
     </Dialog>
   );
-} 
+}

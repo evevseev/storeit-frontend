@@ -10,12 +10,8 @@ import {
 import Link from "next/link";
 import CreateOrgDialog from "@/components/create-org/dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import {
-  activeOrganizationIdAtom,
-  useApiQueryClient,
-} from "@/hooks/use-api-query-client";
+import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useSetAtom } from "jotai";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
@@ -88,23 +84,21 @@ interface OrganizationSelectorProps {
   className?: string;
 }
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "";
-
 export function OrganizationSelector({
   id,
   name,
   subdomain,
   className,
 }: Readonly<OrganizationSelectorProps>) {
-  const setActiveOrgId = useSetAtom(activeOrganizationIdAtom);
+  const { setOrganizationId } = useAuth();
 
   const handleOrgSelect = () => {
-    setActiveOrgId(id);
+    setOrganizationId(id);
   };
 
   return (
     <Link
-      href={APP_URL}
+      href="/"
       className={cn(
         "rounded-lg border-black border-2 shadow-sm hover:shadow-md transition-colors",
         className
@@ -112,12 +106,14 @@ export function OrganizationSelector({
       onClick={handleOrgSelect}
     >
       <article className="flex items-center gap-6 p-3 w-full">
-        <Avatar className="w-10 h-10">
+        <Avatar className="w-10 h-10 flex-shrink-0">
           <AvatarFallback>{name.slice(0, 2)}</AvatarFallback>
         </Avatar>
-        <div className="flex flex-col items-start">
-          <h3 className="text-sm font-medium">{name}</h3>
-          <p className="text-xs text-muted-foreground">{subdomain}</p>
+        <div className="flex flex-col items-start min-w-0">
+          <h3 className="text-sm font-medium break-all w-full">{name}</h3>
+          <p className="text-xs text-muted-foreground break-all w-full">
+            {subdomain}
+          </p>
         </div>
       </article>
     </Link>
@@ -125,15 +121,10 @@ export function OrganizationSelector({
 }
 
 export function ChangeAccountButton() {
-  const { logout, isLoading } = useAuth();
+  const { logout } = useAuth();
 
   return (
-    <Button
-      variant="outline"
-      className="gap-2"
-      onClick={logout}
-      disabled={isLoading}
-    >
+    <Button variant="outline" className="gap-2" onClick={logout}>
       <LogOut className="h-4 w-4" />
       Сменить аккаунт
     </Button>

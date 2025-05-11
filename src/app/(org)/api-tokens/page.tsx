@@ -1,6 +1,6 @@
 "use client";
-import { useAppForm } from "@/components/common-form";
-import { Block, BlockedPage } from "@/components/common-page/block";
+import { FormBlock, useAppForm } from "@/components/common-form";
+import { BlockedPage } from "@/components/common-page/block";
 import { DataTable } from "@/components/data-table";
 import { PageMetadata } from "@/components/header/page-metadata";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import {
   DialogContent,
   DialogFooter,
   DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
@@ -24,53 +25,6 @@ type Token = {
   name: string;
   token: string;
 };
-
-type ApiResponse = {
-  data: Token[];
-};
-
-function useTokenManagement() {
-  const client = useApiQueryClient();
-  const queryClient = useQueryClient();
-  const { data, isPending } = client.useQuery("get", "/api-tokens");
-  const [tokens, setTokens] = useState<Token[]>([]);
-
-  const { mutate: deleteToken } = client.useMutation(
-    "delete",
-    "/api-tokens/{id}"
-  );
-
-  const handleDeleteToken = (tokenId: string) => {
-    deleteToken(
-      { params: { path: { id: tokenId } } },
-      {
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: ["get", "/api-tokens"] });
-          toast.success("Токен успешно удален");
-        },
-        onError: (error) => {
-          toast.error("Не удалось удалить токен", {
-            description: error.message,
-          });
-        },
-      }
-    );
-  };
-
-  useEffect(() => {
-    if (data) {
-      setTokens(
-        data.data.map((token) => ({
-          id: token.id,
-          name: token.name,
-          token: token.token,
-        }))
-      );
-    }
-  }, [data]);
-
-  return { tokens, isPending, handleDeleteToken };
-}
 
 function useTokenVisibility() {
   const [visibleTokens, setVisibleTokens] = useState<Set<string>>(new Set());
@@ -144,15 +98,11 @@ function useTokenColumns(
 
 function CreateTokenDialog() {
   const [isOpen, setIsOpen] = useState(false);
+
   const client = useApiQueryClient();
   const globalClient = useQueryClient();
-  const { mutate } = client.useMutation("post", "/api-tokens");
 
-  const validators = {
-    onChange: z.object({
-      name: z.string().min(1),
-    }),
-  };
+  const { mutate } = client.useMutation("post", "/api-tokens");
 
   const handleSubmit = (data: { value: { name: string } }) => {
     mutate(
@@ -171,7 +121,7 @@ function CreateTokenDialog() {
         },
         onError: (error) => {
           toast.error("Не удалось создать токен", {
-            description: error.message,
+            description: error.error.message,
           });
         },
       }
@@ -182,7 +132,11 @@ function CreateTokenDialog() {
     defaultValues: {
       name: "",
     },
-    validators,
+    validators: {
+      onChange: z.object({
+        name: z.string().min(1).max(100).regex(/^[^\s]+$/, { message: 'Название не должно содержать пробелы' }),
+      }),
+    },
     onSubmit: handleSubmit,
   });
 
@@ -195,7 +149,7 @@ function CreateTokenDialog() {
         </Button>
       </DialogTrigger>
       <DialogContent>
-        <DialogHeader>Создание API-токена</DialogHeader>
+        <DialogTitle>Создание API-токена</DialogTitle>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -203,7 +157,7 @@ function CreateTokenDialog() {
             form.handleSubmit();
           }}
         >
-          <div className="flex flex-col gap-4">
+          <FormBlock>
             <form.AppField
               name="name"
               children={(field) => (
@@ -219,7 +173,7 @@ function CreateTokenDialog() {
                 <form.SubmitButton label="Создать" />
               </form.AppForm>
             </DialogFooter>
-          </div>
+          </FormBlock>
         </form>
       </DialogContent>
     </Dialog>
@@ -227,7 +181,45 @@ function CreateTokenDialog() {
 }
 
 export default function ApiTokensPage() {
-  const { tokens, isPending, handleDeleteToken } = useTokenManagement();
+  const client = useApiQueryClient();
+  const queryClient = useQueryClient();
+  const { data, isPending } = client.useQuery("get", "/api-tokens");
+  const [tokens, setTokens] = useState<Token[]>([]);
+
+  const { mutate: deleteToken } = client.useMutation(
+    "delete",
+    "/api-tokens/{id}"
+  );
+
+  const handleDeleteToken = (tokenId: string) => {
+    deleteToken(
+      { params: { path: { id: tokenId } } },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ["get", "/api-tokens"] });
+          toast.success("Токен успешно удален");
+        },
+        onError: (error) => {
+          toast.error("Не удалось удалить токен", {
+            description: error.error.message,
+          });
+        },
+      }
+    );
+  };
+
+  useEffect(() => {
+    if (data) {
+      setTokens(
+        data.data.map((token) => ({
+          id: token.id,
+          name: token.name,
+          token: token.token,
+        }))
+      );
+    }
+  }, [data]);
+
   const { visibleTokens, toggleTokenVisibility } = useTokenVisibility();
   const columns = useTokenColumns(
     visibleTokens,
@@ -245,11 +237,7 @@ export default function ApiTokensPage() {
         ]}
         actions={[<CreateTokenDialog />]}
       />
-      {isPending ? (
-        <div>Loading...</div>
-      ) : (
-        <DataTable columns={columns} data={tokens ?? []} />
-      )}
+      <DataTable columns={columns} data={tokens ?? []} isLoading={isPending} />
     </BlockedPage>
   );
 }

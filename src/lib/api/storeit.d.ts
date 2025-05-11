@@ -11,10 +11,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get list of Organizations */
+        /** Get list of user Organizations */
         get: operations["getOrganizations"];
         put?: never;
-        /** Create Organization */
+        /** Create new Organization */
         post: operations["createOrganization"];
         delete?: never;
         options?: never;
@@ -41,8 +41,7 @@ export interface paths {
         delete: operations["deleteOrganization"];
         options?: never;
         head?: never;
-        /** Update Organization */
-        patch: operations["patchOrganization"];
+        patch?: never;
         trace?: never;
     };
     "/units": {
@@ -168,47 +167,6 @@ export interface paths {
         patch: operations["patchCellsGroup"];
         trace?: never;
     };
-    "/items": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get list of Items */
-        get: operations["getItems"];
-        put?: never;
-        /** Create Item */
-        post: operations["createItem"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/items/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Item ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        /** Get Item by ID */
-        get: operations["getItemById"];
-        /** Update Item */
-        put: operations["updateItem"];
-        post?: never;
-        /** Delete Item */
-        delete: operations["deleteItem"];
-        options?: never;
-        head?: never;
-        /** Patch Item */
-        patch: operations["patchItem"];
-        trace?: never;
-    };
     "/cells-groups/{groupId}/cells": {
         parameters: {
             query?: never;
@@ -250,6 +208,47 @@ export interface paths {
         head?: never;
         /** Patch Cell */
         patch: operations["patchCell"];
+        trace?: never;
+    };
+    "/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get list of Items */
+        get: operations["getItems"];
+        put?: never;
+        /** Create Item */
+        post: operations["createItem"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/items/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Item ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        /** Get Item by ID */
+        get: operations["getItemById"];
+        /** Update Item */
+        put: operations["updateItem"];
+        post?: never;
+        /** Delete Item */
+        delete: operations["deleteItem"];
+        options?: never;
+        head?: never;
+        /** Patch Item */
+        patch: operations["patchItem"];
         trace?: never;
     };
     "/instances": {
@@ -478,14 +477,35 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/audit-logs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get audit logs
+         * @description Get audit logs
+         */
+        get: operations["getAuditLogs"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        /** @description Represents error object */
-        Error: {
-            error_id: string;
-            message: string;
+        ErrorContent: {
+            error: {
+                code: string;
+                message: string;
+            };
         };
         OrganizationBase: {
             /** @example Exotic */
@@ -510,25 +530,20 @@ export interface components {
         GetOrganizationByIdResponse: {
             data: components["schemas"]["Organization"];
         };
-        UpdateOrganizationRequest: components["schemas"]["Organization"];
-        UpdateOrganizationResponse: {
-            data: components["schemas"]["Organization"][];
-        };
-        OrganizationPatch: {
+        OrganizationUpdate: {
             /** @example Exotic */
-            name?: string;
-            /** @example exotic */
-            subdomain?: string;
+            name: string;
         };
-        PatchOrganizationRequest: components["schemas"]["OrganizationPatch"];
-        PatchOrganizationResponse: {
-            data?: components["schemas"]["Organization"][];
+        UpdateOrganizationRequest: components["schemas"]["OrganizationUpdate"];
+        UpdateOrganizationResponse: {
+            data: components["schemas"]["Organization"];
         };
+        /** @example A1 */
+        "storage-alias": string;
         UnitBase: {
             /** @example Moscow */
             name: string;
-            /** @example MWS */
-            alias: string;
+            alias: components["schemas"]["storage-alias"];
             /** @example 123 Main St, Moscow, Russia */
             address?: string | null;
         };
@@ -553,7 +568,7 @@ export interface components {
         };
         UpdateOrganizationUnitRequest: components["schemas"]["UnitBase"];
         UpdateOrganizationUnitResponse: {
-            data: components["schemas"]["Unit"][];
+            data: components["schemas"]["Unit"];
         };
         UnitPatch: {
             /** @example Moscow */
@@ -564,35 +579,24 @@ export interface components {
         };
         PatchOrganizationUnitRequest: components["schemas"]["UnitPatch"];
         PatchOrganizationUnitResponse: {
-            data: components["schemas"]["Unit"][];
+            data: components["schemas"]["Unit"];
         };
         StorageGroupBase: {
-            /**
-             * Format: uuid
-             * @example def3df1a-7b8f-4552-b437-a1eab851403f
-             */
+            /** Format: uuid */
             parentId?: string | null;
             /** @example Main Warehouse */
             name: string;
-            /** @example MW */
-            alias: string;
-            /**
-             * Format: uuid
-             * @example def3df1a-7b8f-4552-b437-a1eab851403f
-             */
+            alias: components["schemas"]["storage-alias"];
+            /** Format: uuid */
             unitId: string;
         };
         StorageGroup: {
-            /**
-             * Format: uuid
-             * @example def3df1a-7b8f-4552-b437-a1eab851403f
-             */
+            /** Format: uuid */
             readonly id: string;
-            /**
-             * Format: uuid
-             * @example def3df1a-7b8f-4552-b437-a1eab851403f
-             */
+            /** Format: uuid */
             parentId: string | null;
+            /** Format: uuid */
+            unitId: string;
         } & components["schemas"]["StorageGroupBase"];
         GetStorageGroupsResponse: {
             data: components["schemas"]["StorageGroup"][];
@@ -606,7 +610,7 @@ export interface components {
         };
         UpdateStorageGroupRequest: components["schemas"]["StorageGroupBase"];
         UpdateStorageGroupResponse: {
-            data: components["schemas"]["StorageGroup"][];
+            data: components["schemas"]["StorageGroup"];
         };
         StorageGroupPatch: {
             /**
@@ -626,39 +630,80 @@ export interface components {
         };
         PatchStorageGroupRequest: components["schemas"]["StorageGroupPatch"];
         PatchStorageGroupResponse: {
-            data: components["schemas"]["StorageGroup"][];
+            data: components["schemas"]["StorageGroup"];
         };
         CellGroupBase: {
+            name: string;
+            alias: components["schemas"]["storage-alias"];
+            /** Format: uuid */
+            storageGroupId?: string | null;
+            /** Format: uuid */
+            unitId: string;
+        };
+        CellGroup: {
             /** Format: uuid */
             readonly id: string;
-            name: string;
-            alias: string;
+        } & components["schemas"]["CellGroupBase"] & {
             /** Format: uuid */
-            storage_group_id: string;
+            unitId: string;
+            /** Format: uuid */
+            storageGroupId: string | null;
         };
         GetCellsGroupsResponse: {
-            data: components["schemas"]["CellGroupBase"][];
+            data: components["schemas"]["CellGroup"][];
         };
         CreateCellsGroupRequest: components["schemas"]["CellGroupBase"];
         CreateCellsGroupResponse: {
-            data: components["schemas"]["CellGroupBase"];
+            data: components["schemas"]["CellGroup"];
         };
         GetCellsGroupByIdResponse: {
-            data: components["schemas"]["CellGroupBase"];
+            data: components["schemas"]["CellGroup"];
         };
         UpdateCellsGroupRequest: components["schemas"]["CellGroupBase"];
         UpdateCellsGroupResponse: {
-            data: components["schemas"]["CellGroupBase"];
+            data: components["schemas"]["CellGroup"];
         };
         CellGroupPatch: {
             name?: string;
-            alias?: string;
+            alias?: components["schemas"]["storage-alias"];
             /** Format: uuid */
-            storage_group_id?: string;
+            storageGroupId?: string;
+            /** Format: uuid */
+            unitId?: string;
         };
         PatchCellsGroupRequest: components["schemas"]["CellGroupPatch"];
         PatchCellsGroupResponse: {
-            data: components["schemas"]["CellGroupBase"];
+            data: components["schemas"]["CellGroup"];
+        };
+        CellBase: {
+            /** Format: uuid */
+            readonly id: string;
+            alias: string;
+            row: number;
+            level: number;
+            position: number;
+        };
+        GetCellsResponse: {
+            data: components["schemas"]["CellBase"][];
+        };
+        CreateCellRequest: components["schemas"]["CellBase"];
+        CreateCellResponse: {
+            data: components["schemas"]["CellBase"];
+        };
+        GetCellByIdResponse: components["schemas"]["CellBase"];
+        UpdateCellRequest: components["schemas"]["CellBase"];
+        UpdateCellResponse: {
+            data: components["schemas"]["CellBase"];
+        };
+        CellPatch: {
+            alias?: string;
+            row?: number;
+            level?: number;
+            position?: number;
+        };
+        PatchCellRequest: components["schemas"]["CellPatch"];
+        PatchCellResponse: {
+            data: components["schemas"]["CellBase"];
         };
         ItemBase: {
             /** Format: uuid */
@@ -700,14 +745,6 @@ export interface components {
             variants: components["schemas"]["ItemVariantBase"][];
         };
         CreateItemRequest: components["schemas"]["ItemCreate"];
-        CellBase: {
-            /** Format: uuid */
-            readonly id: string;
-            alias: string;
-            row: number;
-            level: number;
-            position: number;
-        };
         CellForInstance: components["schemas"]["CellBase"] & {
             cellPath: {
                 /** Format: uuid */
@@ -741,7 +778,7 @@ export interface components {
             id: string;
         } & components["schemas"]["ItemVariantBase"];
         UpdateItemRequest: components["schemas"]["ItemCreate"] & {
-            variants: components["schemas"]["ItemVariantEdit"][];
+            variants?: components["schemas"]["ItemVariantEdit"][];
         };
         UpdateItemResponse: {
             data: components["schemas"]["ItemFull"];
@@ -767,28 +804,6 @@ export interface components {
         PatchItemResponse: {
             data: components["schemas"]["ItemFull"];
         };
-        GetCellsResponse: {
-            data: components["schemas"]["CellBase"][];
-        };
-        CreateCellRequest: components["schemas"]["CellBase"];
-        CreateCellResponse: {
-            data: components["schemas"]["CellBase"];
-        };
-        GetCellByIdResponse: components["schemas"]["CellBase"];
-        UpdateCellRequest: components["schemas"]["CellBase"];
-        UpdateCellResponse: {
-            data: components["schemas"]["CellBase"];
-        };
-        CellPatch: {
-            alias?: string;
-            row?: number;
-            level?: number;
-            position?: number;
-        };
-        PatchCellRequest: components["schemas"]["CellPatch"];
-        PatchCellResponse: {
-            data: components["schemas"]["CellBase"];
-        };
         InstanceFull: {
             /**
              * Format: uuid
@@ -802,9 +817,7 @@ export interface components {
             cell: components["schemas"]["CellForInstance"];
         };
         GetInstancesResponse: {
-            data: [
-                components["schemas"]["InstanceFull"]
-            ];
+            data: components["schemas"]["InstanceFull"][];
         };
         GetInstancesByItemIdResponse: {
             data: components["schemas"]["InstanceForItem"][];
@@ -889,6 +902,31 @@ export interface components {
             email: string;
             roleId: number;
         };
+        AuditLog: {
+            /** Format: uuid */
+            id: string;
+            employee: components["schemas"]["Employee"];
+            /** @enum {string} */
+            action: "create" | "update" | "delete";
+            /** Format: date-time */
+            time: string;
+            targetObjectType: {
+                id: number;
+                group: string;
+                name: string;
+            };
+            /** Format: uuid */
+            targetObjectId: string;
+            prechangeState: {
+                [key: string]: unknown;
+            } | null;
+            postchangeState: {
+                [key: string]: unknown;
+            } | null;
+        };
+        GetAuditLogsResponse: {
+            data: components["schemas"]["AuditLog"][];
+        };
     };
     responses: {
         /** @description General Error */
@@ -897,7 +935,34 @@ export interface components {
                 [name: string]: unknown;
             };
             content: {
-                "application/json": components["schemas"]["Error"];
+                "application/json": components["schemas"]["ErrorContent"];
+            };
+        };
+        /** @description Unauthorized */
+        "default-unauthorized": {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ErrorContent"];
+            };
+        };
+        /** @description Conflict, resource duplication */
+        "default-conflict": {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ErrorContent"];
+            };
+        };
+        /** @description Forbidden */
+        "default-forbidden": {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ErrorContent"];
             };
         };
         /** @description Auth response */
@@ -907,6 +972,15 @@ export interface components {
                 [name: string]: unknown;
             };
             content?: never;
+        };
+        /** @description Bad Request */
+        "default-bad-request": {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ErrorContent"];
+            };
         };
         /** @description Logout response */
         LogoutResponse: {
@@ -942,6 +1016,7 @@ export interface operations {
                     "application/json": components["schemas"]["GetOrganizationsResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
             default: components["responses"]["default-error"];
         };
     };
@@ -967,6 +1042,8 @@ export interface operations {
                     "application/json": components["schemas"]["CreateOrganizationResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            409: components["responses"]["default-conflict"];
             default: components["responses"]["default-error"];
         };
     };
@@ -991,6 +1068,8 @@ export interface operations {
                     "application/json": components["schemas"]["GetOrganizationByIdResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1019,6 +1098,8 @@ export interface operations {
                     "application/json": components["schemas"]["UpdateOrganizationResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1035,40 +1116,14 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Successful operation */
-            200: {
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            default: components["responses"]["default-error"];
-        };
-    };
-    patchOrganization: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Organization ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PatchOrganizationRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful operation */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PatchOrganizationResponse"];
-                };
-            };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1090,6 +1145,8 @@ export interface operations {
                     "application/json": components["schemas"]["GetOrganizationUnitsResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1115,6 +1172,8 @@ export interface operations {
                     "application/json": components["schemas"]["CreateOrganizationUnitResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1139,6 +1198,8 @@ export interface operations {
                     "application/json": components["schemas"]["GetOrganizationUnitByIdResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1167,6 +1228,8 @@ export interface operations {
                     "application/json": components["schemas"]["UpdateOrganizationUnitResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1183,12 +1246,14 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Successful operation */
-            200: {
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1217,6 +1282,8 @@ export interface operations {
                     "application/json": components["schemas"]["PatchOrganizationUnitResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1238,6 +1305,8 @@ export interface operations {
                     "application/json": components["schemas"]["GetStorageGroupsResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1263,6 +1332,8 @@ export interface operations {
                     "application/json": components["schemas"]["CreateStorageGroupResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1287,6 +1358,8 @@ export interface operations {
                     "application/json": components["schemas"]["GetStorageGroupByIdResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1315,6 +1388,8 @@ export interface operations {
                     "application/json": components["schemas"]["UpdateStorageGroupResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1331,12 +1406,14 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Successful operation */
-            200: {
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1365,6 +1442,8 @@ export interface operations {
                     "application/json": components["schemas"]["PatchStorageGroupResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1386,6 +1465,8 @@ export interface operations {
                     "application/json": components["schemas"]["GetCellsGroupsResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1411,6 +1492,8 @@ export interface operations {
                     "application/json": components["schemas"]["CreateCellsGroupResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1435,6 +1518,8 @@ export interface operations {
                     "application/json": components["schemas"]["GetCellsGroupByIdResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1463,6 +1548,8 @@ export interface operations {
                     "application/json": components["schemas"]["UpdateCellsGroupResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1479,12 +1566,14 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Successful operation */
-            200: {
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1513,6 +1602,168 @@ export interface operations {
                     "application/json": components["schemas"]["PatchCellsGroupResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
+            default: components["responses"]["default-error"];
+        };
+    };
+    getCells: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetCellsResponse"];
+                };
+            };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
+            default: components["responses"]["default-error"];
+        };
+    };
+    createCell: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCellRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreateCellResponse"];
+                };
+            };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
+            default: components["responses"]["default-error"];
+        };
+    };
+    getCellById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+                cellId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetCellByIdResponse"];
+                };
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    updateCell: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+                cellId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCellRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UpdateCellResponse"];
+                };
+            };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
+            default: components["responses"]["default-error"];
+        };
+    };
+    deleteCell: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+                cellId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            default: components["responses"]["default-error"];
+        };
+    };
+    patchCell: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+                cellId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PatchCellRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PatchCellResponse"];
+                };
+            };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1534,6 +1785,8 @@ export interface operations {
                     "application/json": components["schemas"]["GetItemsResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1559,6 +1812,8 @@ export interface operations {
                     "application/json": components["schemas"]["CreateItemResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1627,7 +1882,7 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Successful operation */
-            200: {
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1664,158 +1919,6 @@ export interface operations {
             default: components["responses"]["default-error"];
         };
     };
-    getCells: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                groupId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful operation */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GetCellsResponse"];
-                };
-            };
-            default: components["responses"]["default-error"];
-        };
-    };
-    createCell: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                groupId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateCellRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful operation */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CreateCellResponse"];
-                };
-            };
-            default: components["responses"]["default-error"];
-        };
-    };
-    getCellById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                groupId: string;
-                cellId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful operation */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GetCellByIdResponse"];
-                };
-            };
-            default: components["responses"]["default-error"];
-        };
-    };
-    updateCell: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                groupId: string;
-                cellId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateCellRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful operation */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UpdateCellResponse"];
-                };
-            };
-            default: components["responses"]["default-error"];
-        };
-    };
-    deleteCell: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                groupId: string;
-                cellId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful operation */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            default: components["responses"]["default-error"];
-        };
-    };
-    patchCell: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                groupId: string;
-                cellId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PatchCellRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful operation */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PatchCellResponse"];
-                };
-            };
-            default: components["responses"]["default-error"];
-        };
-    };
     getInstances: {
         parameters: {
             query?: never;
@@ -1834,6 +1937,8 @@ export interface operations {
                     "application/json": components["schemas"]["GetInstancesResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1858,6 +1963,8 @@ export interface operations {
                     "application/json": components["schemas"]["GetInstancesByItemIdResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1886,6 +1993,8 @@ export interface operations {
                     "application/json": components["schemas"]["CreateInstanceForItemResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1908,6 +2017,8 @@ export interface operations {
                 };
                 content?: never;
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1929,6 +2040,8 @@ export interface operations {
                     "application/json": components["schemas"]["GetApiTokensResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1954,6 +2067,8 @@ export interface operations {
                     "application/json": components["schemas"]["CreateApiTokenResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1975,6 +2090,8 @@ export interface operations {
                 };
                 content?: never;
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1988,13 +2105,14 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": {
-                    /** @description Yandex Access token */
+                    /** @description Yandex Access token received from Yandex OAuth on Frontend */
                     access_token: string;
                 };
             };
         };
         responses: {
             200: components["responses"]["AuthResponse"];
+            400: components["responses"]["default-bad-request"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2008,6 +2126,7 @@ export interface operations {
         requestBody?: never;
         responses: {
             200: components["responses"]["LogoutResponse"];
+            401: components["responses"]["default-unauthorized"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2029,6 +2148,7 @@ export interface operations {
                     "application/json": components["schemas"]["GetCurrentUserResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2054,6 +2174,7 @@ export interface operations {
                     "application/json": components["schemas"]["GetCurrentUserResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2079,6 +2200,7 @@ export interface operations {
                     "application/json": components["schemas"]["GetCurrentUserResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2100,6 +2222,8 @@ export interface operations {
                     "application/json": components["schemas"]["GetEmployeesResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2123,6 +2247,8 @@ export interface operations {
                     "application/json": components["schemas"]["GetEmployeeResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2144,6 +2270,8 @@ export interface operations {
                 };
                 content?: never;
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2171,6 +2299,8 @@ export interface operations {
                     "application/json": components["schemas"]["GetEmployeeResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2196,6 +2326,8 @@ export interface operations {
                     "application/json": components["schemas"]["GetEmployeeResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2219,6 +2351,35 @@ export interface operations {
                     };
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            default: components["responses"]["default-error"];
+        };
+    };
+    getAuditLogs: {
+        parameters: {
+            query?: {
+                /** @description The type of the object to filter by */
+                object_type_id?: number;
+                /** @description The id of the object to filter by */
+                object_id?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Audit logs */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetAuditLogsResponse"];
+                };
+            };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
