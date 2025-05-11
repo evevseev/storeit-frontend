@@ -1,3 +1,4 @@
+"use client";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Provider as JotaiProvider } from "jotai";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";

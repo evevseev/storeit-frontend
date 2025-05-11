@@ -122,8 +122,7 @@ export interface paths {
         delete: operations["deleteStorageGroup"];
         options?: never;
         head?: never;
-        /** Patch Storage Group */
-        patch: operations["patchStorageGroup"];
+        patch?: never;
         trace?: never;
     };
     "/cells-groups": {
@@ -163,8 +162,7 @@ export interface paths {
         delete: operations["deleteCellsGroup"];
         options?: never;
         head?: never;
-        /** Patch Cells Group */
-        patch: operations["patchCellsGroup"];
+        patch?: never;
         trace?: never;
     };
     "/cells-groups/{groupId}/cells": {
@@ -206,8 +204,7 @@ export interface paths {
         delete: operations["deleteCell"];
         options?: never;
         head?: never;
-        /** Patch Cell */
-        patch: operations["patchCell"];
+        patch?: never;
         trace?: never;
     };
     "/items": {
@@ -223,6 +220,51 @@ export interface paths {
         /** Create Item */
         post: operations["createItem"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/items/{id}/variants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Item ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        /** Get Item Variants */
+        get: operations["getItemVariants"];
+        put?: never;
+        /** Create Item Variant */
+        post: operations["createItemVariant"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/items/{id}/variants/{variantId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Item ID */
+                id: string;
+                /** @description Variant ID */
+                variantId: string;
+            };
+            cookie?: never;
+        };
+        /** Get Item Variant By ID */
+        get: operations["getItemVariantById"];
+        /** Update Item Variant By ID */
+        put: operations["updateItemVariant"];
+        post?: never;
+        /** Delete Item Variant By ID */
+        delete: operations["deleteItemVariant"];
         options?: never;
         head?: never;
         patch?: never;
@@ -247,8 +289,7 @@ export interface paths {
         delete: operations["deleteItem"];
         options?: never;
         head?: never;
-        /** Patch Item */
-        patch: operations["patchItem"];
+        patch?: never;
         trace?: never;
     };
     "/instances": {
@@ -399,6 +440,62 @@ export interface paths {
         patch: operations["patchCurrentUser"];
         trace?: never;
     };
+    "/tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get all tasks for organization */
+        get: operations["getTasks"];
+        put?: never;
+        /** Create a task */
+        post: operations["createTask"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tasks/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        /** Get Task by ID */
+        get: operations["getTaskById"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tasks/{id}/pick-instance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Pick an item from cell */
+        post: operations["pickInstanceFromCell"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/employees": {
         parameters: {
             query?: never;
@@ -489,6 +586,62 @@ export interface paths {
          * @description Get audit logs
          */
         get: operations["getAuditLogs"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tv-boards": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get list of TV Boards */
+        get: operations["getTvBoards"];
+        put?: never;
+        /** Create TV Board */
+        post: operations["createTvBoard"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tv-boards/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete TV Board */
+        delete: operations["deleteTvBoard"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tv-boards/{tvToken}/data": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tvToken: string;
+            };
+            cookie?: never;
+        };
+        /** Get data for rendering on TV Board */
+        get: operations["getTvBoardsData"];
         put?: never;
         post?: never;
         delete?: never;
@@ -612,26 +765,6 @@ export interface components {
         UpdateStorageGroupResponse: {
             data: components["schemas"]["StorageGroup"];
         };
-        StorageGroupPatch: {
-            /**
-             * Format: uuid
-             * @example def3df1a-7b8f-4552-b437-a1eab851403f
-             */
-            parentId?: string | null;
-            /** @example Main Warehouse */
-            name?: string;
-            /** @example MW */
-            alias?: string;
-            /**
-             * Format: uuid
-             * @example def3df1a-7b8f-4552-b437-a1eab851403f
-             */
-            unitId?: string;
-        };
-        PatchStorageGroupRequest: components["schemas"]["StorageGroupPatch"];
-        PatchStorageGroupResponse: {
-            data: components["schemas"]["StorageGroup"];
-        };
         CellGroupBase: {
             name: string;
             alias: components["schemas"]["storage-alias"];
@@ -644,8 +777,6 @@ export interface components {
             /** Format: uuid */
             readonly id: string;
         } & components["schemas"]["CellGroupBase"] & {
-            /** Format: uuid */
-            unitId: string;
             /** Format: uuid */
             storageGroupId: string | null;
         };
@@ -663,47 +794,29 @@ export interface components {
         UpdateCellsGroupResponse: {
             data: components["schemas"]["CellGroup"];
         };
-        CellGroupPatch: {
-            name?: string;
-            alias?: components["schemas"]["storage-alias"];
-            /** Format: uuid */
-            storageGroupId?: string;
-            /** Format: uuid */
-            unitId?: string;
-        };
-        PatchCellsGroupRequest: components["schemas"]["CellGroupPatch"];
-        PatchCellsGroupResponse: {
-            data: components["schemas"]["CellGroup"];
-        };
         CellBase: {
-            /** Format: uuid */
-            readonly id: string;
             alias: string;
             row: number;
             level: number;
             position: number;
         };
+        Cell: {
+            /** Format: uuid */
+            readonly id: string;
+        } & components["schemas"]["CellBase"];
         GetCellsResponse: {
-            data: components["schemas"]["CellBase"][];
+            data: components["schemas"]["Cell"][];
         };
         CreateCellRequest: components["schemas"]["CellBase"];
         CreateCellResponse: {
-            data: components["schemas"]["CellBase"];
+            data: components["schemas"]["Cell"];
         };
-        GetCellByIdResponse: components["schemas"]["CellBase"];
+        GetCellByIdResponse: {
+            data: components["schemas"]["Cell"];
+        };
         UpdateCellRequest: components["schemas"]["CellBase"];
         UpdateCellResponse: {
-            data: components["schemas"]["CellBase"];
-        };
-        CellPatch: {
-            alias?: string;
-            row?: number;
-            level?: number;
-            position?: number;
-        };
-        PatchCellRequest: components["schemas"]["CellPatch"];
-        PatchCellResponse: {
-            data: components["schemas"]["CellBase"];
+            data: components["schemas"]["Cell"];
         };
         ItemBase: {
             /** Format: uuid */
@@ -723,7 +836,10 @@ export interface components {
             name: string;
             /** @example 123456789012 */
             article?: string | null;
-            /** @example 1234567890123 */
+            /**
+             * Format: int32
+             * @example 1234567890123
+             */
             ean13?: number | null;
         };
         ItemVariant: {
@@ -732,7 +848,10 @@ export interface components {
         } & components["schemas"]["ItemVariantBase"] & {
             /** @example 123456789012 */
             article: string | null;
-            /** @example 1234567890123 */
+            /**
+             * Format: int32
+             * @example 1234567890123
+             */
             ean13: number | null;
         };
         ItemForList: components["schemas"]["Item"] & {
@@ -741,11 +860,9 @@ export interface components {
         GetItemsResponse: {
             data: components["schemas"]["ItemForList"][];
         };
-        ItemCreate: components["schemas"]["ItemBase"] & {
-            variants: components["schemas"]["ItemVariantBase"][];
-        };
+        ItemCreate: components["schemas"]["ItemBase"];
         CreateItemRequest: components["schemas"]["ItemCreate"];
-        CellForInstance: components["schemas"]["CellBase"] & {
+        CellForInstance: components["schemas"]["Cell"] & ({
             cellPath: {
                 /** Format: uuid */
                 id: string;
@@ -754,7 +871,7 @@ export interface components {
                 /** @enum {string} */
                 objectType: "cell" | "cells_group" | "storage_group";
             }[];
-        };
+        } | null);
         InstanceForItem: {
             /** Format: uuid */
             id: string;
@@ -765,43 +882,30 @@ export interface components {
         };
         ItemFull: components["schemas"]["Item"] & {
             variants: components["schemas"]["ItemVariant"][];
-            instances: components["schemas"]["InstanceForItem"][];
+            items: components["schemas"]["InstanceForItem"][];
         };
         CreateItemResponse: {
             data: components["schemas"]["ItemFull"];
         };
+        GetItemVariantsResponse: {
+            data: components["schemas"]["ItemVariant"][];
+        };
+        CreateItemVariantRequest: components["schemas"]["ItemVariantBase"];
+        CreateItemVariantResponse: {
+            data: components["schemas"]["ItemVariant"];
+        };
+        GetItemVariantByIdResponse: {
+            data: components["schemas"]["ItemVariant"];
+        };
+        UpdateItemVariantRequest: components["schemas"]["ItemVariantBase"];
+        UpdateItemVariantResponse: {
+            data: components["schemas"]["ItemVariant"];
+        };
         GetItemByIdResponse: {
             data: components["schemas"]["ItemFull"];
         };
-        ItemVariantEdit: {
-            /** Format: uuid */
-            id: string;
-        } & components["schemas"]["ItemVariantBase"];
-        UpdateItemRequest: components["schemas"]["ItemCreate"] & {
-            variants?: components["schemas"]["ItemVariantEdit"][];
-        };
+        UpdateItemRequest: components["schemas"]["ItemCreate"];
         UpdateItemResponse: {
-            data: components["schemas"]["ItemFull"];
-        };
-        ItemVariantPatchInItem: {
-            /** Format: uuid */
-            id?: string;
-            /** @example Variant 1 */
-            name?: string;
-            /** @example 123456789012 */
-            article?: string | null;
-            /** @example 1234567890123 */
-            ean13?: number | null;
-        };
-        ItemPatch: {
-            /** @example Item 1 */
-            name?: string;
-            /** @example Description */
-            description?: string | null;
-            variants?: components["schemas"]["ItemVariantPatchInItem"][];
-        };
-        PatchItemRequest: components["schemas"]["ItemPatch"];
-        PatchItemResponse: {
             data: components["schemas"]["ItemFull"];
         };
         InstanceFull: {
@@ -812,7 +916,7 @@ export interface components {
             readonly id: string;
             /** @enum {string} */
             status: "available" | "reserved" | "consumed";
-            item?: components["schemas"]["Item"];
+            item: components["schemas"]["ItemForList"];
             variant: components["schemas"]["ItemVariant"];
             cell: components["schemas"]["CellForInstance"];
         };
@@ -826,11 +930,11 @@ export interface components {
             /** Format: uuid */
             variantId: string;
             /** Format: uuid */
-            cellId?: string | null;
+            cellId: string;
         };
         CreateInstanceForItemRequest: components["schemas"]["InstanceCreateForItem"];
         CreateInstanceForItemResponse: {
-            data: components["schemas"]["InstanceForItem"][];
+            data: components["schemas"]["InstanceForItem"];
         };
         Token: {
             /** Format: uuid */
@@ -887,6 +991,61 @@ export interface components {
             email: string;
             role: components["schemas"]["Role"];
         };
+        EmployeeOptional: components["schemas"]["Employee"] | null;
+        TaskBase: {
+            /** Format: uuid */
+            readonly id: string;
+            name: string;
+            description: string | null;
+            /** @enum {string} */
+            type: "pick" | "movement";
+            /** @enum {string} */
+            status: "pending" | "in_progress" | "awaiting_to_collect" | "completed" | "failed";
+            /** Format: date-time */
+            createdAt: string;
+            unit: components["schemas"]["Unit"];
+            assignedTo: components["schemas"]["EmployeeOptional"];
+            /** Format: date-time */
+            assignedAt: string | null;
+            /** Format: date-time */
+            completedAt: string | null;
+        };
+        GetTasksResponse: {
+            data: components["schemas"]["TaskBase"][];
+        };
+        TaskCreate: {
+            name: string;
+            description?: string | null;
+            /** @enum {string} */
+            type: "pick" | "movement";
+            /** Format: uuid */
+            unitId: string;
+            /** Format: uuid */
+            assignedTo?: string | null;
+            items?: {
+                /** Format: uuid */
+                instanceId: string;
+                /** Format: uuid */
+                targetCellId?: string;
+            }[];
+        };
+        CreateTaskRequest: components["schemas"]["TaskCreate"];
+        TaskItem: {
+            instance: components["schemas"]["InstanceFull"];
+            sourceCell: components["schemas"]["CellForInstance"];
+            targetCell: components["schemas"]["CellForInstance"];
+            /** @enum {string} */
+            status: "pending" | "picked";
+        };
+        TaskFull: components["schemas"]["TaskBase"] & {
+            items: components["schemas"]["TaskItem"][];
+        };
+        CreateTaskResponse: {
+            data: components["schemas"]["TaskFull"];
+        };
+        GetTaskResponse: {
+            data: components["schemas"]["TaskFull"];
+        };
         GetEmployeesResponse: {
             data: components["schemas"]["Employee"][];
         };
@@ -926,6 +1085,36 @@ export interface components {
         };
         GetAuditLogsResponse: {
             data: components["schemas"]["AuditLog"][];
+        };
+        TvBoard: {
+            /** Format: uuid */
+            id: string;
+            /** @description The name of the TV Board */
+            name: string;
+            readonly token: string;
+            unit: components["schemas"]["Unit"];
+        };
+        GetTvBoardsResponse: {
+            data: components["schemas"]["TvBoard"][];
+        };
+        TvBoardBase: {
+            /** @description The name of the TV Board */
+            name: string;
+            /**
+             * Format: uuid
+             * @description The ID of the unit that the TV Board belongs to
+             */
+            unitId: string;
+        };
+        CreateTvBoardRequest: components["schemas"]["TvBoardBase"];
+        CreateTvBoardResponse: {
+            data: components["schemas"]["TvBoard"];
+        };
+        GetTvBoardDataResponse: {
+            data: {
+                tvBoard: components["schemas"]["TvBoard"];
+                tasks: components["schemas"]["TaskBase"][];
+            };
         };
     };
     responses: {
@@ -1417,36 +1606,6 @@ export interface operations {
             default: components["responses"]["default-error"];
         };
     };
-    patchStorageGroup: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Storage Group ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PatchStorageGroupRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful operation */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PatchStorageGroupResponse"];
-                };
-            };
-            401: components["responses"]["default-unauthorized"];
-            403: components["responses"]["default-forbidden"];
-            default: components["responses"]["default-error"];
-        };
-    };
     getCellsGroups: {
         parameters: {
             query?: never;
@@ -1577,36 +1736,6 @@ export interface operations {
             default: components["responses"]["default-error"];
         };
     };
-    patchCellsGroup: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Cells Group ID */
-                groupId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PatchCellsGroupRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful operation */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PatchCellsGroupResponse"];
-                };
-            };
-            401: components["responses"]["default-unauthorized"];
-            403: components["responses"]["default-forbidden"];
-            default: components["responses"]["default-error"];
-        };
-    };
     getCells: {
         parameters: {
             query?: never;
@@ -1728,42 +1857,12 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Successful operation */
-            200: {
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            default: components["responses"]["default-error"];
-        };
-    };
-    patchCell: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                groupId: string;
-                cellId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PatchCellRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful operation */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PatchCellResponse"];
-                };
-            };
-            401: components["responses"]["default-unauthorized"];
-            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1817,6 +1916,148 @@ export interface operations {
             default: components["responses"]["default-error"];
         };
     };
+    getItemVariants: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Item ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetItemVariantsResponse"];
+                };
+            };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
+            default: components["responses"]["default-error"];
+        };
+    };
+    createItemVariant: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Item ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateItemVariantRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreateItemVariantResponse"];
+                };
+            };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
+            default: components["responses"]["default-error"];
+        };
+    };
+    getItemVariantById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Item ID */
+                id: string;
+                /** @description Variant ID */
+                variantId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetItemVariantByIdResponse"];
+                };
+            };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
+            default: components["responses"]["default-error"];
+        };
+    };
+    updateItemVariant: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Item ID */
+                id: string;
+                /** @description Variant ID */
+                variantId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateItemVariantRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UpdateItemVariantResponse"];
+                };
+            };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
+            default: components["responses"]["default-error"];
+        };
+    };
+    deleteItemVariant: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Item ID */
+                id: string;
+                /** @description Variant ID */
+                variantId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
+            default: components["responses"]["default-error"];
+        };
+    };
     getItemById: {
         parameters: {
             query?: never;
@@ -1838,6 +2079,8 @@ export interface operations {
                     "application/json": components["schemas"]["GetItemByIdResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1866,6 +2109,7 @@ export interface operations {
                     "application/json": components["schemas"]["UpdateItemResponse"];
                 };
             };
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1888,34 +2132,8 @@ export interface operations {
                 };
                 content?: never;
             };
-            default: components["responses"]["default-error"];
-        };
-    };
-    patchItem: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Item ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PatchItemRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful operation */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PatchItemResponse"];
-                };
-            };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2084,7 +2302,7 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Successful operation */
-            200: {
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -2201,6 +2419,111 @@ export interface operations {
                 };
             };
             401: components["responses"]["default-unauthorized"];
+            default: components["responses"]["default-error"];
+        };
+    };
+    getTasks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetTasksResponse"];
+                };
+            };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
+            default: components["responses"]["default-error"];
+        };
+    };
+    createTask: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateTaskRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreateTaskResponse"];
+                };
+            };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
+            default: components["responses"]["default-error"];
+        };
+    };
+    getTaskById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetTaskResponse"];
+                };
+            };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
+            default: components["responses"]["default-error"];
+        };
+    };
+    pickInstanceFromCell: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uuid */
+                    instanceId: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful operation */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2380,6 +2703,103 @@ export interface operations {
             };
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            default: components["responses"]["default-error"];
+        };
+    };
+    getTvBoards: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetTvBoardsResponse"];
+                };
+            };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
+            default: components["responses"]["default-error"];
+        };
+    };
+    createTvBoard: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateTvBoardRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreateTvBoardResponse"];
+                };
+            };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
+            default: components["responses"]["default-error"];
+        };
+    };
+    deleteTvBoard: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
+            default: components["responses"]["default-error"];
+        };
+    };
+    getTvBoardsData: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tvToken: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetTvBoardDataResponse"];
+                };
+            };
+            401: components["responses"]["default-unauthorized"];
             default: components["responses"]["default-error"];
         };
     };
