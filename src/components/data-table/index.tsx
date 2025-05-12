@@ -88,7 +88,8 @@ export function DataTable<TData>({
     enableColumnFilters: true,
     enableFilters: true,
     getColumnCanGlobalFilter: (column) => {
-      return !(column.columnDef.meta as any)?.isDisplay;
+      const meta = column.columnDef.meta as any;
+      return !(meta?.isDisplay || meta?.isSelector);
     },
   });
 

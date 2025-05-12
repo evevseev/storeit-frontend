@@ -56,9 +56,10 @@ export default function StorageGroupPage() {
         <BlockTextElement label="Название" value={storageGroup?.data.name} />
         <BlockTextElement label="Алиас" value={storageGroup?.data.alias} />
       </Block>
-      <Block title="История изменений">
-        <HistoryTable objectType={ObjectType.StorageGroup} objectId={id as string} />
-      </Block>
+      <HistoryTable
+        objectType={ObjectType.StorageGroup}
+        objectId={id as string}
+      />
     </BlockedPage>
   );
 }

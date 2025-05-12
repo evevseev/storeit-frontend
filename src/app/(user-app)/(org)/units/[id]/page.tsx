@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { HistoryTable } from "@/components/common-page/history-table";
 import { ObjectType } from "@/components/common-page/history-table/types";
+import { Pencil } from "lucide-react";
 
 export default function UnitPage() {
   const { id } = useParams();
@@ -42,7 +43,10 @@ export default function UnitPage() {
         ]}
         actions={[
           <Button asChild>
-            <Link href={`/units/${data.data.id}/edit`}>Редактировать</Link>
+            <Link href={`/units/${data.data.id}/edit`}>
+              <Pencil />
+              Редактировать
+            </Link>
           </Button>,
         ]}
       />
@@ -51,9 +55,7 @@ export default function UnitPage() {
         <BlockTextElement label="Аббревиатура" value={data.data.alias} />
         <BlockTextElement label="Адрес" value={data.data.address ?? ""} />
       </Block>
-      <Block title="История изменения">
         <HistoryTable objectType={ObjectType.Unit} objectId={data.data.id} />
-      </Block>
-    </BlockedPage>
+А    </BlockedPage>
   );
 }
