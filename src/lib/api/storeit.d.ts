@@ -81,8 +81,7 @@ export interface paths {
         delete: operations["deleteOrganizationUnit"];
         options?: never;
         head?: never;
-        /** Patch Organization Unit */
-        patch: operations["patchOrganizationUnit"];
+        patch?: never;
         trace?: never;
     };
     "/storage-groups": {
@@ -432,14 +431,12 @@ export interface paths {
         };
         /** Get Current User */
         get: operations["getCurrentUser"];
-        /** Update Current User */
-        put: operations["putCurrentUser"];
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        /** Update Current User */
-        patch: operations["patchCurrentUser"];
+        patch?: never;
         trace?: never;
     };
     "/tasks": {
@@ -492,6 +489,44 @@ export interface paths {
         put?: never;
         /** Pick an item from cell */
         post: operations["pickInstanceFromCell"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tasks/{id}/ready": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark task as awaiting to collect */
+        post: operations["markTaskAsAwaiting"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tasks/{id}/completed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark task as completed */
+        post: operations["markTaskAsCompleted"];
         delete?: never;
         options?: never;
         head?: never;
@@ -669,10 +704,7 @@ export interface components {
             subdomain: string;
         };
         Organization: {
-            /**
-             * Format: uuid
-             * @example def3df1a-7b8f-4552-b437-a1eab851403f
-             */
+            /** Format: uuid */
             readonly id: string;
         } & components["schemas"]["OrganizationBase"];
         GetOrganizationsResponse: {
@@ -689,7 +721,6 @@ export interface components {
             /** @example Exotic */
             name: string;
         };
-        UpdateOrganizationRequest: components["schemas"]["OrganizationUpdate"];
         UpdateOrganizationResponse: {
             data: components["schemas"]["Organization"];
         };
@@ -714,26 +745,13 @@ export interface components {
         GetOrganizationUnitsResponse: {
             data: components["schemas"]["Unit"][];
         };
-        CreateOrganizationUnitRequest: components["schemas"]["UnitBase"];
         CreateOrganizationUnitResponse: {
             data: components["schemas"]["Unit"];
         };
         GetOrganizationUnitByIdResponse: {
             data: components["schemas"]["Unit"];
         };
-        UpdateOrganizationUnitRequest: components["schemas"]["UnitBase"];
         UpdateOrganizationUnitResponse: {
-            data: components["schemas"]["Unit"];
-        };
-        UnitPatch: {
-            /** @example Moscow */
-            name?: string;
-            /** @example MWS */
-            alias?: string;
-            address?: string | null;
-        };
-        PatchOrganizationUnitRequest: components["schemas"]["UnitPatch"];
-        PatchOrganizationUnitResponse: {
             data: components["schemas"]["Unit"];
         };
         StorageGroupBase: {
@@ -756,14 +774,12 @@ export interface components {
         GetStorageGroupsResponse: {
             data: components["schemas"]["StorageGroup"][];
         };
-        CreateStorageGroupRequest: components["schemas"]["StorageGroupBase"];
         CreateStorageGroupResponse: {
             data: components["schemas"]["StorageGroup"];
         };
         GetStorageGroupByIdResponse: {
             data: components["schemas"]["StorageGroup"];
         };
-        UpdateStorageGroupRequest: components["schemas"]["StorageGroupBase"];
         UpdateStorageGroupResponse: {
             data: components["schemas"]["StorageGroup"];
         };
@@ -874,13 +890,16 @@ export interface components {
                 objectType: "cell" | "cells_group" | "storage_group" | "unit";
             }[];
         };
+        CellForInstanceOptional: components["schemas"]["CellForInstance"] | null;
         InstanceForItem: {
             /** Format: uuid */
             id: string;
             /** @enum {string} */
             status: "available" | "reserved" | "consumed";
+            /** Format: uuid */
+            affectedByTaskId?: string | null;
             variant: components["schemas"]["ItemVariant"];
-            cell: components["schemas"]["CellForInstance"];
+            cell: components["schemas"]["CellForInstanceOptional"];
         };
         ItemFull: components["schemas"]["Item"] & {
             variants: components["schemas"]["ItemVariant"][];
@@ -919,8 +938,10 @@ export interface components {
             /** @enum {string} */
             status: "available" | "reserved" | "consumed";
             item: components["schemas"]["ItemForList"];
+            /** Format: uuid */
+            affectedByTaskId?: string | null;
             variant: components["schemas"]["ItemVariant"];
-            cell: components["schemas"]["CellForInstance"];
+            cell: components["schemas"]["CellForInstanceOptional"];
         };
         GetInstancesResponse: {
             data: components["schemas"]["InstanceFull"][];
@@ -973,18 +994,6 @@ export interface components {
             email: string;
         };
         GetCurrentUserResponse: components["schemas"]["User"];
-        UserUpdate: {
-            first_name: string;
-            last_name: string;
-            middle_name: string | null;
-        };
-        UpdateCurrentUserRequest: components["schemas"]["UserUpdate"];
-        UserPatch: {
-            first_name: string;
-            last_name: string;
-            middle_name: string | null;
-        };
-        PatchCurrentUserRequest: components["schemas"]["UserPatch"];
         Role: {
             id: number;
             name: string;
@@ -1009,7 +1018,7 @@ export interface components {
             /** @enum {string} */
             type: "pickment" | "movement";
             /** @enum {string} */
-            status: "pending" | "in_progress" | "awaiting_to_collect" | "completed" | "failed";
+            status: "pending" | "in_progress" | "ready" | "completed" | "cancelled";
             /** Format: date-time */
             createdAt: string;
             unit: components["schemas"]["Unit"];
@@ -1039,7 +1048,6 @@ export interface components {
             }[];
         };
         CreateTaskRequest: components["schemas"]["TaskCreate"];
-        CellForInstanceOptional: components["schemas"]["CellForInstance"] | null;
         TaskItem: {
             instance: components["schemas"]["InstanceFull"];
             sourceCell: components["schemas"]["CellForInstance"];
@@ -1146,6 +1154,24 @@ export interface components {
                 "application/json": components["schemas"]["ErrorContent"];
             };
         };
+        /** @description Not Found */
+        "default-not-found": {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ErrorContent"];
+            };
+        };
+        /** @description Bad Request */
+        "default-bad-request": {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ErrorContent"];
+            };
+        };
         /** @description Conflict, resource duplication */
         "default-conflict": {
             headers: {
@@ -1164,6 +1190,13 @@ export interface components {
                 "application/json": components["schemas"]["ErrorContent"];
             };
         };
+        /** @description Successful operation */
+        "default-no-content": {
+            headers: {
+                [name: string]: unknown;
+            };
+            content?: never;
+        };
         /** @description Auth response */
         AuthResponse: {
             headers: {
@@ -1171,15 +1204,6 @@ export interface components {
                 [name: string]: unknown;
             };
             content?: never;
-        };
-        /** @description Bad Request */
-        "default-bad-request": {
-            headers: {
-                [name: string]: unknown;
-            };
-            content: {
-                "application/json": components["schemas"]["ErrorContent"];
-            };
         };
         /** @description Logout response */
         LogoutResponse: {
@@ -1216,6 +1240,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["default-unauthorized"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1241,6 +1266,7 @@ export interface operations {
                     "application/json": components["schemas"]["CreateOrganizationResponse"];
                 };
             };
+            400: components["responses"]["default-bad-request"];
             401: components["responses"]["default-unauthorized"];
             409: components["responses"]["default-conflict"];
             default: components["responses"]["default-error"];
@@ -1269,6 +1295,7 @@ export interface operations {
             };
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1284,7 +1311,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["UpdateOrganizationRequest"];
+                "application/json": components["schemas"]["OrganizationUpdate"];
             };
         };
         responses: {
@@ -1297,8 +1324,10 @@ export interface operations {
                     "application/json": components["schemas"]["UpdateOrganizationResponse"];
                 };
             };
+            400: components["responses"]["default-bad-request"];
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1314,15 +1343,10 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Successful operation */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
+            204: components["responses"]["default-no-content"];
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1346,6 +1370,7 @@ export interface operations {
             };
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1358,7 +1383,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateOrganizationUnitRequest"];
+                "application/json": components["schemas"]["UnitBase"];
             };
         };
         responses: {
@@ -1371,6 +1396,7 @@ export interface operations {
                     "application/json": components["schemas"]["CreateOrganizationUnitResponse"];
                 };
             };
+            400: components["responses"]["default-bad-request"];
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
@@ -1399,6 +1425,7 @@ export interface operations {
             };
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1414,7 +1441,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["UpdateOrganizationUnitRequest"];
+                "application/json": components["schemas"]["UnitBase"];
             };
         };
         responses: {
@@ -1427,8 +1454,10 @@ export interface operations {
                     "application/json": components["schemas"]["UpdateOrganizationUnitResponse"];
                 };
             };
+            400: components["responses"]["default-bad-request"];
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1444,45 +1473,10 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Successful operation */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
+            204: components["responses"]["default-no-content"];
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
-            default: components["responses"]["default-error"];
-        };
-    };
-    patchOrganizationUnit: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Unit ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PatchOrganizationUnitRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful operation */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PatchOrganizationUnitResponse"];
-                };
-            };
-            401: components["responses"]["default-unauthorized"];
-            403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1506,6 +1500,7 @@ export interface operations {
             };
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1518,7 +1513,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateStorageGroupRequest"];
+                "application/json": components["schemas"]["StorageGroupBase"];
             };
         };
         responses: {
@@ -1531,6 +1526,7 @@ export interface operations {
                     "application/json": components["schemas"]["CreateStorageGroupResponse"];
                 };
             };
+            400: components["responses"]["default-bad-request"];
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
@@ -1559,6 +1555,7 @@ export interface operations {
             };
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1574,7 +1571,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["UpdateStorageGroupRequest"];
+                "application/json": components["schemas"]["StorageGroupBase"];
             };
         };
         responses: {
@@ -1587,8 +1584,10 @@ export interface operations {
                     "application/json": components["schemas"]["UpdateStorageGroupResponse"];
                 };
             };
+            400: components["responses"]["default-bad-request"];
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1604,15 +1603,10 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Successful operation */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
+            204: components["responses"]["default-no-content"];
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1636,6 +1630,7 @@ export interface operations {
             };
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1661,6 +1656,7 @@ export interface operations {
                     "application/json": components["schemas"]["CreateCellsGroupResponse"];
                 };
             };
+            400: components["responses"]["default-bad-request"];
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
@@ -1689,6 +1685,7 @@ export interface operations {
             };
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1717,8 +1714,10 @@ export interface operations {
                     "application/json": components["schemas"]["UpdateCellsGroupResponse"];
                 };
             };
+            400: components["responses"]["default-bad-request"];
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1743,6 +1742,7 @@ export interface operations {
             };
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1768,6 +1768,7 @@ export interface operations {
             };
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1795,6 +1796,7 @@ export interface operations {
                     "application/json": components["schemas"]["CreateCellResponse"];
                 };
             };
+            400: components["responses"]["default-bad-request"];
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
@@ -1821,6 +1823,9 @@ export interface operations {
                     "application/json": components["schemas"]["GetCellByIdResponse"];
                 };
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1849,8 +1854,10 @@ export interface operations {
                     "application/json": components["schemas"]["UpdateCellResponse"];
                 };
             };
+            400: components["responses"]["default-bad-request"];
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1873,6 +1880,9 @@ export interface operations {
                 };
                 content?: never;
             };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1896,6 +1906,7 @@ export interface operations {
             };
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1921,6 +1932,7 @@ export interface operations {
                     "application/json": components["schemas"]["CreateItemResponse"];
                 };
             };
+            400: components["responses"]["default-bad-request"];
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
@@ -1949,6 +1961,7 @@ export interface operations {
             };
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -1977,6 +1990,7 @@ export interface operations {
                     "application/json": components["schemas"]["CreateItemVariantResponse"];
                 };
             };
+            400: components["responses"]["default-bad-request"];
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
@@ -2007,6 +2021,7 @@ export interface operations {
             };
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2037,8 +2052,10 @@ export interface operations {
                     "application/json": components["schemas"]["UpdateItemVariantResponse"];
                 };
             };
+            400: components["responses"]["default-bad-request"];
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2065,6 +2082,7 @@ export interface operations {
             };
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2091,6 +2109,7 @@ export interface operations {
             };
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2119,7 +2138,9 @@ export interface operations {
                     "application/json": components["schemas"]["UpdateItemResponse"];
                 };
             };
+            400: components["responses"]["default-bad-request"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2144,6 +2165,7 @@ export interface operations {
             };
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2167,6 +2189,7 @@ export interface operations {
             };
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2193,6 +2216,7 @@ export interface operations {
             };
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2221,6 +2245,7 @@ export interface operations {
                     "application/json": components["schemas"]["CreateInstanceForItemResponse"];
                 };
             };
+            400: components["responses"]["default-bad-request"];
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
@@ -2249,6 +2274,7 @@ export interface operations {
             };
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2277,8 +2303,10 @@ export interface operations {
                     "application/json": components["schemas"]["UpdateInstanceResponse"];
                 };
             };
+            400: components["responses"]["default-bad-request"];
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2303,6 +2331,7 @@ export interface operations {
             };
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2326,6 +2355,7 @@ export interface operations {
             };
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2351,6 +2381,7 @@ export interface operations {
                     "application/json": components["schemas"]["CreateApiTokenResponse"];
                 };
             };
+            400: components["responses"]["default-bad-request"];
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
@@ -2376,6 +2407,7 @@ export interface operations {
             };
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2410,7 +2442,7 @@ export interface operations {
         requestBody?: never;
         responses: {
             200: components["responses"]["LogoutResponse"];
-            401: components["responses"]["default-unauthorized"];
+            400: components["responses"]["default-bad-request"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2422,58 +2454,6 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
-        responses: {
-            /** @description Successful operation */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GetCurrentUserResponse"];
-                };
-            };
-            401: components["responses"]["default-unauthorized"];
-            default: components["responses"]["default-error"];
-        };
-    };
-    putCurrentUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateCurrentUserRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful operation */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GetCurrentUserResponse"];
-                };
-            };
-            401: components["responses"]["default-unauthorized"];
-            default: components["responses"]["default-error"];
-        };
-    };
-    patchCurrentUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PatchCurrentUserRequest"];
-            };
-        };
         responses: {
             /** @description Successful operation */
             200: {
@@ -2508,6 +2488,7 @@ export interface operations {
             };
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2533,6 +2514,7 @@ export interface operations {
                     "application/json": components["schemas"]["CreateTaskResponse"];
                 };
             };
+            400: components["responses"]["default-bad-request"];
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
@@ -2560,6 +2542,7 @@ export interface operations {
             };
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2588,6 +2571,55 @@ export interface operations {
                 };
                 content?: never;
             };
+            400: components["responses"]["default-bad-request"];
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
+            default: components["responses"]["default-error"];
+        };
+    };
+    markTaskAsAwaiting: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["default-bad-request"];
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
+            default: components["responses"]["default-error"];
+        };
+    };
+    markTaskAsCompleted: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["default-bad-request"];
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
@@ -2613,6 +2645,7 @@ export interface operations {
             };
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2638,6 +2671,7 @@ export interface operations {
             };
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2661,6 +2695,7 @@ export interface operations {
             };
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2688,8 +2723,10 @@ export interface operations {
                     "application/json": components["schemas"]["GetEmployeeResponse"];
                 };
             };
+            400: components["responses"]["default-bad-request"];
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2715,6 +2752,7 @@ export interface operations {
                     "application/json": components["schemas"]["GetEmployeeResponse"];
                 };
             };
+            400: components["responses"]["default-bad-request"];
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
@@ -2741,6 +2779,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["default-unauthorized"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2769,6 +2808,7 @@ export interface operations {
             };
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2792,6 +2832,7 @@ export interface operations {
             };
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2817,6 +2858,7 @@ export interface operations {
                     "application/json": components["schemas"]["CreateTvBoardResponse"];
                 };
             };
+            400: components["responses"]["default-bad-request"];
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
             default: components["responses"]["default-error"];
@@ -2842,6 +2884,7 @@ export interface operations {
             };
             401: components["responses"]["default-unauthorized"];
             403: components["responses"]["default-forbidden"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };
@@ -2866,6 +2909,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["default-unauthorized"];
+            404: components["responses"]["default-not-found"];
             default: components["responses"]["default-error"];
         };
     };

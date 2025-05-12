@@ -76,7 +76,7 @@ type Instance = {
     id: string;
     name: string;
   };
-  cell: {
+  cell?: {
     id: string;
     alias: string;
     row: number;
@@ -115,7 +115,7 @@ const buildStorageTree = (instances: Instance[]): StorageNode[] => {
 
   instances.forEach((instance) => {
     let currentPath: StorageNode[] = [];
-    const path = instance.cell.cellPath;
+    const path = instance.cell?.cellPath ?? [];
 
     // Create or get nodes for the path
     path.forEach((pathItem, index) => {

@@ -98,11 +98,12 @@ function AuthenticatedContent({
 
   const isLoginPage = /\/login/.test(pathname) || /\/dct/.test(pathname);
 
-  if (!isLoading && !isAuthenticated) {
-    if (!isLoginPage) {
-      router.push("/login");
-    }
-  }
+  // if (!isLoading && !isAuthenticated) {
+  //   if (!isLoginPage) {
+  //     console.log("pushing to login");
+  //     router.push("/login");
+  //   }
+  // }
 
   if (isLoading && !isLoginPage) {
     return null;

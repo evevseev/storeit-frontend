@@ -12,19 +12,19 @@ import { ScannerDialog } from "./scanner-dialog";
 import { CopyableText } from "@/components/ui/copyable-text";
 
 const statusLabels = {
-  pending: "Ожидает",
+  pending: "Ожидает сборки",
   in_progress: "В работе",
-  awaiting_to_collect: "Ожидает сбора",
+  ready: "Ожидает выдачи",
   completed: "Завершено",
-  failed: "Ошибка",
+  cancelled: "Отменено",
 } as const;
 
 const statusColors = {
   pending: "bg-yellow-500",
   in_progress: "bg-blue-500",
-  awaiting_to_collect: "bg-purple-500",
+  ready: "bg-purple-500",
   completed: "bg-green-500",
-  failed: "bg-red-500",
+  cancelled: "bg-red-500",
 } as const;
 
 export default function TaskPage() {
@@ -33,20 +33,85 @@ export default function TaskPage() {
   const client = useApiQueryClient();
   const queryClient = useQueryClient();
 
-  const { data: taskData } = client.useQuery("get", "/tasks/{id}", {
-    params: {
-      path: {
-        id,
+  const { data: taskData, refetch: refetchTask } = client.useQuery(
+    "get",
+    "/tasks/{id}",
+    {
+      params: {
+        path: {
+          id,
+        },
       },
-    },
-  });
+    }
+  );
 
   const pickInstanceMutation = client.useMutation(
     "post",
     "/tasks/{id}/pick-instance"
   );
 
+  const markTaskAsReadyMutation = client.useMutation(
+    "post",
+    "/tasks/{id}/awaiting"
+  );
+
+  const markTaskAsCompletedMutation = client.useMutation(
+    "post",
+    "/tasks/{id}/done"
+  );
+
   const task = taskData?.data;
+
+  const handleTaskReady = async () => {
+    try {
+      await markTaskAsReadyMutation.mutateAsync({
+        params: {
+          path: {
+            id,
+          },
+        },
+      });
+      toast.success("Задача успешно отмечена как ожидаемая");
+      await refetchTask();
+    } catch (error) {
+      toast.error("Ошибка при отметке задачи как ожидаемой");
+    }
+  };
+
+  const handleTaskCompleted = async () => {
+    try {
+      await markTaskAsCompletedMutation.mutateAsync({
+        params: {
+          path: {
+            id,
+          },
+        },
+      });
+      toast.success("Задача успешно отмечена как выполненная");
+      await refetchTask();
+    } catch (error) {
+      toast.error("Ошибка при отметке задачи как выполненной");
+    }
+  };
+
+  const handlePickInstance = async (instanceId: string) => {
+    try {
+      await pickInstanceMutation.mutateAsync({
+        params: {
+          path: {
+            id,
+          },
+        },
+        body: {
+          instanceId,
+        },
+      });
+      toast.success("Товар успешно отмечен как подобранный");
+      await refetchTask();
+    } catch (error) {
+      toast.error("Ошибка при отметке товара как подобранного");
+    }
+  };
 
   const handleScan = async (result: {
     value: string;
@@ -95,7 +160,8 @@ export default function TaskPage() {
         <div>
           <div className="font-semibold text-foreground mb-1">Ячейка:</div>
           <div className="text-base font-semibold">
-            Ряд {cell.row}, Уровень {cell.level}, Место {cell.position} ({cell.alias})
+            Ряд {cell.row}, Уровень {cell.level}, Место {cell.position} (
+            {cell.alias})
           </div>
         </div>
       </div>
@@ -113,23 +179,25 @@ export default function TaskPage() {
               <p className="text-gray-500 mt-1">{task.description}</p>
             )}
             <div className="flex flex-col gap-1 text-sm text-muted-foreground">
-              {task.unit && (
-                <p>
-                  Подразделение: {task.unit.name}
-                </p>
-              )}
+              {task.unit && <p>Подразделение: {task.unit.name}</p>}
               <p>
-                Создано: {new Date(task.createdAt).toLocaleString("ru-RU", {
+                Создано:{" "}
+                {new Date(task.createdAt).toLocaleString("ru-RU", {
                   dateStyle: "short",
                   timeStyle: "short",
                 })}
                 {task.assignedTo && (
-                  <> • Исполнитель: {task.assignedTo.firstName} {task.assignedTo.lastName}</>
+                  <>
+                    {" "}
+                    • Исполнитель: {task.assignedTo.firstName}{" "}
+                    {task.assignedTo.lastName}
+                  </>
                 )}
               </p>
               {task.completedAt && (
                 <p>
-                  Завершено: {new Date(task.completedAt).toLocaleString("ru-RU", {
+                  Завершено:{" "}
+                  {new Date(task.completedAt).toLocaleString("ru-RU", {
                     dateStyle: "short",
                     timeStyle: "short",
                   })}
@@ -187,9 +255,7 @@ export default function TaskPage() {
                 </Badge>
               </div>
               <div className="flex flex-col gap-2 text-sm text-gray-500">
-                <div>
-                  {getCellPath(item.sourceCell)}
-                </div>
+                <div>{getCellPath(item.sourceCell)}</div>
                 {item.targetCell && (
                   <div className="flex items-center gap-1">
                     <span className="font-medium min-w-20">
@@ -205,6 +271,7 @@ export default function TaskPage() {
                   size="sm"
                   className="bg-green-100 hover:bg-green-200 border-green-500 text-green-700"
                   disabled={item.status === "picked"}
+                  onClick={() => handlePickInstance(item.instance.id)}
                 >
                   <CheckCircle2 className="mr-2 h-4 w-4" />
                   Отметить как подобранный
@@ -222,7 +289,8 @@ export default function TaskPage() {
             variant="outline"
             size="lg"
             className="bg-yellow-100 hover:bg-yellow-200 border-yellow-500 text-yellow-700"
-            disabled={task.status !== "pending"}
+            disabled={task.status === "ready"}
+            onClick={() => handleTaskReady()}
           >
             <Clock className="mr-2 h-5 w-5" />
             Статус: ожидает
@@ -231,7 +299,8 @@ export default function TaskPage() {
             variant="outline"
             size="lg"
             className="bg-green-100 hover:bg-green-200 border-green-500 text-green-700"
-            disabled={task.status !== "completed"}
+            disabled={task.status === "completed"}
+            onClick={() => handleTaskCompleted()}
           >
             <CheckCircle2 className="mr-2 h-5 w-5" />
             Статус: выполнен
