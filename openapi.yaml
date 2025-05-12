@@ -2039,10 +2039,8 @@ components:
         - $ref: '#/components/schemas/ItemCreate'
     CellForInstance:
       allOf:
-        - nullable: true
-          $ref: '#/components/schemas/Cell'
+        - $ref: '#/components/schemas/Cell'
         - type: object
-          nullable: true
           properties:
             cellPath:
               type: array
@@ -2431,7 +2429,7 @@ components:
         type:
           type: string
           enum:
-            - pick
+            - pickment
             - movement
         status:
           type: string
@@ -2488,7 +2486,7 @@ components:
         type:
           type: string
           enum:
-            - pick
+            - pickment
             - movement
         unitId:
           type: string
@@ -2519,6 +2517,11 @@ components:
     CreateTaskRequest:
       allOf:
         - $ref: '#/components/schemas/TaskCreate'
+    CellForInstanceOptional:
+      type: object
+      nullable: true
+      allOf:
+        - $ref: '#/components/schemas/CellForInstance'
     TaskItem:
       type: object
       properties:
@@ -2527,8 +2530,7 @@ components:
         sourceCell:
           $ref: '#/components/schemas/CellForInstance'
         targetCell:
-          nullable: true
-          $ref: '#/components/schemas/CellForInstance'
+          $ref: '#/components/schemas/CellForInstanceOptional'
         status:
           type: string
           enum:
