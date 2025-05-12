@@ -2,6 +2,7 @@ import { useRouter } from "next/navigation";
 import { useApiQueryClient } from "./use-api-query-client";
 import { useActiveOrganizationId } from "./use-organization-id";
 import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 
 export type User = {
   id: string;
@@ -16,12 +17,13 @@ export function useAuth() {
   const client = useApiQueryClient();
   const globalClient = useQueryClient();
   const { organizationId, setOrganizationId } = useActiveOrganizationId();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   const getOrganizationId = () => {
     if (!organizationId) {
       router.push("/login/select-org");
     }
-    
+
     return organizationId as string;
   }
 
@@ -30,6 +32,7 @@ export function useAuth() {
   const { data: user, isLoading: isUserLoading, error: userError } = client.useQuery(
     "get",
     "/me",
+    { enabled: isAuthenticated === true }
   );
 
   const logout = async () => {
@@ -51,5 +54,7 @@ export function useAuth() {
     setOrganizationId,
     getOrganizationId,
     isLoggingOut: logoutMutation.isPending,
+    isAuthenticated,
+    setIsAuthenticated,
   };
 } 

@@ -15,6 +15,8 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
+import { HistoryTable } from "@/components/common-page/history-table";
+import { ObjectType } from "@/components/common-page/history-table/types";
 
 export default function OrgPage() {
   const client = useApiQueryClient();
@@ -81,6 +83,10 @@ export default function OrgPage() {
           <BlockTextElement label="Название" value={org?.data.name} />
           <BlockTextElement label="Поддомен" value={org?.data.subdomain} />
         </Block>
+        <HistoryTable
+          objectType={ObjectType.Organization}
+          objectId={getOrganizationId()}
+        />
       </BlockedPage>
     </>
   );

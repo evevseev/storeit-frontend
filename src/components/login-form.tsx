@@ -12,7 +12,6 @@ import { Skeleton } from "./ui/skeleton";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
-import { Loader2 } from "lucide-react";
 
 interface YandexAuthConfig {
   clientId: string;

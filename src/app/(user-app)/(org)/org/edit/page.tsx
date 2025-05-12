@@ -8,6 +8,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+
 const validator = z.interface({
   name: z.string().min(1),
 });
@@ -34,8 +35,8 @@ export default function OrgEditPage() {
     validators: {
       onChange: validator,
     },
-    onSubmit: async (data) => {
-      await mutation.mutate(
+    onSubmit: (data) => {
+      mutation.mutate(
         {
           params: {
             path: {

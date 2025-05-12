@@ -196,7 +196,7 @@ export default function GroupCellsList({ cellsGroupId }: CellsListProps) {
         .filter((cell) => selectedRows[cell.id])
         .map((cell) => ({
           id: cell.id,
-          alias: cell.alias,
+          name: cell.alias,
           description: "Ячейка",
           url:
             process.env.NEXT_PUBLIC_API_URL +
@@ -284,11 +284,13 @@ export default function GroupCellsList({ cellsGroupId }: CellsListProps) {
         cell: ({ getValue }) => (
           <CopyableText className="cursor-pointer">{getValue()}</CopyableText>
         ),
+        enableEditing: false,
       }),
       columnHelper.accessor("alias", {
         header: "Обозначение",
         size: 150,
         sortingFn: "alphanumeric",
+        enableEditing: true,
       }),
       columnHelper.accessor("row", {
         header: "№ ряда",
@@ -297,6 +299,7 @@ export default function GroupCellsList({ cellsGroupId }: CellsListProps) {
         meta: {
           filterVariant: "range",
         },
+        enableEditing: true,
       }),
       columnHelper.accessor("level", {
         header: "№ уровня",
@@ -305,6 +308,7 @@ export default function GroupCellsList({ cellsGroupId }: CellsListProps) {
         meta: {
           filterVariant: "range",
         },
+        enableEditing: true,
       }),
       columnHelper.accessor("position", {
         header: "№ позиции",
@@ -313,6 +317,7 @@ export default function GroupCellsList({ cellsGroupId }: CellsListProps) {
         meta: {
           filterVariant: "range",
         },
+        enableEditing: true,
       }),
       columnHelper.display({
         id: "actions",
@@ -373,6 +378,18 @@ export default function GroupCellsList({ cellsGroupId }: CellsListProps) {
             defaultColumn={defaultColumn}
             editMode={isEditing}
             meta={{
+              updateData: (rowIndex: number, columnId: string, value: unknown) => {
+                setEditedValues((prev) => {
+                  const filtered = prev.filter(
+                    (edit) =>
+                      !(
+                        edit.rowIndex === rowIndex &&
+                        edit.columnId === columnId
+                      )
+                  );
+                  return [...filtered, { rowIndex, columnId, value }];
+                });
+              },
               addEditedValue: (value: EditedCellValue) => {
                 setEditedValues((prev) => {
                   const filtered = prev.filter(
