@@ -8,9 +8,11 @@ import { HistoryTable } from "@/components/common-page/history-table";
 import { ObjectType } from "@/components/common-page/history-table/types";
 import { Block, BlockedPage } from "@/components/common-page/block";
 import GroupCellsList from "@/components/cells-group/group-cells-list";
+import PrintButton from "@/components/print-button";
+import { getGroupLabel } from "@/hooks/use-print-labels";
 
 export default function CellsGroupPage() {
-  const { id } = useParams();
+  const { id } = useParams() as { id: string };
   const client = useApiQueryClient();
   const { data: group } = client.useQuery("get", "/cells-groups/{groupId}", {
     params: {
@@ -21,7 +23,7 @@ export default function CellsGroupPage() {
   });
 
   const breadcrumbs = [
-    { label: "Хранение", href: "/storage" },
+    { label: "Склад", href: "/storage" },
     { label: "Группы ячеек" },
     {
       label: group?.data.name ?? "Группа ячеек",
@@ -34,13 +36,21 @@ export default function CellsGroupPage() {
       <PageMetadata
         title={group?.data.name ?? "Группа ячеек"}
         breadcrumbs={breadcrumbs}
+        actions={[
+          group?.data && (
+            <PrintButton
+              label={getGroupLabel({
+                id: group.data.id,
+                name: group.data.name,
+                alias: group.data.alias,
+              })}
+            />
+          ),
+        ]}
       />
-      <GroupInfoCard id={id as string} />
-      <GroupCellsList cellsGroupId={id as string} />
-      <HistoryTable
-        objectType={ObjectType.CellsGroup}
-        objectId={id as string}
-      />
+      <GroupInfoCard id={id} />
+      <GroupCellsList cellsGroupId={id} />
+      <HistoryTable objectType={ObjectType.CellsGroup} objectId={id} />
     </BlockedPage>
   );
 }

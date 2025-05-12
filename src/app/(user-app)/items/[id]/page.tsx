@@ -54,6 +54,7 @@ import {
 } from "@/components/ui/table";
 import { CopyableText } from "@/components/ui/copyable-text";
 import { defaultColumn, EditedCellValue } from "@/lib/tanstack-table";
+import InstancesView from "@/components/common-page/instances-view";
 
 type Item = {
   id: string;
@@ -69,104 +70,7 @@ type Variant = {
   ean13: number | null;
 };
 
-type Instance = {
-  id: string;
-  status: "available" | "reserved" | "consumed";
-  variant: {
-    id: string;
-    name: string;
-  };
-  cell?: {
-    id: string;
-    alias: string;
-    row: number;
-    level: number;
-    position: number;
-    cellPath: {
-      id: string;
-      name: string;
-      alias: string;
-      objectType: "cell" | "cells_group" | "storage_group";
-    }[];
-  };
-};
-
-type StorageNode = {
-  id: string;
-  name: string;
-  alias: string;
-  type: string;
-  instanceCount: number;
-  cellAlias?: string;
-  cellPosition?: {
-    row: number;
-    level: number;
-    position: number;
-  };
-  subRows?: StorageNode[];
-  instances?: Instance[];
-};
-
 const variantColumnHelper = createColumnHelper<Variant>();
-
-const buildStorageTree = (instances: Instance[]): StorageNode[] => {
-  const nodeMap = new Map<string, StorageNode>();
-  const result: StorageNode[] = [];
-
-  instances.forEach((instance) => {
-    let currentPath: StorageNode[] = [];
-    const path = instance.cell?.cellPath ?? [];
-
-    // Create or get nodes for the path
-    path.forEach((pathItem, index) => {
-      const nodeId = pathItem.id;
-      let node = nodeMap.get(nodeId);
-
-      if (!node) {
-        node = {
-          id: nodeId,
-          name: pathItem.name,
-          alias: pathItem.alias,
-          type: pathItem.objectType,
-          instanceCount: 0,
-          subRows: [],
-        };
-        nodeMap.set(nodeId, node);
-
-        if (currentPath.length > 0) {
-          currentPath[currentPath.length - 1].subRows?.push(node);
-        } else {
-          result.push(node);
-        }
-      }
-
-      if (index === path.length - 1) {
-        // Create a separate node for each instance
-        const instanceNode: StorageNode = {
-          id: `${instance.cell.id}-${instance.id}`,
-          name: instance.variant.name,
-          alias: instance.cell.alias,
-          type: "instance",
-          instanceCount: 1,
-          cellAlias: instance.cell.alias,
-          cellPosition: {
-            row: instance.cell.row,
-            level: instance.cell.level,
-            position: instance.cell.position,
-          },
-          instances: [instance],
-        };
-        node.subRows = node.subRows || [];
-        node.subRows.push(instanceNode);
-      }
-
-      node.instanceCount++;
-      currentPath.push(node);
-    });
-  });
-
-  return result;
-};
 
 export default function ItemPage() {
   const client = useApiQueryClient();
@@ -176,8 +80,12 @@ export default function ItemPage() {
   const [cellUuid, setCellUuid] = useState<string>("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isVariantsEditing, setIsVariantsEditing] = useState(false);
-  const [editedVariantValues, setEditedVariantValues] = useState<EditedCellValue[]>([]);
-  const [selectedVariants, setSelectedVariants] = useState<RowSelectionState>({});
+  const [editedVariantValues, setEditedVariantValues] = useState<
+    EditedCellValue[]
+  >([]);
+  const [selectedVariants, setSelectedVariants] = useState<RowSelectionState>(
+    {}
+  );
 
   const { data, isLoading, isError } = client.useQuery("get", "/items/{id}", {
     params: {
@@ -191,10 +99,6 @@ export default function ItemPage() {
     "post",
     "/items/{itemId}/instances"
   );
-  const deleteInstanceMutation = client.useMutation(
-    "delete",
-    "/instances/{instanceId}"
-  );
 
   const { mutate: updateVariant } = client.useMutation(
     "put",
@@ -205,29 +109,6 @@ export default function ItemPage() {
     "delete",
     "/items/{id}/variants/{variantId}"
   );
-
-  const handleDeleteInstance = async (instanceId: string) => {
-    deleteInstanceMutation.mutate(
-      {
-        params: {
-          path: {
-            instanceId: instanceId,
-          },
-        },
-      },
-      {
-        onSuccess: () => {
-          toast.success("Экземпляр успешно удален");
-          globalClient.invalidateQueries({ queryKey: ["get", "/items/{id}"] });
-        },
-        onError: (error) => {
-          toast.error("Ошибка при удалении экземпляра", {
-            description: error.error?.message || "Неизвестная ошибка",
-          });
-        },
-      }
-    );
-  };
 
   const handleCreateInstance = async () => {
     if (!selectedVariant || !cellUuid) {
@@ -251,6 +132,7 @@ export default function ItemPage() {
         onSuccess: () => {
           toast.success("Экземпляр успешно создан");
           globalClient.invalidateQueries({ queryKey: ["get", "/items/{id}"] });
+
           // Reset form
           setSelectedVariant("");
           setCellUuid("");
@@ -335,93 +217,6 @@ export default function ItemPage() {
       queryKey: ["get", "/items/{id}"],
     });
   };
-
-  const getStorageColumns = () => [
-    {
-      accessorKey: "name",
-      header: "Название",
-      cell: ({
-        row,
-        getValue,
-      }: {
-        row: Row<StorageNode>;
-        getValue: () => string;
-      }) => {
-        const value = getValue();
-        const indent = row.depth * 24;
-
-        return (
-          <div
-            style={{ paddingLeft: `${indent}px` }}
-            className="flex items-center gap-2"
-          >
-            <span>{value}</span>
-            {row.original.instanceCount > 0 && (
-              <span className="text-muted-foreground text-sm">
-                ({row.original.instanceCount})
-              </span>
-            )}
-          </div>
-        );
-      },
-    },
-    {
-      accessorKey: "alias",
-      header: "Алиас",
-    },
-    {
-      accessorKey: "cellPosition",
-      header: "Позиция ячейки",
-      cell: ({ row }: { row: Row<StorageNode> }) => {
-        const pos = row.original.cellPosition;
-        if (!pos || row.original.type !== "instance") return null;
-        return `${pos.row}:${pos.level}:${pos.position}`;
-      },
-    },
-    {
-      accessorKey: "instanceId",
-      header: "ID объекта",
-      cell: ({ row }: { row: Row<StorageNode> }) => {
-        const instances = row.original.instances;
-        if (!instances?.length || row.original.type !== "instance") return null;
-        return instances[0].id;
-      },
-    },
-    {
-      accessorKey: "variantName",
-      header: "Название варианта",
-      cell: ({ row }: { row: Row<StorageNode> }) => {
-        const instances = row.original.instances;
-        if (!instances?.length || row.original.type !== "instance") return null;
-        return instances[0].variant.name;
-      },
-    },
-    {
-      id: "actions",
-      meta: {
-        isDisplay: true,
-      },
-      cell: ({ row }: { row: Row<StorageNode> }) => {
-        const instances = row.original.instances;
-        if (!instances?.length || row.original.type !== "instance") return null;
-
-        return (
-          <div className="flex justify-end">
-            <Button
-              variant="ghost"
-              className="h-8 w-8 p-0 hover:cursor-pointer"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDeleteInstance(instances[0].id);
-              }}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
-        );
-      },
-    },
-  ];
 
   const variantColumns = [
     variantColumnHelper.accessor("name", {
@@ -570,7 +365,11 @@ export default function ItemPage() {
           <div className="flex justify-end py-4">
             {isVariantsEditing ? (
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={handleCancelVariants}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCancelVariants}
+                >
                   <X className="mr-2 h-4 w-4" />
                   Отмена
                 </Button>
@@ -612,66 +411,7 @@ export default function ItemPage() {
           </div>
         </Block>
       </BlockedPageRow>
-      <Block title="Экземпляры">
-        <div className="flex justify-end mb-4">
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Создать экземпляр
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Создать экземпляр товара</DialogTitle>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="variant">Вариант</Label>
-                  <Select
-                    value={selectedVariant}
-                    onValueChange={setSelectedVariant}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Выберите вариант" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {data.data.variants.map((variant: Variant) => (
-                        <SelectItem key={variant.id} value={variant.id}>
-                          {variant.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="cell">ID ячейки</Label>
-                  <Input
-                    id="cell"
-                    value={cellUuid}
-                    onChange={(e) => setCellUuid(e.target.value)}
-                    placeholder="Введите UUID ячейки"
-                  />
-                </div>
-              </div>
-              <div className="flex justify-end">
-                <Button
-                  onClick={handleCreateInstance}
-                  disabled={createInstanceMutation.isPending}
-                >
-                  {createInstanceMutation.isPending ? "Создание..." : "Создать"}
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
-        <DataTable
-          columns={getStorageColumns()}
-          data={buildStorageTree(data.data.items)}
-          getRowCanExpand={(row) => Boolean(row.original.subRows?.length)}
-          getSubRows={(row) => row.subRows}
-        />
-      </Block>
+      <InstancesView />
       <HistoryTable objectType={ObjectType.Item} objectId={id as string} />
     </div>
   );

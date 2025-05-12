@@ -7,9 +7,10 @@ import { useParams, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Block, BlockedPage } from "@/components/common-page/block";
+import { unitSchema } from "@/lib/zod/schemas";
 
 export default function EditUnitPage() {
-  const params = useParams();
+  const { id } = useParams() as { id: string };
   const router = useRouter();
   const client = useApiQueryClient();
   const globalQueryClient = useQueryClient();
@@ -17,7 +18,7 @@ export default function EditUnitPage() {
   const { data: unitData, isPending } = client.useQuery("get", "/units/{id}", {
     params: {
       path: {
-        id: params.id as string,
+        id,
       },
     },
   });
@@ -30,15 +31,15 @@ export default function EditUnitPage() {
       alias: unitData?.data.alias ?? "",
       address: unitData?.data.address ?? "",
     },
-    // validators: {
-    //   onChange: createUnitFormSchema,
-    // },
+    validators: {
+      onChange: unitSchema,
+    },
     onSubmit: (data) => {
       mutation.mutate(
         {
           params: {
             path: {
-              id: params.id as string,
+              id,
             },
           },
           body: {
@@ -51,7 +52,7 @@ export default function EditUnitPage() {
           onSuccess: () => {
             globalQueryClient.invalidateQueries({ queryKey: ["units"] });
             toast.success("Подразделение успешно обновлено");
-            router.push("/units");
+            router.push(`/units/${id}`);
           },
           onError: (error) => {
             toast.error("Ошибка при обновлении подразделения", {

@@ -13,9 +13,13 @@ import Link from "next/link";
 import { HistoryTable } from "@/components/common-page/history-table";
 import { ObjectType } from "@/components/common-page/history-table/types";
 import { Pencil } from "lucide-react";
+import InstancesView from "@/components/common-page/instances-view";
+import PrintButton from "@/components/print-button";
+import { Label } from "@/components/ui/label";
+import { getUnitLabel } from "@/hooks/use-print-labels";
 
 export default function UnitPage() {
-  const { id } = useParams();
+  const { id } = useParams() as { id: string };
   const client = useApiQueryClient();
   const { data, isPending, isError } = client.useQuery("get", "/units/{id}", {
     params: {
@@ -39,9 +43,20 @@ export default function UnitPage() {
         title={data.data.name ?? "Подразделение"}
         breadcrumbs={[
           { label: "Подразделения", href: "/units" },
-          { label: data.data.name ?? "Подразделение", href: `/units/${data.data.id}` },
+          {
+            label: data.data.name ?? "Подразделение",
+            href: `/units/${data.data.id}`,
+          },
         ]}
         actions={[
+          <PrintButton
+            label={getUnitLabel({
+              id: data.data.id,
+              name: data.data.name,
+              alias: data.data.alias,
+              address: data.data.address ?? "",
+            })}
+          />,
           <Button asChild>
             <Link href={`/units/${data.data.id}/edit`}>
               <Pencil />
@@ -51,11 +66,13 @@ export default function UnitPage() {
         ]}
       />
       <Block title="Информация о подразделении">
+        <BlockTextElement label="ID" value={data.data.id} copyable />
         <BlockTextElement label="Название" value={data.data.name} />
         <BlockTextElement label="Аббревиатура" value={data.data.alias} />
         <BlockTextElement label="Адрес" value={data.data.address ?? ""} />
       </Block>
-        <HistoryTable objectType={ObjectType.Unit} objectId={data.data.id} />
-А    </BlockedPage>
+      <InstancesView unitId={id} />
+      <HistoryTable objectType={ObjectType.Unit} objectId={data.data.id} />
+    </BlockedPage>
   );
 }

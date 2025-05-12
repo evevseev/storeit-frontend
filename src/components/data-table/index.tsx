@@ -14,6 +14,7 @@ import {
   RowSelectionState,
   OnChangeFn,
   TableOptions,
+  ExpandedState,
 } from "@tanstack/react-table";
 
 import { Table } from "@/components/ui/table";
@@ -23,6 +24,7 @@ import { TableBodyComponent } from "./table-body";
 import { TableLoading } from "./table-loading";
 import { TableError } from "./table-error";
 import { Block } from "../common-page/block";
+import { useState } from "react";
 
 export interface DataTableProps<TData> {
   columns: ColumnDef<TData, any>[];
@@ -42,6 +44,7 @@ export interface DataTableProps<TData> {
   defaultColumn?: Partial<ColumnDef<TData, unknown>>;
   meta?: TableOptions<TData>["meta"];
   editMode?: boolean;
+  expanded?: boolean;
 }
 
 export function DataTable<TData>({
@@ -62,6 +65,7 @@ export function DataTable<TData>({
   defaultColumn,
   meta,
   editMode = false,
+  expanded = false,
 }: Readonly<DataTableProps<TData>>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -85,6 +89,9 @@ export function DataTable<TData>({
     state: {
       rowSelection,
       columnFilters,
+    },
+    initialState: {
+      expanded: expanded ? true : {},
     },
     sortDescFirst: false,
     enableColumnFilters: true,

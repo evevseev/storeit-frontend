@@ -1,6 +1,7 @@
 import React from "react";
 import { PDFViewer } from "@react-pdf/renderer";
 import LabelsDocument from "@/components/labels/labels-document";
+import { appUrl } from "@/lib/consts";
 
 export interface Label {
   url?: string | null;
@@ -17,6 +18,57 @@ const DEFAULT_CONFIG: Required<PrintConfig> = {
   width: 70,
   height: 50,
 };
+
+export function getUnitLabel({
+  id,
+  name,
+  address,
+  alias,
+}: {
+  id: string;
+  name: string;
+  address: string;
+  alias: string;
+}): Label {
+  return {
+    url: `${appUrl}/units/${id}`,
+    name: `${name} (${alias})`,
+    description: address,
+  };
+}
+
+export function getInstanceLabel({
+  id,
+  name,
+  variant,
+  instanceId,
+}: {
+  id: string;
+  name: string;
+  variant: string;
+  instanceId: string;
+}): Label {
+  return {
+    url: `${appUrl}/instances/${instanceId}`,
+    name: `${name} ${variant}`,
+    description: id.split("-")[0],
+  };
+}
+
+export function getGroupLabel({
+  id,
+  name,
+  alias,
+}: {
+  id: string;
+  name: string;
+  alias: string;
+}): Label {
+  return {
+    url: `${appUrl}/storage-groups/${id}`,
+    name: `${name} (${alias})`,
+  };
+}
 
 export function usePrintLabels() {
   const printLabels = React.useCallback(

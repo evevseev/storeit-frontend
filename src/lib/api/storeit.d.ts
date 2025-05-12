@@ -184,13 +184,12 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/cells-groups/{groupId}/cells/{cellId}": {
+    "/cells/{id}": {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                groupId: string;
-                cellId: string;
+                id: string;
             };
             cookie?: never;
         };
@@ -1807,8 +1806,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                groupId: string;
-                cellId: string;
+                id: string;
             };
             cookie?: never;
         };
@@ -1834,8 +1832,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                groupId: string;
-                cellId: string;
+                id: string;
             };
             cookie?: never;
         };
@@ -1866,8 +1863,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                groupId: string;
-                cellId: string;
+                id: string;
             };
             cookie?: never;
         };

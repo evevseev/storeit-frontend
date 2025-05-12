@@ -9,13 +9,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { createColumnHelper } from "@tanstack/react-table";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
-import { Unit } from "../types";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
+import { components } from "@/lib/api/storeit";
 
-const columnHelper = createColumnHelper<Unit>();
+const columnHelper = createColumnHelper<components["schemas"]["Unit"]>();
 
 export function createUnitColumns() {
   const queryClient = useQueryClient();
@@ -44,7 +44,7 @@ export function createUnitColumns() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="h-8 w-8 p-0">
-                  <span className="sr-only">Open menu</span>
+                  <span className="sr-only">Действия</span>
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>

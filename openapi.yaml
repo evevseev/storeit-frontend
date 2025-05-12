@@ -546,15 +546,9 @@ paths:
           $ref: '#/components/responses/default-forbidden'
         default:
           $ref: '#/components/responses/default-error'
-  /cells-groups/{groupId}/cells/{cellId}:
+  /cells/{id}:
     parameters:
-      - name: groupId
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
-      - name: cellId
+      - name: id
         in: path
         required: true
         schema:

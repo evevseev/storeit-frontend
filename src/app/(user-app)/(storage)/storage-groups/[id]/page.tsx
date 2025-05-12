@@ -12,9 +12,12 @@ import { Pencil } from "lucide-react";
 import Link from "next/link";
 import { HistoryTable } from "@/components/common-page/history-table";
 import { ObjectType } from "@/components/common-page/history-table/types";
+import InstancesView from "@/components/common-page/instances-view";
+import PrintButton from "@/components/print-button";
+import { getGroupLabel } from "@/hooks/use-print-labels";
 
 export default function StorageGroupPage() {
-  const { id } = useParams();
+  const { id } = useParams() as { id: string };
 
   const client = useApiQueryClient();
   const { data: storageGroup, isPending } = client.useQuery(
@@ -33,7 +36,7 @@ export default function StorageGroupPage() {
         title={storageGroup?.data.name ?? "Группа хранения"}
         breadcrumbs={[
           {
-            label: "Хранение",
+            label: "Склад",
             href: "/storage",
           },
           {
@@ -41,9 +44,19 @@ export default function StorageGroupPage() {
           },
           {
             label: storageGroup?.data.name ?? "Группа хранения",
+            href: `/storage-groups/${id}`,
           },
         ]}
         actions={[
+          storageGroup?.data && (
+            <PrintButton
+              label={getGroupLabel({
+                id: storageGroup.data.id,
+                name: storageGroup.data.name,
+                alias: storageGroup.data.alias,
+              })}
+            />
+          ),
           <Button asChild>
             <Link href={`/storage-groups/${id}/edit`}>
               <Pencil />
@@ -53,9 +66,11 @@ export default function StorageGroupPage() {
         ]}
       />
       <Block title="Основная информация" isLoading={isPending}>
+        <BlockTextElement label="ID" value={storageGroup?.data.id} copyable />
         <BlockTextElement label="Название" value={storageGroup?.data.name} />
         <BlockTextElement label="Алиас" value={storageGroup?.data.alias} />
       </Block>
+      <InstancesView storageGroupId={id} />
       <HistoryTable
         objectType={ObjectType.StorageGroup}
         objectId={id as string}

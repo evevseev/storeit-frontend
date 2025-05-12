@@ -12,14 +12,7 @@ import { FormBlock, useAppForm } from "@/components/common-form";
 import { useQueryClient } from "@tanstack/react-query";
 import React from "react";
 import { toast } from "sonner";
-import { z } from "@/lib/zod";
-import { aliasRegex } from "./types";
-
-const createUnitFormSchema = z.object({
-  name: z.string().min(1).max(100),
-  alias: aliasRegex,
-  address: z.nullable(z.string().min(1).max(100)),
-});
+import { unitSchema } from "@/lib/zod/schemas";
 
 export function CreateUnitDialog() {
   const globalQueryClient = useQueryClient();
@@ -34,7 +27,7 @@ export function CreateUnitDialog() {
       address: "",
     },
     validators: {
-      onChange: createUnitFormSchema,
+      onChange: unitSchema,
     },
     onSubmit: (data) => {
       mutation.mutate(

@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import { createColumnHelper } from "@tanstack/react-table";
-import { Eye, EyeOff, Plus, Trash2 } from "lucide-react";
+import { Copy, Eye, EyeOff, Plus, Trash2 } from "lucide-react";
 import z from "zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -44,6 +44,11 @@ function useTokenVisibility() {
   return { visibleTokens, toggleTokenVisibility };
 }
 
+const copyToClipboard = (text: string) => {
+  navigator.clipboard.writeText(text);
+  toast.success("Токен скопирован в буфер обмена");
+};
+
 function useTokenColumns(
   visibleTokens: Set<string>,
   toggleTokenVisibility: (id: string) => void,
@@ -63,6 +68,13 @@ function useTokenColumns(
         return (
           <div className="flex items-center gap-2">
             <span>{isVisible ? token.token : "••••••••••••••••"}</span>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => copyToClipboard(token.token)}
+            >
+              <Copy className="h-4 w-4" />
+            </Button>
             <Button
               variant="ghost"
               size="icon"

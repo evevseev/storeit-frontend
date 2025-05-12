@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "../ui/button";
 import { Edit, Pencil, Trash2 } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
+import { CopyableText } from "../ui/copyable-text";
 
 export function BlockedPage({ children }: { children?: React.ReactNode }) {
   return (
@@ -22,17 +23,20 @@ export function BlockTextElement({
   unitLabel,
   value,
   children,
+  copyable = false,
 }: {
   label: string;
   unitLabel?: string;
-  value?: string;
+  value?: React.ReactNode;
   children?: React.ReactNode;
+  copyable?: boolean;
 }) {
   return (
     <div>
       <div className="text-sm text-muted-foreground">{label}</div>
       <div>
-        {value}
+        {copyable ? <CopyableText>{value}</CopyableText> : value }
+
         {unitLabel && (
           <span className="text-muted-foreground"> {unitLabel}</span>
         )}
