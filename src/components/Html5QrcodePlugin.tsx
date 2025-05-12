@@ -39,36 +39,47 @@ function createConfig(props: Html5QrcodePluginProps): Html5QrcodeScannerConfig {
 
 const Html5QrcodePlugin: React.FC<Html5QrcodePluginProps> = (props) => {
   useEffect(() => {
-    // when component mounts
-    const config = createConfig(props);
-    const verbose = props.verbose === true;
-    // Success callback is required.
-    if (!props.qrCodeSuccessCallback) {
-      throw new Error("qrCodeSuccessCallback is required callback.");
-    }
-    const html5QrcodeScanner = new Html5QrcodeScanner(
-      qrcodeRegionId,
-      config,
-      verbose
-    );
-    html5QrcodeScanner.render(
-      props.qrCodeSuccessCallback,
-      props.qrCodeErrorCallback
-    );
+    let html5QrcodeScanner: Html5QrcodeScanner | null = null;
 
-    // cleanup function when component will unmount
-    return () => {
-      html5QrcodeScanner.clear().catch((error) => {
-        console.error("Failed to clear html5QrcodeScanner. ", error);
-      });
+    const initializeScanner = async () => {
+      const config = createConfig(props);
+      const verbose = props.verbose === true;
+      
+      if (!props.qrCodeSuccessCallback) {
+        throw new Error("qrCodeSuccessCallback is required callback.");
+      }
+
+      // Clean up existing scanner if it exists
+      if (html5QrcodeScanner) {
+        await html5QrcodeScanner.clear();
+      }
+
+      html5QrcodeScanner = new Html5QrcodeScanner(
+        qrcodeRegionId,
+        config,
+        verbose
+      );
+
+      html5QrcodeScanner.render(
+        props.qrCodeSuccessCallback,
+        props.qrCodeErrorCallback
+      );
     };
-  }, []);
 
-  return (
-    <>
-      <div id={qrcodeRegionId} className="w-full max-w-lg mx-auto p-4" />
-    </>
-  );
+    initializeScanner().catch((error) => {
+      console.error("Failed to initialize scanner:", error);
+    });
+
+    return () => {
+      if (html5QrcodeScanner) {
+        html5QrcodeScanner.clear().catch((error) => {
+          console.error("Failed to clear html5QrcodeScanner. ", error);
+        });
+      }
+    };
+  }, [props.qrCodeSuccessCallback, props.qrCodeErrorCallback, props.fps, props.qrbox, props.aspectRatio, props.disableFlip, props.verbose]);
+
+  return <div id={qrcodeRegionId} />;
 };
 
 export default Html5QrcodePlugin;
