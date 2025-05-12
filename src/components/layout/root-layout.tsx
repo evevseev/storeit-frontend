@@ -18,6 +18,7 @@ import { useAtomValue } from "jotai";
 import React, { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
+import { useRouter } from "next/navigation";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -92,15 +93,22 @@ function AuthenticatedContent({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const pathname = usePathname();
-  const { isLoading } = useAuth();
+  const router = useRouter();
+  const { isLoading, isAuthenticated } = useAuth();
 
   const isLoginPage = /\/login/.test(pathname) || /\/dct/.test(pathname);
 
-  if (isLoading && !isLoginPage) {
-    return null; 
+  if (!isLoading && !isAuthenticated) {
+    if (!isLoginPage) {
+      router.push("/login");
+    }
   }
 
-  if (!isLoginPage) {
+  if (isLoading && !isLoginPage) {
+    return null;
+  }
+
+  if (!isLoginPage && isAuthenticated) {
     return (
       <>
         <AppSidebar />

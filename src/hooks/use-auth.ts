@@ -3,6 +3,8 @@ import { useApiQueryClient } from "./use-api-query-client";
 import { useActiveOrganizationId } from "./use-organization-id";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { isAuthenticatedAtom } from "@/store/is-authenticated";
+import { useAtom } from "jotai";
 
 export type User = {
   id: string;
@@ -17,7 +19,8 @@ export function useAuth() {
   const client = useApiQueryClient();
   const globalClient = useQueryClient();
   const { organizationId, setOrganizationId } = useActiveOrganizationId();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useAtom(isAuthenticatedAtom);
+
 
   const getOrganizationId = () => {
     if (!organizationId) {
@@ -32,12 +35,16 @@ export function useAuth() {
   const { data: user, isLoading: isUserLoading, error: userError } = client.useQuery(
     "get",
     "/me",
-    { enabled: isAuthenticated === true }
+    {},
+    {
+      enabled: isAuthenticated === true,
+    }
   );
 
   const logout = async () => {
     try {
       await logoutMutation.mutateAsync({});
+      setIsAuthenticated(false);
       globalClient.invalidateQueries();
       router.push("/login");
     } catch (error) {

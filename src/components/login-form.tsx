@@ -12,6 +12,8 @@ import { Skeleton } from "./ui/skeleton";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
+import { useAuth } from "@/hooks/use-auth";
+import { queryOptions } from "@tanstack/react-query";
 
 interface YandexAuthConfig {
   clientId: string;
@@ -41,24 +43,27 @@ const useYandexAuth = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const client = useApiQueryClient();
   const router = useRouter();
+  const { setIsAuthenticated, isAuthenticated } = useAuth();
   const mutation = client.useMutation("post", "/auth/oauth2/yandex");
-  const { data: user, isSuccess } = client.useQuery("get", "/me", {
-    enabled: mutation.isSuccess,
-  });
 
-  const isAuthenticating =
-    mutation.isPending || (mutation.isSuccess && !isSuccess);
+  const isAuthenticating = mutation.isPending;
 
   useEffect(() => {
-    if (isSuccess && user) {
+    if (isAuthenticated) {
       router.push("/login/select-org");
     }
-  }, [isSuccess, user, router]);
+  }, [isAuthenticated, router]);
 
   const handleAuth = async (token: string) => {
-    await mutation.mutate({
-      body: { access_token: token },
-    });
+    try {
+      await mutation.mutateAsync({
+        body: { access_token: token },
+      });
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.error("Yandex auth failed:", error);
+      setIsAuthenticated(false);
+    }
   };
 
   useEffect(() => {
