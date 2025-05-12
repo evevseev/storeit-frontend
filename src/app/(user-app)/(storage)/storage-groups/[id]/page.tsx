@@ -10,8 +10,8 @@ import { PageMetadata } from "@/components/header/page-metadata";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import Link from "next/link";
-import { HistoryTable } from "@/components/history-table";
-import { ObjectType } from "@/components/history-table/types";
+import { HistoryTable } from "@/components/common-page/history-table";
+import { ObjectType } from "@/components/common-page/history-table/types";
 
 export default function StorageGroupPage() {
   const { id } = useParams();
