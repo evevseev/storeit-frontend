@@ -5,6 +5,7 @@ import { matchesSearch } from "./utils";
 import { ItemDropdown } from "./item-dropdown";
 import { cn } from "@/lib/utils";
 import { PrintLabelButton } from "./print-label-button";
+import { GroupsCreationButton } from "./AddItemButton";
 
 interface CellGroupItemProps {
   item: CellGroup;
@@ -12,10 +13,15 @@ interface CellGroupItemProps {
   isLast: boolean;
 }
 
-export const CellGroupItem = ({ item, searchQuery, isLast }: CellGroupItemProps) => {
+export const CellGroupItem = ({
+  item,
+  searchQuery,
+  isLast,
+}: CellGroupItemProps) => {
   const isExactMatch = matchesSearch(item, searchQuery);
   const shouldShow = !searchQuery || isExactMatch;
-  const highlightClass = searchQuery && isExactMatch ? "bg-yellow-50" : "bg-gray-50/50";
+  const highlightClass =
+    searchQuery && isExactMatch ? "bg-yellow-50" : "bg-gray-50/50";
 
   if (!shouldShow) return null;
 
@@ -31,7 +37,9 @@ export const CellGroupItem = ({ item, searchQuery, isLast }: CellGroupItemProps)
       {/* Horizontal line connecting to vertical line */}
       <div className="absolute left-4 top-[1.75rem] w-4 h-px bg-gray-300"></div>
 
-      <div className={cn("py-2 rounded-lg border border-gray-200", highlightClass)}>
+      <div
+        className={cn("py-2 rounded-lg border border-gray-200", highlightClass)}
+      >
         <div className="flex items-center group px-2">
           <div className="w-6 flex items-center justify-center">
             <Grid3X3 className="h-4 w-4 text-muted-foreground" />
@@ -65,4 +73,4 @@ export const CellGroupItem = ({ item, searchQuery, isLast }: CellGroupItemProps)
       </div>
     </div>
   );
-}; 
+};

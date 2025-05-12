@@ -40,13 +40,54 @@ export function CreateCellsGroupDialog({
   parentId,
   unitId,
 }: CreateGroupDialogProps) {
-  const queryClient = useApiQueryClient();
-  const createGroupMutation = queryClient.useMutation("post", "/cells-groups");
-  const createCellMutation = queryClient.useMutation(
+  const queryClient = useQueryClient();
+  const client = useApiQueryClient();
+  const createGroupMutation = client.useMutation("post", "/cells-groups");
+  const createCellMutation = client.useMutation(
     "post",
     "/cells-groups/{groupId}/cells"
   );
   const globalClient = useQueryClient();
+
+  const createCells = async (
+    groupId: string,
+    values: { alias: string; rows: number; levels: number; positions: number }
+  ) => {
+    const cellPromises = [];
+    for (let row = 1; row <= values.rows; row++) {
+      for (let level = 1; level <= values.levels; level++) {
+        for (let position = 1; position <= values.positions; position++) {
+          cellPromises.push(
+            createCellMutation.mutateAsync({
+              params: {
+                path: { groupId },
+              },
+              body: {
+                alias: `${values.alias}-${row}-${level}-${position}`,
+                row,
+                level,
+                position,
+              },
+            })
+          );
+        }
+      }
+    }
+
+    await Promise.all(cellPromises)
+      .then(() => {
+        toast.success("Группа с ячейками успешно создана");
+        queryClient.invalidateQueries({
+          queryKey: ["get", "/cells-groups"],
+        });
+      })
+      .catch((error) => {
+        toast.error("Ошибка при создании ячеек", {
+          description: error.message,
+        });
+        toast.warning("Группа создана, но не все ячейки удалось создать");
+      });
+  };
 
   const form = useAppForm({
     defaultValues: {
@@ -61,7 +102,6 @@ export function CreateCellsGroupDialog({
     },
     onSubmit: async (values) => {
       try {
-        // Create the group first
         const groupResult = await createGroupMutation.mutateAsync({
           body: {
             name: values.value.name,
@@ -72,64 +112,25 @@ export function CreateCellsGroupDialog({
         });
 
         const groupId = groupResult.data.id;
+        queryClient.invalidateQueries({
+          queryKey: ["get", "/cells-groups"],
+        });
 
-        // If no cells need to be generated, we're done
         if (
-          !values.value.rows ||
-          !values.value.levels ||
-          !values.value.positions
+          values.value.rows > 0 &&
+          values.value.levels > 0 &&
+          values.value.positions > 0
         ) {
+          await createCells(groupId, {
+            alias: values.value.alias,
+            rows: values.value.rows,
+            levels: values.value.levels,
+            positions: values.value.positions,
+          });
+        } else {
           toast.success("Группа успешно создана");
-          globalClient.invalidateQueries({
-            queryKey: ["get", "/storage-groups"],
-          });
-          onOpenChange(false);
-          return;
         }
-
-        // Generate cells in batches
-        const cellPromises = [];
-        for (let row = 1; row <= values.value.rows; row++) {
-          for (let level = 1; level <= values.value.levels; level++) {
-            for (
-              let position = 1;
-              position <= values.value.positions;
-              position++
-            ) {
-              cellPromises.push(
-                createCellMutation.mutateAsync({
-                  params: {
-                    path: { groupId },
-                  },
-                  body: {
-                    alias: `${values.value.alias}-${row}-${level}-${position}`,
-                    row,
-                    level,
-                    position,
-                  },
-                })
-              );
-            }
-          }
-        }
-
-        // Create cells in parallel with error handling
-        await Promise.all(cellPromises)
-          .then(() => {
-            toast.success("Группа с ячейками успешно создана");
-            globalClient.invalidateQueries({
-              queryKey: ["get", "/storage-groups"],
-            });
-            onOpenChange(false);
-          })
-          .catch((error) => {
-            toast.error("Ошибка при создании ячеек", {
-              description: error.message,
-            });
-            // Still close the dialog but show warning
-            toast.warning("Группа создана, но не все ячейки удалось создать");
-            onOpenChange(false);
-          });
+        onOpenChange(false);
       } catch (error: any) {
         toast.error("Ошибка при создании группы", {
           description: error.message,

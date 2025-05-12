@@ -1,6 +1,6 @@
 "use client";
 
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { useWarehouseStructure } from "./hooks/use-warehouse-structure";
 import { OrganizationUnitItem } from "./organization-unit-item";
 import { searchQueryAtom } from "./atoms";
@@ -10,6 +10,7 @@ import { Skeleton } from "../ui/skeleton";
 const WarehouseStructure = () => {
   const { units, isLoading, error } = useWarehouseStructure();
   const searchQuery = useAtomValue(searchQueryAtom);
+  const setSearchQuery = useSetAtom(searchQueryAtom);
 
   if (isLoading) {
     return (
@@ -29,8 +30,18 @@ const WarehouseStructure = () => {
     organizationUnitMatchesSearch(unit, searchQuery)
   );
 
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value);
+  };
+
   return (
     <div className="space-y-4">
+      <input
+        type="text"
+        placeholder="Поиск..."
+        onChange={handleSearchChange}
+        className="w-full p-2 border border-gray-300 rounded-md"
+      />
       {visibleUnits.map((organizationUnit, index) => (
         <OrganizationUnitItem
           key={organizationUnit.id}

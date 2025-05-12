@@ -3,7 +3,7 @@
 import { useAtomValue, useSetAtom } from "jotai";
 import Link from "next/link";
 import { ChevronDown, ChevronRight, Building2 } from "lucide-react";
-import { OrganizationUnit, StorageGroup } from "./types";
+import { OrganizationUnit, StorageGroup, CellGroup } from "./types";
 import { organizationUnitMatchesSearch, matchesSearch } from "./utils";
 import { StorageGroupItem } from "./storage-group-item";
 import { itemOpenAtom, toggleItemAtom } from "./atoms";
@@ -11,6 +11,7 @@ import { GroupsCreationButton } from "./AddItemButton";
 import { cn } from "@/lib/utils";
 import { PrintLabelButton } from "./print-label-button";
 import { ItemDropdown } from "./item-dropdown";
+import { useMemo } from "react";
 
 interface OrganizationUnitItemProps {
   item: OrganizationUnit;
@@ -26,19 +27,26 @@ export const OrganizationUnitItem = ({
   const isExpanded = useAtomValue(itemOpenAtom(item.id));
   const toggleItem = useSetAtom(toggleItemAtom);
 
-  const hasMatchingChildren = organizationUnitMatchesSearch(item, searchQuery);
-  const isExactMatch = matchesSearch(item, searchQuery);
-  const shouldShow = !searchQuery || hasMatchingChildren;
+  const searchResults = useMemo(() => {
+    const hasMatchingChildren = organizationUnitMatchesSearch(
+      item,
+      searchQuery
+    );
+    const isExactMatch = matchesSearch(item, searchQuery);
+    return { hasMatchingChildren, isExactMatch };
+  }, [item, searchQuery]);
+
+  const shouldShow = !searchQuery || searchResults.hasMatchingChildren;
   const highlightClass =
-    searchQuery && isExactMatch ? "bg-yellow-50" : "bg-gray-50/50";
+    searchQuery && searchResults.isExactMatch
+      ? "bg-yellow-50"
+      : "bg-gray-50/50";
 
   if (!shouldShow) return null;
 
-  const visibleChildren = item.children.filter((child: StorageGroup) =>
-    organizationUnitMatchesSearch(
-      { ...child, address: null, children: [] },
-      searchQuery
-    )
+  const visibleChildren = useMemo(
+    () => item.children.filter((child) => matchesSearch(child, searchQuery)),
+    [item.children, searchQuery]
   );
 
   return (
@@ -46,7 +54,7 @@ export const OrganizationUnitItem = ({
       <div
         className={cn("py-2 rounded-lg border border-gray-200", highlightClass)}
       >
-        {/* <div className="flex items-center group px-2">
+        <div className="flex items-center group px-2">
           {item.children && item.children.length > 0 && (
             <button
               onClick={() => toggleItem({ itemId: item.id, item })}
@@ -98,22 +106,26 @@ export const OrganizationUnitItem = ({
             />
             <ItemDropdown type="unit" id={item.id} />
           </div>
-        </div> */}
+        </div>
       </div>
 
-      {/* {isExpanded && visibleChildren.length > 0 && (
+      {isExpanded && visibleChildren.length > 0 && (
         <div className="mt-2 pl-8">
-          {visibleChildren.map((storageGroup, index) => (
-            <StorageGroupItem
-              key={storageGroup.id}
-              item={storageGroup}
-              searchQuery={searchQuery}
-              isLast={index === visibleChildren.length - 1}
-              parentPath={[{ id: item.id, name: item.name }]}
-            />
-          ))}
+          {visibleChildren
+            .filter(
+              (child): child is StorageGroup => child.type === "storageGroup"
+            )
+            .map((storageGroup, index, filteredArray) => (
+              <StorageGroupItem
+                key={storageGroup.id}
+                item={storageGroup}
+                searchQuery={searchQuery}
+                isLast={index === filteredArray.length - 1}
+                parentPath={[{ id: item.id, name: item.name }]}
+              />
+            ))}
         </div>
-      )} */}
+      )}
     </div>
   );
 };

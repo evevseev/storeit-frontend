@@ -26,14 +26,20 @@ const getAllDescendantIds = (item: StorageGroup | OrganizationUnit): string[] =>
 };
 
 // Create an atom family for each item's open state
-export const itemOpenAtom = (itemId: string) =>
-    atom(false);
+export const itemOpenAtom = atomFamily((itemId: string) => 
+    atom((get) => {
+        const openItems = get(openItemsAtom);
+        return !!openItems[itemId];
+    })
+);
 
 export const toggleItemAtom = atom(
     null,
     (get, set, { itemId, item }: { itemId: string; item: any }) => {
-        const isOpen = get(itemOpenAtom(itemId));
-        set(itemOpenAtom(itemId), !isOpen);
+        const openItems = get(openItemsAtom);
+        const newOpenItems = { ...openItems };
+        newOpenItems[itemId] = !openItems[itemId];
+        set(openItemsAtom, newOpenItems);
     }
 );
 
