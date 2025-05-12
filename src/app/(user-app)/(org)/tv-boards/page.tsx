@@ -14,16 +14,38 @@ import {
 } from "@/components/ui/dialog";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import { createColumnHelper } from "@tanstack/react-table";
-import { Eye, EyeOff, Plus, Trash2 } from "lucide-react";
+import { Copy, Eye, EyeOff, Plus, Trash2 } from "lucide-react";
 import z from "zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
+import { usePageMetadata } from "@/hooks/use-page-metadata";
+import { FormInputDropdown } from "@/components/common-form/text-field";
 
-type Token = {
+type TVBoardResponse = {
   id: string;
   name: string;
   token: string;
+  unit: {
+    id: string;
+    name: string;
+    alias: string;
+    address: string | null;
+  };
+};
+
+type TVBoard = {
+  id: string;
+  name: string;
+  token: string;
+  unitId: string;
+};
+
+type Unit = {
+  id: string;
+  name: string;
+  alias: string;
+  address: string | null;
 };
 
 function useTokenVisibility() {
@@ -49,24 +71,50 @@ function useTokenColumns(
   toggleTokenVisibility: (id: string) => void,
   handleDeleteToken: (id: string) => void
 ) {
-  const columnHelper = createColumnHelper<Token>();
+  const columnHelper = createColumnHelper<TVBoard>();
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success("Ссылка скопирована в буфер обмена");
+  };
 
   return [
     columnHelper.accessor("name", {
       header: "Название",
     }),
     columnHelper.accessor("token", {
-      header: "Токен",
+      header: "Ссылка для подключения",
       cell: ({ row }) => {
-        const token = row.original;
-        const isVisible = visibleTokens.has(token.id);
+        const board = row.original;
+        const isVisible = visibleTokens.has(board.id);
+        const link =
+          process.env.NEXT_PUBLIC_APP_URL + "/tv-board/" + board.token;
+
         return (
           <div className="flex items-center gap-2">
-            <span>{isVisible ? token.token : "••••••••••••••••"}</span>
+            {isVisible ? (
+              <a
+                href={link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline"
+              >
+                {link}
+              </a>
+            ) : (
+              <span>••••••••••••••••</span>
+            )}
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => toggleTokenVisibility(token.id)}
+              onClick={() => copyToClipboard(link)}
+            >
+              <Copy className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => toggleTokenVisibility(board.id)}
             >
               {isVisible ? (
                 <EyeOff className="h-4 w-4" />
@@ -96,31 +144,34 @@ function useTokenColumns(
   ];
 }
 
-function CreateTokenDialog() {
+function CreateTbBoardDialog() {
   const [isOpen, setIsOpen] = useState(false);
 
   const client = useApiQueryClient();
   const globalClient = useQueryClient();
 
-  const { mutate } = client.useMutation("post", "/api-tokens");
+  const { mutate } = client.useMutation("post", "/tv-boards");
+  const { data: unitsResponse } = client.useQuery("get", "/units");
+  const units = unitsResponse?.data ?? [];
 
-  const handleSubmit = (data: { value: { name: string } }) => {
+  const handleSubmit = (data: { value: { name: string; unitId: string } }) => {
     mutate(
       {
         body: {
           name: data.value.name,
+          unitId: data.value.unitId,
         },
       },
       {
         onSuccess: () => {
           globalClient.invalidateQueries({
-            queryKey: ["get", "/api-tokens"],
+            queryKey: ["get", "/tv-boards"],
           });
-          toast.success("Токен успешно создан");
+          toast.success("ТВ-борд успешно создан");
           setIsOpen(false);
         },
         onError: (error) => {
-          toast.error("Не удалось создать токен", {
+          toast.error("Не удалось создать ТВ-борд", {
             description: error.error.message,
           });
         },
@@ -131,11 +182,7 @@ function CreateTokenDialog() {
   const form = useAppForm({
     defaultValues: {
       name: "",
-    },
-    validators: {
-      onChange: z.object({
-        name: z.string().min(1).max(100).regex(/^[^\s]+$/, { message: 'Название не должно содержать пробелы' }),
-      }),
+      unitId: "",
     },
     onSubmit: handleSubmit,
   });
@@ -145,11 +192,11 @@ function CreateTokenDialog() {
       <DialogTrigger asChild>
         <Button>
           <Plus />
-          Создать API-токен
+          Создать ТВ-борд
         </Button>
       </DialogTrigger>
       <DialogContent>
-        <DialogTitle>Создание API-токена</DialogTitle>
+        <DialogTitle>Создание ТВ-борда</DialogTitle>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -162,8 +209,21 @@ function CreateTokenDialog() {
               name="name"
               children={(field) => (
                 <field.TextField
-                  label="Название токена"
-                  placeholder="Интеграция с CRM"
+                  label="Название ТВ-борда"
+                  placeholder="ТВ-борд 1"
+                />
+              )}
+            />
+            <form.AppField
+              name="unitId"
+              children={(field) => (
+                <FormInputDropdown
+                  label="Подразделение"
+                  options={units.map((unit: Unit) => ({
+                    value: unit.id,
+                    label: unit.name,
+                  }))}
+                  placeholder="Выберите подразделение"
                 />
               )}
             />
@@ -180,27 +240,28 @@ function CreateTokenDialog() {
   );
 }
 
-export default function ApiTokensPage() {
+export default function TVBoardsPage() {
   const client = useApiQueryClient();
   const queryClient = useQueryClient();
-  const { data, isPending } = client.useQuery("get", "/api-tokens");
-  const [tokens, setTokens] = useState<Token[]>([]);
+  const { data, isPending } = client.useQuery("get", "/tv-boards");
+  const [boards, setBoards] = useState<TVBoard[]>([]);
+  const { setPageMetadata } = usePageMetadata();
 
-  const { mutate: deleteToken } = client.useMutation(
+  const { mutate: deleteBoard } = client.useMutation(
     "delete",
-    "/api-tokens/{id}"
+    "/tv-boards/{id}"
   );
 
-  const handleDeleteToken = (tokenId: string) => {
-    deleteToken(
-      { params: { path: { id: tokenId } } },
+  const handleDeleteBoard = (boardId: string) => {
+    deleteBoard(
+      { params: { path: { id: boardId } } },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: ["get", "/api-tokens"] });
-          toast.success("Токен успешно удален");
+          queryClient.invalidateQueries({ queryKey: ["get", "/tv-boards"] });
+          toast.success("ТВ-борд успешно удален");
         },
         onError: (error) => {
-          toast.error("Не удалось удалить токен", {
+          toast.error("Не удалось удалить ТВ-борд", {
             description: error.error.message,
           });
         },
@@ -210,11 +271,12 @@ export default function ApiTokensPage() {
 
   useEffect(() => {
     if (data) {
-      setTokens(
-        data.data.map((token) => ({
-          id: token.id,
-          name: token.name,
-          token: token.token,
+      setBoards(
+        data.data.map((board: TVBoardResponse) => ({
+          id: board.id,
+          name: board.name,
+          token: board.token,
+          unitId: board.unit.id,
         }))
       );
     }
@@ -224,20 +286,23 @@ export default function ApiTokensPage() {
   const columns = useTokenColumns(
     visibleTokens,
     toggleTokenVisibility,
-    handleDeleteToken
+    handleDeleteBoard
   );
+
+  useEffect(() => {
+    setPageMetadata({
+      title: "ТВ-борды",
+      breadcrumbs: [
+        { label: "Организация" },
+        { label: "ТВ-борды", href: "/tv-boards" },
+      ],
+      actions: [<CreateTbBoardDialog />],
+    });
+  }, []);
 
   return (
     <BlockedPage>
-      <PageMetadata
-        title="API-токены"
-        breadcrumbs={[
-          { label: "Организация" },
-          { label: "API-токены", href: "/api-tokens" },
-        ]}
-        actions={[<CreateTokenDialog />]}
-      />
-      <DataTable columns={columns} data={tokens ?? []} isLoading={isPending} />
+      <DataTable columns={columns} data={boards ?? []} isLoading={isPending} />
     </BlockedPage>
   );
 }

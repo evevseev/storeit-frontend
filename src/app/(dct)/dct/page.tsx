@@ -5,9 +5,9 @@ import { DctButton } from "@/components/dct/button";
 export default function DctPage() {
   return (
     <div className="flex flex-col w-full p-5 gap-4">
-      <DctButton href="/dct/item-search">
+      <DctButton href="/dct/scanner">
         <Search />
-        Поиск товара
+        Поиск товара / Ячейки / Экземпляра
       </DctButton>
       <DctButton href="/tasks" className="bg-blue-500 hover:bg-blue-600">
         <ClipboardList />
@@ -20,19 +20,13 @@ export default function DctPage() {
         <Package />
         Перемещения
       </DctButton>
-      <DctButton
-        href="/dct/movement"
-        className="bg-green-500 hover:bg-green-600"
-      >
+      <DctButton href="/items" className="bg-green-500 hover:bg-green-600">
         <Plus />
-        Оприходование
+        Товары
       </DctButton>
-      <DctButton
-        href="/dct/movement"
-        className="bg-green-500 hover:bg-green-600"
-      >
+      <DctButton href="/storage" className="bg-green-500 hover:bg-green-600">
         <Package />
-        Просмотр ячеек
+        Структура склада
       </DctButton>
     </div>
   );

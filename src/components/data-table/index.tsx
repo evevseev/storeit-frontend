@@ -20,6 +20,7 @@ import { TableHeaderComponent } from "./table-header";
 import { TableBodyComponent } from "./table-body";
 import { TableLoading } from "./table-loading";
 import { TableError } from "./table-error";
+import { Block } from "../common-page/block";
 
 export interface DataTableProps<TData> {
   columns: ColumnDef<TData, any>[];
@@ -50,7 +51,9 @@ export function DataTable<TData>({
   getRowHref,
   onRowSelectionChange,
 }: Readonly<DataTableProps<TData>>) {
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
 
   const table = useReactTable({
@@ -71,11 +74,14 @@ export function DataTable<TData>({
     },
     enableRowSelection: true,
     onRowSelectionChange: (updater) => {
-      const newSelection = typeof updater === 'function' ? updater(rowSelection) : updater;
+      const newSelection =
+        typeof updater === "function" ? updater(rowSelection) : updater;
       setRowSelection(newSelection);
-      
+
       if (onRowSelectionChange) {
-        const selectedRows = table.getSelectedRowModel().rows.map(row => row.original);
+        const selectedRows = table
+          .getSelectedRowModel()
+          .rows.map((row) => row.original);
         onRowSelectionChange(selectedRows);
       }
     },
@@ -98,7 +104,7 @@ export function DataTable<TData>({
   }
 
   return (
-    <div className="w-full">
+    <Block>
       <Table>
         <TableHeaderComponent table={table} />
         {isLoading ? (
@@ -117,7 +123,7 @@ export function DataTable<TData>({
           <DataTablePagination table={table} />
         </div>
       )}
-    </div>
+    </Block>
   );
 }
 

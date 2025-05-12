@@ -340,8 +340,10 @@ export interface paths {
             };
             cookie?: never;
         };
-        get?: never;
-        put?: never;
+        /** Get Instance by ID */
+        get: operations["getInstanceById"];
+        /** Update Instance by ID */
+        put: operations["updateInstanceById"];
         post?: never;
         /** Delete Instance by ID */
         delete: operations["deleteInstanceById"];
@@ -837,7 +839,7 @@ export interface components {
             /** @example 123456789012 */
             article?: string | null;
             /**
-             * Format: int32
+             * Format: int64
              * @example 1234567890123
              */
             ean13?: number | null;
@@ -849,7 +851,7 @@ export interface components {
             /** @example 123456789012 */
             article: string | null;
             /**
-             * Format: int32
+             * Format: int64
              * @example 1234567890123
              */
             ean13: number | null;
@@ -869,7 +871,7 @@ export interface components {
                 name: string;
                 alias: string;
                 /** @enum {string} */
-                objectType: "cell" | "cells_group" | "storage_group";
+                objectType: "cell" | "cells_group" | "storage_group" | "unit";
             }[];
         } | null);
         InstanceForItem: {
@@ -935,6 +937,13 @@ export interface components {
         CreateInstanceForItemRequest: components["schemas"]["InstanceCreateForItem"];
         CreateInstanceForItemResponse: {
             data: components["schemas"]["InstanceForItem"];
+        };
+        GetInstanceByIdResponse: {
+            data: components["schemas"]["InstanceFull"];
+        };
+        UpdateInstanceRequest: components["schemas"]["InstanceCreateForItem"];
+        UpdateInstanceResponse: {
+            data: components["schemas"]["InstanceFull"];
         };
         Token: {
             /** Format: uuid */
@@ -2209,6 +2218,62 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CreateInstanceForItemResponse"];
+                };
+            };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
+            default: components["responses"]["default-error"];
+        };
+    };
+    getInstanceById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Instance ID */
+                instanceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetInstanceByIdResponse"];
+                };
+            };
+            401: components["responses"]["default-unauthorized"];
+            403: components["responses"]["default-forbidden"];
+            default: components["responses"]["default-error"];
+        };
+    };
+    updateInstanceById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Instance ID */
+                instanceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateInstanceRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UpdateInstanceResponse"];
                 };
             };
             401: components["responses"]["default-unauthorized"];

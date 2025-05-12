@@ -56,13 +56,18 @@ const data = {
           url: "/employees",
         },
         {
-          title: "API токены",
+          title: "ТВ-борды",
+          url: "/tv-boards",
+        },
+        {
+          title: "API-токены",
           url: "/api-tokens",
         },
         {
           title: "Организация",
           url: "/org",
         },
+
       ],
     },
   ],

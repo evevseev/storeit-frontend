@@ -7,17 +7,19 @@ import {
   createColumnHelper,
   ColumnDef,
 } from "@tanstack/react-table";
-type Task = {
-  id: string;
-  name: string;
-  type: "order" | "movement";
-  status: "pending" | "completed" | "failed";
-  createdAt: string;
-};
+import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import { redirect } from "next/navigation";
+import type { components } from "@/lib/api/storeit";
+import { CreateTaskDialog } from "./create-task-dialog";
+
+type Task = components["schemas"]["TaskBase"];
 
 const columnHelper = createColumnHelper<Task>();
 const columns = [
+  columnHelper.accessor("id", {
+    header: "ID",
+    cell: (props) => props.getValue().substring(0, 8),
+  }),
   columnHelper.accessor("name", {
     header: "Название",
     cell: (props) => props.getValue(),
@@ -25,55 +27,89 @@ const columns = [
   columnHelper.accessor("type", {
     header: "Тип",
     cell: (props) => {
-      return <Badge variant="outline">{props.getValue()}</Badge>;
+      const type = props.getValue();
+      return (
+        <Badge
+          variant="outline"
+          className={
+            type === "pick"
+              ? "bg-blue-500 text-white"
+              : "bg-green-500 text-white"
+          }
+        >
+          {type === "pick" ? "Подбор" : "Перемещение"}
+        </Badge>
+      );
     },
   }),
   columnHelper.accessor("status", {
     header: "Статус",
     cell: (props) => {
-      return <Badge variant="outline">{props.getValue()}</Badge>;
+      const status = props.getValue();
+      const statusColors = {
+        pending: "bg-yellow-500",
+        in_progress: "bg-blue-500",
+        awaiting_to_collect: "bg-purple-500",
+        completed: "bg-green-500",
+        failed: "bg-red-500",
+      };
+      const statusLabels = {
+        pending: "Ожидает",
+        in_progress: "В работе",
+        awaiting_to_collect: "Ожидает сбора",
+        completed: "Завершено",
+        failed: "Ошибка",
+      };
+      return (
+        <Badge
+          variant="outline"
+          className={`${statusColors[status]} text-white`}
+        >
+          {statusLabels[status]}
+        </Badge>
+      );
+    },
+  }),
+  columnHelper.accessor("assignedTo", {
+    header: "Сотрудник",
+    cell: (props) => {
+      const employee = props.getValue();
+      return employee ? `${employee.firstName} ${employee.lastName}` : "-";
     },
   }),
   columnHelper.accessor("createdAt", {
     header: "Дата создания",
     cell: (props) => {
-      return props.getValue();
+      return new Date(props.getValue()).toLocaleString("ru-RU");
+    },
+  }),
+  columnHelper.accessor("completedAt", {
+    header: "Дата завершения",
+    cell: (props) => {
+      const date = props.getValue();
+      return date ? new Date(date).toLocaleString("ru-RU") : "-";
     },
   }),
 ];
 
-const data: Task[] = [
-  {
-    id: "1",
-    name: "Задание 1",
-    type: "order",
-    status: "pending",
-    createdAt: "2021-01-01",
-  },
-  {
-    id: "2",
-    name: "Задание 2",
-    type: "movement",
-    status: "completed",
-    createdAt: "2021-01-02",
-  },
-  {
-    id: "3",
-    name: "Задание 3",
-    type: "order",
-    status: "failed",
-    createdAt: "2021-01-03",
-  },
-];
-
 export default function TasksPage() {
+  const client = useApiQueryClient();
+  const { data, isPending } = client.useQuery("get", "/tasks");
+
+  const tasks = data?.data || [];
+
   return (
     <>
-      <PageMetadata title="Задания" breadcrumbs={[{ label: "Задания" }]} />
+      <PageMetadata 
+        title="Задания" 
+        breadcrumbs={[{ label: "Задания" }]} 
+        actions={[<CreateTaskDialog key="create" />]}
+      />
       <DataTable
         columns={columns}
-        data={data}
+        data={tasks}
         onRowClick={(row) => redirect(`/tasks/${row.id}`)}
+        isLoading={isPending}
       />
     </>
   );

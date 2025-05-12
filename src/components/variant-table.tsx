@@ -3,6 +3,7 @@ import { X, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DataTable } from "@/components/data-table";
+import { memo } from "react";
 
 export type Variant = {
   id: string | null;
@@ -15,6 +16,24 @@ interface VariantTableProps {
   value: Variant[];
   onChange: (variants: Variant[]) => void;
 }
+
+const InputCell = memo(({ 
+  value, 
+  onChange 
+}: { 
+  value: string; 
+  onChange: (value: string) => void;
+}) => {
+  return (
+    <Input
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="h-8"
+    />
+  );
+});
+
+InputCell.displayName = "InputCell";
 
 export function VariantTable({ value, onChange }: VariantTableProps) {
   const handleDelete = (index: number) => {
@@ -50,10 +69,9 @@ export function VariantTable({ value, onChange }: VariantTableProps) {
       size: 200,
       cell: ({ row }) => {
         return (
-          <Input
+          <InputCell
             value={row.original.name}
-            onChange={(e) => handleChange(row.index, "name", e.target.value)}
-            className="h-8"
+            onChange={(value) => handleChange(row.index, "name", value)}
           />
         );
       },
@@ -64,10 +82,9 @@ export function VariantTable({ value, onChange }: VariantTableProps) {
       size: 150,
       cell: ({ row }) => {
         return (
-          <Input
+          <InputCell
             value={row.original.sku}
-            onChange={(e) => handleChange(row.index, "sku", e.target.value)}
-            className="h-8"
+            onChange={(value) => handleChange(row.index, "sku", value)}
           />
         );
       },
@@ -78,10 +95,9 @@ export function VariantTable({ value, onChange }: VariantTableProps) {
       size: 150,
       cell: ({ row }) => {
         return (
-          <Input
+          <InputCell
             value={row.original.ean13}
-            onChange={(e) => handleChange(row.index, "ean13", e.target.value)}
-            className="h-8"
+            onChange={(value) => handleChange(row.index, "ean13", value)}
           />
         );
       },

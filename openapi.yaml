@@ -888,6 +888,48 @@ paths:
         schema:
           type: string
           format: uuid
+    get:
+      tags:
+        - instance
+      summary: Get Instance by ID
+      operationId: getInstanceById
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetInstanceByIdResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
+        default:
+          $ref: '#/components/responses/default-error'
+    put:
+      tags:
+        - instance
+      summary: Update Instance by ID
+      operationId: updateInstanceById
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateInstanceRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateInstanceResponse'
+        '401':
+          $ref: '#/components/responses/default-unauthorized'
+        '403':
+          $ref: '#/components/responses/default-forbidden'
+        default:
+          $ref: '#/components/responses/default-error'
     delete:
       tags:
         - instance
@@ -1934,7 +1976,7 @@ components:
           example: 123456789012
         ean13:
           type: integer
-          format: int32
+          format: int64
           nullable: true
           example: 1234567890123
       required:
@@ -1960,7 +2002,7 @@ components:
             ean13:
               type: integer
               nullable: true
-              format: int32
+              format: int64
               example: 1234567890123
           required:
             - article
@@ -2020,6 +2062,7 @@ components:
                       - cell
                       - cells_group
                       - storage_group
+                      - unit
                 required:
                   - id
                   - name
@@ -2205,6 +2248,25 @@ components:
       properties:
         data:
           $ref: '#/components/schemas/InstanceForItem'
+      required:
+        - data
+    GetInstanceByIdResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          $ref: '#/components/schemas/InstanceFull'
+      required:
+        - data
+    UpdateInstanceRequest:
+      allOf:
+        - $ref: '#/components/schemas/InstanceCreateForItem'
+    UpdateInstanceResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          $ref: '#/components/schemas/InstanceFull'
       required:
         - data
     Token:
