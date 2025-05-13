@@ -9,7 +9,6 @@ type OpenItemsState = {
 
 export const openItemsAtom = atomWithStorage<OpenItemsState>('warehouse-structure-open-items', {});
 
-// Helper function to get all descendant IDs of a storage group
 const getAllDescendantIds = (item: StorageGroup | OrganizationUnit): string[] => {
     const ids: string[] = [];
 
@@ -25,7 +24,6 @@ const getAllDescendantIds = (item: StorageGroup | OrganizationUnit): string[] =>
     return ids;
 };
 
-// Create an atom family for each item's open state
 export const itemOpenAtom = atomFamily((itemId: string) => 
     atom((get) => {
         const openItems = get(openItemsAtom);
@@ -50,7 +48,6 @@ export const cleanupRemovedItemsAtom = atom(
         const newState = { ...openItems };
         let hasChanges = false;
 
-        // Create a set of all current item IDs
         const currentIds = new Set<string>();
         const addItemAndChildren = (item: OrganizationUnit | StorageGroup | CellGroup) => {
             currentIds.add(item.id);
@@ -60,7 +57,6 @@ export const cleanupRemovedItemsAtom = atom(
         };
         currentItems.forEach(addItemAndChildren);
 
-        // Remove any stored state for items that no longer exist
         Object.keys(openItems).forEach(id => {
             if (!currentIds.has(id)) {
                 delete newState[id];

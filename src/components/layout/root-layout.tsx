@@ -88,7 +88,6 @@ function Header() {
   );
 }
 
-// This component uses hooks that require the QueryClient
 function AuthenticatedContent({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -98,7 +97,7 @@ function AuthenticatedContent({
   const isLoginPage = /\/login/.test(pathname) || /\/dct/.test(pathname);
 
   if (isLoading && !isLoginPage) {
-    return null; // Show nothing while authentication status is being determined
+    return null; 
   }
 
   if (!isLoginPage) {

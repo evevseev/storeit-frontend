@@ -10,7 +10,7 @@ interface LabelsDocumentProps {
   height?: number; // in millimeters
 }
 
-// Convert mm to points (1 mm = 2.83465 points)
+//  (1 mm = 2.83465 points)
 const mmToPoints = (mm: number) => mm * 2.83465;
 
 function LabelsDocument({

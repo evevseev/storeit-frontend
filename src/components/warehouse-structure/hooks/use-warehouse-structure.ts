@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo } from "react";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import { toast } from "sonner";
 import { OrganizationUnit, StorageGroup, CellGroup } from "../types";
-// import { ApiStorageGroup, ApiUnit, ApiCellGroup } from "../api-types";
 
 export function useWarehouseStructure() {
   const queryClient = useApiQueryClient();

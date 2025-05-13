@@ -38,7 +38,6 @@ export function NavMain({
   const pathname = usePathname();
 
   const isActive = (url: string) => {
-    // Handle both exact matches and parent routes
     if (url === "/") {
       return pathname === url;
     }
@@ -52,7 +51,7 @@ export function NavMain({
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Platform</SidebarGroupLabel>
+      <SidebarGroupLabel>Панель управления</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) =>
           !item.items?.length ? (

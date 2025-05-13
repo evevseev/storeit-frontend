@@ -38,7 +38,6 @@ export const StorageGroupItem = ({
 
   if (!shouldShow) return null;
 
-  // Filter visible children based on search
   const visibleChildren = item.children.filter((child) => {
     if (child.type === 'cellGroup') {
       return !searchQuery || matchesSearch(child, searchQuery);
@@ -50,7 +49,6 @@ export const StorageGroupItem = ({
     <div className={`pl-8 relative ${!isLast ? "mb-2" : ""}`}>
       {level > 0 && (
         <>
-          {/* Vertical line connecting to parent */}
           <div
             className={`absolute left-4 -top-2 w-px bg-gray-300 ${
               isLast ? "h-[2.25rem]" : "h-[calc(100%+0.5rem)]"

@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/dialog";
 import { FormBlockTitle, useAppForm } from "@/components/common-form";
 
-// Выделение схемы в константу
 const CELL_KIND_FORM_SCHEMA = z.object({
   name: z.string().min(1),
   description: z.string(),
@@ -18,10 +17,8 @@ const CELL_KIND_FORM_SCHEMA = z.object({
   maxWeight: z.number().gt(0),
 });
 
-// Определение типа на основе схемы
 type CellKindFormData = z.infer<typeof CELL_KIND_FORM_SCHEMA>;
 
-// Начальные значения как константа
 const INITIAL_FORM_VALUES: CellKindFormData = {
   name: "",
   description: "",
@@ -37,7 +34,6 @@ interface CreateCellKindDialogProps {
   onSubmit: (data: CellKindFormData) => void;
 }
 
-// Компонент для отображения измерений ячейки
 const DimensionsFields = ({
   form,
 }: {
