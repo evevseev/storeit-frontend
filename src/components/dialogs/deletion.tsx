@@ -13,27 +13,35 @@ import { Button } from "@/components/ui/button";
 import { Trash } from "lucide-react";
 
 type DeleteDialogProps = {
+  hideTrigger?: boolean;
   buttonLabel?: string;
   description?: string;
   onDelete: () => void;
   firstText?: string;
   secondText?: string;
+  isOpen?: boolean;
+  setIsOpen?: (isOpen: boolean) => void;
 };
 
 export function DeleteDialog({
+  hideTrigger = false,
   buttonLabel = "Удалить объект",
   onDelete,
   firstText = "Вы действительно желаете удалить объект?",
   secondText = "Это действие возможно отменить только с помощью администратора.",
+  isOpen,
+  setIsOpen,
 }: DeleteDialogProps) {
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button variant="destructive">
-          <Trash />
-          {buttonLabel}
-        </Button>
-      </AlertDialogTrigger>
+    <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+      {!hideTrigger && (
+        <AlertDialogTrigger asChild>
+          <Button variant="destructive">
+            <Trash />
+            {buttonLabel}
+          </Button>
+        </AlertDialogTrigger>
+      )}
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Вы уверены?</AlertDialogTitle>
@@ -42,7 +50,14 @@ export function DeleteDialog({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Отменить</AlertDialogCancel>
-          <AlertDialogAction onClick={onDelete}>Удалить</AlertDialogAction>
+          <AlertDialogAction
+            onClick={() => {
+              onDelete();
+              setIsOpen?.(false);
+            }}
+          >
+            Удалить
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

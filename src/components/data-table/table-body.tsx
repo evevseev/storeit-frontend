@@ -28,31 +28,33 @@ export function TableBodyComponent<TData>({
           return (
             <TableRow
               key={row.id}
-              data-state={row.getIsSelected() && "selected"}
               onClick={() => !hasValidHref && onRowClick?.(row.original)}
               className={cn(
-                (onRowClick || hasValidHref) ? "cursor-pointer hover:bg-muted/50" : "",
+                onRowClick || hasValidHref
+                  ? "cursor-pointer hover:bg-muted/50"
+                  : "",
                 row.getCanExpand() ? "bg-muted/70" : ""
               )}
             >
               {row.getVisibleCells().map((cell, index) => {
-                const expandButton = index === 0 && row.getCanExpand() ? (
-                  <Button
-                    className="h-6 w-6"
-                    variant="outline"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      row.toggleExpanded();
-                    }}
-                  >
-                    {row.getIsExpanded() ? (
-                      <ChevronDown className="h-4 w-4" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4" />
-                    )}
-                  </Button>
-                ) : null;
+                const expandButton =
+                  index === 0 && row.getCanExpand() ? (
+                    <Button
+                      className="h-6 w-6"
+                      variant="outline"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        row.toggleExpanded();
+                      }}
+                    >
+                      {row.getIsExpanded() ? (
+                        <ChevronDown className="h-4 w-4" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4" />
+                      )}
+                    </Button>
+                  ) : null;
 
                 const cellContent = (
                   <div
@@ -62,7 +64,9 @@ export function TableBodyComponent<TData>({
                             paddingLeft: `${row.depth * 2}rem`,
                             display: row.getCanExpand() ? "flex" : undefined,
                             gap: row.getCanExpand() ? "0.5rem" : undefined,
-                            alignItems: row.getCanExpand() ? "center" : undefined,
+                            alignItems: row.getCanExpand()
+                              ? "center"
+                              : undefined,
                           }
                         : undefined
                     }
@@ -73,24 +77,19 @@ export function TableBodyComponent<TData>({
                 );
 
                 return (
-                  <TableCell 
+                  <TableCell
                     key={cell.id}
                     className={cn(
-                      (cell.column.columnDef.meta as any)?.isDisplay && "text-right",
-                      "p-0"
+                      (cell.column.columnDef.meta as any)?.isDisplay &&
+                        "text-center"
                     )}
                   >
                     {hasValidHref ? (
-                      <Link 
-                        href={href}
-                        className="block h-full py-2 px-4"
-                      >
+                      <Link href={href} className="block h-full py-2 px-4">
                         {cellContent}
                       </Link>
                     ) : (
-                      <div className="py-2 px-4">
-                        {cellContent}
-                      </div>
+                      <div className="py-2 px-4">{cellContent}</div>
                     )}
                   </TableCell>
                 );
