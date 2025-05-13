@@ -54,20 +54,13 @@ export default function DctPage() {
         <ClipboardList />
         Задания
       </DctButton>
-      <DctButton
-        href="/dct/movement"
-        className="bg-green-500 hover:bg-green-600"
-      >
-        <Package />
-        Перемещения
-      </DctButton>
       <DctButton href="/items" className="bg-green-500 hover:bg-green-600">
         <Plus />
         Товары
       </DctButton>
       <DctButton href="/storage" className="bg-green-500 hover:bg-green-600">
         <Package />
-        Структура склада
+        Склад
       </DctButton>
 
       <ScannerDialog

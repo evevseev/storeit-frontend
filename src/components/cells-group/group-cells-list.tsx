@@ -6,15 +6,7 @@ import {
   Row,
   RowSelectionState,
 } from "@tanstack/react-table";
-import {
-  MoreHorizontal,
-  Pencil,
-  Save,
-  X,
-  Trash2,
-  Plus,
-  Printer,
-} from "lucide-react";
+import { MoreHorizontal, Pencil, Save, X, Trash2, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -23,8 +15,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { useEffect, useState, useMemo } from "react";
 import { DataTable } from "@/components/data-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
@@ -34,22 +24,25 @@ import { DeleteDialog } from "../dialogs/deletion";
 import { toast } from "sonner";
 import {
   defaultColumn,
-  useSkipper,
   EditedCellValue,
+  EditedRows,
 } from "@/lib/tanstack-table";
-import { Label, usePrintLabels } from "@/hooks/use-print-labels";
+import { getCellLabel, Label, usePrintLabels } from "@/hooks/use-print-labels";
 import CreateCellDialog from "./create-cell-dialog";
 import { CopyableText } from "../ui/copyable-text";
-interface CellsListProps {
-  cellsGroupId: string;
-}
+import { useState } from "react";
 
 type DType = components["schemas"]["Cell"];
 const columnHelper = createColumnHelper<DType>();
 
-export default function GroupCellsList({ cellsGroupId }: CellsListProps) {
+export default function GroupCellsList({
+  cellsGroupId,
+}: {
+  cellsGroupId: string;
+}) {
   const client = useApiQueryClient();
   const globalClient = useQueryClient();
+
   const { printLabels } = usePrintLabels();
 
   const { data: cells } = client.useQuery(
@@ -64,59 +57,55 @@ export default function GroupCellsList({ cellsGroupId }: CellsListProps) {
     }
   );
 
-  const { mutate: updateCell } = client.useMutation(
-    "put",
-    "/cells/{id}"
-  );
+  const { mutate: updateCell } = client.useMutation("put", "/cells/{id}");
 
   const { mutate: createCell } = client.useMutation(
     "post",
     "/cells-groups/{groupId}/cells"
   );
 
-  const { mutate: deleteCell } = client.useMutation(
-    "delete",
-    "/cells/{id}"
-  );
+  const { mutate: deleteCell } = client.useMutation("delete", "/cells/{id}");
 
   const [selectedRows, setSelectedRows] = useState<RowSelectionState>({});
   const [isEditing, setIsEditing] = useState(false);
-  const [editedValues, setEditedValues] = useState<EditedCellValue[]>([]);
-  // const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
+  const [editedRows, setEditedRows] = useState<EditedRows>({});
 
   const selectedRowsCount = Object.keys(selectedRows).length;
 
   const handleEdit = () => {
     setIsEditing(true);
-    setEditedValues([]);
+    setEditedRows({});
   };
 
   const handleSave = () => {
-    const editsByCell = editedValues.reduce((acc, edit) => {
-      const cell = cells?.data[edit.rowIndex];
-      if (!cell) return acc;
+    const editsByCell = Object.entries(editedRows).reduce(
+      (acc, [cellId, edit]) => {
+        const cell = cells?.data.find((c) => c.id === cellId);
+        if (!cell) return acc;
 
-      if (!acc[cell.id]) {
-        acc[cell.id] = { ...cell };
-      }
+        if (!acc[cell.id]) {
+          acc[cell.id] = { ...cell };
+        }
 
-      switch (edit.columnId) {
-        case "alias":
-          acc[cell.id].alias = edit.value as string;
-          break;
-        case "row":
-          acc[cell.id].row = edit.value as number;
-          break;
-        case "level":
-          acc[cell.id].level = edit.value as number;
-          break;
-        case "position":
-          acc[cell.id].position = edit.value as number;
-          break;
-      }
+        switch (edit.columnId) {
+          case "alias":
+            acc[cell.id].alias = edit.value as string;
+            break;
+          case "row":
+            acc[cell.id].row = edit.value as number;
+            break;
+          case "level":
+            acc[cell.id].level = edit.value as number;
+            break;
+          case "position":
+            acc[cell.id].position = edit.value as number;
+            break;
+        }
 
-      return acc;
-    }, {} as Record<string, DType>);
+        return acc;
+      },
+      {} as Record<string, DType>
+    );
 
     Object.entries(editsByCell).forEach(([cellId, updatedCell]) => {
       updateCell(
@@ -148,12 +137,12 @@ export default function GroupCellsList({ cellsGroupId }: CellsListProps) {
     }
 
     setIsEditing(false);
-    setEditedValues([]);
+    setEditedRows({});
   };
 
   const handleCancel = () => {
     setIsEditing(false);
-    setEditedValues([]);
+    setEditedRows({});
     globalClient.invalidateQueries({
       queryKey: ["get", "/cells-groups/{groupId}/cells"],
     });
@@ -184,27 +173,20 @@ export default function GroupCellsList({ cellsGroupId }: CellsListProps) {
     );
   };
 
-  const handleCreateCell = () => {
-    console.log("Create cell clicked");
-  };
-
   const handlePrintLabels = () => {
-    const labels =
+    printLabels(
       cells?.data
         .filter((cell) => selectedRows[cell.id])
-        .map((cell) => ({
-          id: cell.id,
-          name: cell.alias,
-          description: "Ячейка",
-          url:
-            process.env.NEXT_PUBLIC_API_URL +
-            "/cells-groups/" +
-            cellsGroupId +
-            "/cells/" +
-            cell.id +
-            "/label",
-        })) ?? [];
-    printLabels(labels);
+        .map((cell) =>
+          getCellLabel({
+            id: cell.id,
+            alias: cell.alias,
+            row: cell.row,
+            level: cell.level,
+            position: cell.position,
+          })
+        ) ?? []
+    );
   };
 
   const renderTopToolbar = () => {
@@ -224,8 +206,8 @@ export default function GroupCellsList({ cellsGroupId }: CellsListProps) {
           </div>
         ) : (
           <>
-            <Button size="sm" onClick={handleEdit}>
-              <Pencil className="mr-2 h-4 w-4" />
+            <Button onClick={handleEdit}>
+              <Pencil />
               Редактировать
             </Button>
 
@@ -243,124 +225,121 @@ export default function GroupCellsList({ cellsGroupId }: CellsListProps) {
     );
   };
 
-  const columns = useMemo(
-    () => [
-      columnHelper.display({
-        id: "select",
-        header: ({ table }) => (
-          <Checkbox
-            checked={
-              table.getIsAllRowsSelected() ||
-              (table.getIsSomeRowsSelected() && "indeterminate")
-            }
-            onCheckedChange={(checked) => {
-              table.toggleAllRowsSelected(!!checked);
-            }}
-            aria-label="Выбрать все"
-          />
-        ),
-        cell: ({ row }) => (
-          <Checkbox
-            checked={row.getIsSelected()}
-            disabled={!row.getCanSelect()}
-            onCheckedChange={(checked) => {
-              row.toggleSelected(!!checked);
-            }}
-            aria-label="Выбрать ячейку"
-          />
-        ),
-        enableSorting: false,
-        enableHiding: false,
-        meta: {
-          isDisplay: true,
-        },
-      }),
-      columnHelper.accessor("id", {
-        header: "ID",
-        size: 100,
-        sortingFn: "alphanumeric",
-        cell: ({ getValue }) => (
-          <CopyableText className="cursor-pointer">{getValue()}</CopyableText>
-        ),
-        // enableEditing: false,
-      }),
-      columnHelper.accessor("alias", {
-        header: "Обозначение",
-        size: 150,
-        sortingFn: "alphanumeric",
-        // enableEditing: true,
-      }),
-      columnHelper.accessor("row", {
-        header: "№ ряда",
-        size: 120,
-        sortingFn: "basic",
-        meta: {
-          filterVariant: "range",
-        },
-        // enableEditing: true,
-      }),
-      columnHelper.accessor("level", {
-        header: "№ уровня",
-        size: 120,
-        sortingFn: "basic",
-        meta: {
-          filterVariant: "range",
-        },
-        // enableEditing: true,
-      }),
-      columnHelper.accessor("position", {
-        header: "№ позиции",
-        size: 120,
-        sortingFn: "basic",
-        meta: {
-          filterVariant: "range",
-        },
-        // enableEditing: true,
-      }),
-      columnHelper.display({
-        id: "actions",
-        size: 50,
-        header: () => null,
-        meta: {
-          isDisplay: true,
-        },
-        cell: ({ row }) => {
-          const cell = row.original;
-          const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-          return (
-            <div className="text-right">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-8 w-8 p-0">
-                    <span className="sr-only">Open menu</span>
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Действия</DropdownMenuLabel>
-                  <DropdownMenuItem
-                    className="text-destructive"
-                    onClick={() => setDeleteDialogOpen(true)}
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Удалить
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <DeleteDialog
-                hideTrigger
-                onDelete={() => handleDelete(cell.id)}
-                buttonLabel="Удалить"
-                isOpen={deleteDialogOpen}
-                setIsOpen={setDeleteDialogOpen}
-              />
-            </div>
-          );
-        },
-      }),
-    ],
-    []
-  );
+  const columns = [
+    columnHelper.display({
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllRowsSelected() ||
+            (table.getIsSomeRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(checked) => {
+            table.toggleAllRowsSelected(!!checked);
+          }}
+          aria-label="Выбрать все"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          disabled={!row.getCanSelect()}
+          onCheckedChange={(checked) => {
+            row.toggleSelected(!!checked);
+          }}
+          aria-label="Выбрать ячейку"
+        />
+      ),
+      meta: {
+        isDisplay: true,
+      },
+    }),
+    columnHelper.accessor("id", {
+      header: "ID",
+      size: 100,
+      sortingFn: "alphanumeric",
+      cell: ({ getValue }) => <CopyableText>{getValue()}</CopyableText>,
+    }),
+    columnHelper.accessor("alias", {
+      header: "Обозначение",
+      size: 150,
+      sortingFn: "alphanumeric",
+      meta: {
+        isEditable: true,
+      },
+    }),
+    columnHelper.accessor("row", {
+      header: "№ ряда",
+      size: 120,
+      sortingFn: "basic",
+      meta: {
+        filterVariant: "range",
+        isEditable: true,
+        type: "number",
+      },
+    }),
+    columnHelper.accessor("level", {
+      header: "№ уровня",
+      size: 120,
+      sortingFn: "basic",
+      meta: {
+        filterVariant: "range",
+        isEditable: true,
+        type: "number",
+      },
+    }),
+    columnHelper.accessor("position", {
+      header: "№ позиции",
+      size: 120,
+      sortingFn: "basic",
+      meta: {
+        filterVariant: "range",
+        isEditable: true,
+        type: "number",
+      },
+    }),
+    columnHelper.display({
+      id: "actions",
+      size: 50,
+      header: () => null,
+      meta: {
+        isDisplay: true,
+      },
+      cell: ({ row }) => {
+        const cell = row.original;
+        const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+        return (
+          <div className="text-right">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Действия</DropdownMenuLabel>
+                <DropdownMenuItem
+                  className="text-destructive"
+                  onClick={() => setDeleteDialogOpen(true)}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Удалить
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <DeleteDialog
+              hideTrigger
+              onDelete={() => handleDelete(cell.id)}
+              buttonLabel="Удалить"
+              isOpen={deleteDialogOpen}
+              setIsOpen={setDeleteDialogOpen}
+            />
+          </div>
+        );
+      },
+    }),
+  ];
 
   return (
     <div className="flex flex-col">
@@ -376,32 +355,8 @@ export default function GroupCellsList({ cellsGroupId }: CellsListProps) {
             defaultColumn={defaultColumn}
             editMode={isEditing}
             getRowHref={(row) => `/cells/${row.id}`}
-            meta={{
-              updateData: (rowIndex: number, columnId: string, value: unknown) => {
-                setEditedValues((prev) => {
-                  const filtered = prev.filter(
-                    (edit) =>
-                      !(
-                        edit.rowIndex === rowIndex &&
-                        edit.columnId === columnId
-                      )
-                  );
-                  return [...filtered, { rowIndex, columnId, value }];
-                });
-              },
-              addEditedValue: (value: EditedCellValue) => {
-                setEditedValues((prev) => {
-                  const filtered = prev.filter(
-                    (edit) =>
-                      !(
-                        edit.rowIndex === value.rowIndex &&
-                        edit.columnId === value.columnId
-                      )
-                  );
-                  return [...filtered, value];
-                });
-              },
-            }}
+            changedRows={editedRows}
+            setChangedRows={setEditedRows}
           />
         </div>
       </div>

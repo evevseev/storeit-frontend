@@ -109,7 +109,7 @@ export default function TasksPage() {
       <DataTable
         columns={columns}
         data={tasks}
-        onRowClick={(row) => redirect(`/dct/tasks/${row.id}`)}
+        onRowClick={(row) => redirect(`/tasks/${row.id}`)}
         isLoading={isPending}
       />
     </>

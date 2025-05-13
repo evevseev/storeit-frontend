@@ -70,6 +70,26 @@ export function getGroupLabel({
   };
 }
 
+export function getCellLabel({
+  id,
+  alias,
+  row,
+  level,
+  position,
+}: {
+  id: string;
+  alias: string;
+  row: number;
+  level: number;
+  position: number;
+}): Label {
+  return {
+    url: `${appUrl}/cells/${id}`,
+    name: alias,
+    description: `Ячейка\nРяд: ${row}\nУровень: ${level}\nПозиция: ${position}`,
+  };
+}
+
 export function usePrintLabels() {
   const printLabels = React.useCallback(
     (labels: Label[], config?: PrintConfig) => {

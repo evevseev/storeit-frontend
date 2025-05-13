@@ -17,6 +17,11 @@ import { HistoryTable } from "@/components/common-page/history-table";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Pencil } from "lucide-react";
+import { PrintLabelButton } from "@/components/warehouse-structure/print-label-button";
+import { getCellLabel } from "@/hooks/use-print-labels";
+import PrintButton from "@/components/print-button";
+import { DeleteDialog } from "@/components/dialogs/deletion";
+import { toast } from "sonner";
 
 export default function CellPage() {
   const { id } = useParams() as { id: string };
@@ -29,6 +34,8 @@ export default function CellPage() {
       },
     },
   });
+
+  const { mutate: deleteCell } = client.useMutation("delete", "/cells/{id}");
 
   return (
     <BlockedPage>
@@ -48,6 +55,39 @@ export default function CellPage() {
           },
         ]}
         actions={[
+          <DeleteDialog
+            buttonLabel="Удалить ячейку"
+            firstText="Вы действительно желаете удалить ячейку?"
+            onDelete={() => {
+              deleteCell(
+                {
+                  params: { path: { id } },
+                },
+                {
+                  onSuccess: () => {
+                    globalClient.invalidateQueries({
+                      queryKey: ["get", "/cells/{id}"],
+                    });
+                    toast.success("Ячейка удалена");
+                  },
+                  onError: (err) => {
+                    toast.error("Ошибка при удалении ячейки", {
+                      description: err.error.message,
+                    });
+                  },
+                }
+              );
+            }}
+          />,
+          <PrintButton
+            label={getCellLabel({
+              id: data?.data.id ?? "",
+              alias: data?.data.alias ?? "",
+              row: data?.data.row ?? 0,
+              level: data?.data.level ?? 0,
+              position: data?.data.position ?? 0,
+            })}
+          />,
           <Button asChild>
             <Link href={`/cells-groups/${data?.data.cellsGroupId}`}>
               <Pencil />

@@ -9,47 +9,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { components } from "@/lib/api/storeit";
 import { CopyableText } from "@/components/ui/copyable-text";
 import { useRouter } from "next/navigation";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-
-type Instance = {
-  id: string;
-  status: "available" | "reserved" | "consumed";
-  affectedByTaskId: string | null;
-
-  variant: {
-    id: string;
-    name: string;
-  };
-
-  cell?: {
-    id: string;
-    alias: string;
-    row: number;
-    level: number;
-    position: number;
-    cellPath: {
-      id: string;
-      name: string;
-      alias: string;
-      objectType: "cell" | "cells_group" | "storage_group" | "unit";
-    }[];
-  };
-};
 
 type StorageNode = {
   id: string;
@@ -82,6 +41,7 @@ const filterInstances = (
     instanceId?: string;
     cellId?: string;
     cellsGroupId?: string;
+    affectedByTaskId?: string;
   }
 ) => {
   return instances.filter((instance) => {
@@ -93,6 +53,8 @@ const filterInstances = (
       filters.cellsGroupId &&
       instance.cell?.cellPath?.some((p) => p.id === filters.cellsGroupId)
     )
+      return false;
+    if (filters.affectedByTaskId && instance.affectedByTaskId !== filters.affectedByTaskId)
       return false;
 
     // Check storage hierarchy through cellPath
@@ -120,6 +82,7 @@ export default function InstancesView({
   cellId,
   expanded = false,
   cellsGroupId,
+  affectedByTaskId,
 }: {
   storageGroupId?: string;
   unitId?: string;
@@ -129,6 +92,7 @@ export default function InstancesView({
   cellId?: string;
   expanded?: boolean;
   cellsGroupId?: string;
+  affectedByTaskId?: string;
 }) {
   const client = useApiQueryClient();
   const globalClient = useQueryClient();
@@ -378,6 +342,8 @@ export default function InstancesView({
             variantId,
             instanceId,
             cellId,
+            cellsGroupId,
+            affectedByTaskId,
           })
         )}
         getRowCanExpand={(row) => Boolean(row.original.subRows?.length)}
