@@ -66,7 +66,7 @@ export default function GroupCellsList({ cellsGroupId }: CellsListProps) {
 
   const { mutate: updateCell } = client.useMutation(
     "put",
-    "/cells-groups/{groupId}/cells/{cellId}"
+    "/cells/{id}"
   );
 
   const { mutate: createCell } = client.useMutation(
@@ -76,7 +76,7 @@ export default function GroupCellsList({ cellsGroupId }: CellsListProps) {
 
   const { mutate: deleteCell } = client.useMutation(
     "delete",
-    "/cells-groups/{groupId}/cells/{cellId}"
+    "/cells/{id}"
   );
 
   const [selectedRows, setSelectedRows] = useState<RowSelectionState>({});
@@ -123,8 +123,7 @@ export default function GroupCellsList({ cellsGroupId }: CellsListProps) {
         {
           params: {
             path: {
-              groupId: cellsGroupId,
-              cellId,
+              id: cellId,
             },
           },
           body: updatedCell,
@@ -165,8 +164,7 @@ export default function GroupCellsList({ cellsGroupId }: CellsListProps) {
       {
         params: {
           path: {
-            groupId: cellsGroupId,
-            cellId: id,
+            id: id,
           },
         },
       },
@@ -284,13 +282,13 @@ export default function GroupCellsList({ cellsGroupId }: CellsListProps) {
         cell: ({ getValue }) => (
           <CopyableText className="cursor-pointer">{getValue()}</CopyableText>
         ),
-        enableEditing: false,
+        // enableEditing: false,
       }),
       columnHelper.accessor("alias", {
         header: "Обозначение",
         size: 150,
         sortingFn: "alphanumeric",
-        enableEditing: true,
+        // enableEditing: true,
       }),
       columnHelper.accessor("row", {
         header: "№ ряда",
@@ -299,7 +297,7 @@ export default function GroupCellsList({ cellsGroupId }: CellsListProps) {
         meta: {
           filterVariant: "range",
         },
-        enableEditing: true,
+        // enableEditing: true,
       }),
       columnHelper.accessor("level", {
         header: "№ уровня",
@@ -308,7 +306,7 @@ export default function GroupCellsList({ cellsGroupId }: CellsListProps) {
         meta: {
           filterVariant: "range",
         },
-        enableEditing: true,
+        // enableEditing: true,
       }),
       columnHelper.accessor("position", {
         header: "№ позиции",
@@ -317,7 +315,7 @@ export default function GroupCellsList({ cellsGroupId }: CellsListProps) {
         meta: {
           filterVariant: "range",
         },
-        enableEditing: true,
+        // enableEditing: true,
       }),
       columnHelper.display({
         id: "actions",
@@ -377,6 +375,7 @@ export default function GroupCellsList({ cellsGroupId }: CellsListProps) {
             getRowId={(row) => row.id}
             defaultColumn={defaultColumn}
             editMode={isEditing}
+            getRowHref={(row) => `/cells/${row.id}`}
             meta={{
               updateData: (rowIndex: number, columnId: string, value: unknown) => {
                 setEditedValues((prev) => {

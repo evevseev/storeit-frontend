@@ -30,7 +30,10 @@ export const organizationUnitMatchesSearch = (
 ): boolean => {
   if (matchesSearch(item, searchQuery)) return true;
 
-  return item.children.some((storageGroup) =>
-    storageGroupMatchesSearch(storageGroup, searchQuery)
-  );
+  return item.children.some((child) => {
+    if (child.type === 'cellGroup') {
+      return matchesSearch(child, searchQuery);
+    }
+    return storageGroupMatchesSearch(child, searchQuery);
+  });
 }; 

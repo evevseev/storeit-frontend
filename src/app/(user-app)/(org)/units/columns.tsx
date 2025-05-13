@@ -14,6 +14,8 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { components } from "@/lib/api/storeit";
+import { DeleteDialog } from "@/components/dialogs/deletion";
+import { useState } from "react";
 
 const columnHelper = createColumnHelper<components["schemas"]["Unit"]>();
 
@@ -39,6 +41,8 @@ export function createUnitColumns() {
         isDisplay: true,
       },
       cell: ({ row }) => {
+        const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
         return (
           <div className="text-right">
             <DropdownMenu>
@@ -53,42 +57,48 @@ export function createUnitColumns() {
                 <DropdownMenuItem
                   onClick={() => router.push(`/units/${row.original.id}/edit`)}
                 >
-                  <Pencil className="mr-2 h-4 w-4" />
+                  <Pencil />
                   Редактировать
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  className="text-destructive"
-                  onClick={() => {
-                    mutation.mutate(
-                      {
-                        params: {
-                          path: {
-                            id: row.original.id,
-                          },
-                        },
-                      },
-                      {
-                        onSuccess: () => {
-                          toast.success("Подразделение успешно удалено");
-                          queryClient.invalidateQueries({
-                            queryKey: ["get", "/units"],
-                          });
-                        },
-                        onError: (error) => {
-                          toast.error("Ошибка при удалении подразделения", {
-                            description: JSON.stringify(error),
-                          });
-                        },
-                      }
-                    );
+                  variant="destructive"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setDeleteDialogOpen(true);
                   }}
                 >
-                  <Trash2 className="mr-2 h-4 w-4" />
+                  <Trash2 />
                   Удалить
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            <DeleteDialog
+              hideTrigger
+              onDelete={() => {
+                mutation.mutate(
+                  {
+                    params: { path: { id: row.original.id } },
+                  },
+                  {
+                    onSuccess: () => {
+                      toast.success("Подразделение успешно удалено");
+                      queryClient.invalidateQueries({
+                        queryKey: ["get", "/units"],
+                      });
+                    },
+                    onError: (error) => {
+                      toast.error("Ошибка при удалении подразделения", {
+                        description: JSON.stringify(error),
+                      });
+                    },
+                  }
+                );
+              }}
+              isOpen={deleteDialogOpen}
+              setIsOpen={setDeleteDialogOpen}
+            />
           </div>
         );
       },

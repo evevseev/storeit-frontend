@@ -4,6 +4,7 @@ import { ChevronRight, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface TableBodyComponentProps<TData> {
   table: Table<TData>;
@@ -18,6 +19,8 @@ export function TableBodyComponent<TData>({
   onRowClick,
   getRowHref,
 }: TableBodyComponentProps<TData>) {
+  const router = useRouter();
+
   return (
     <TableBody>
       {table.getRowModel().rows?.length ? (
@@ -28,7 +31,13 @@ export function TableBodyComponent<TData>({
           return (
             <TableRow
               key={row.id}
-              onClick={() => !hasValidHref && onRowClick?.(row.original)}
+              onClick={() => {
+                if (hasValidHref) {
+                  router.push(href);
+                } else {
+                  onRowClick?.(row.original);
+                }
+              }}
               className={cn(
                 onRowClick || hasValidHref
                   ? "cursor-pointer hover:bg-muted/50"
@@ -88,13 +97,7 @@ export function TableBodyComponent<TData>({
                         "text-center"
                     )}
                   >
-                    {hasValidHref ? (
-                      <Link href={href} className="block h-full py-2 px-4">
-                        {cellContent}
-                      </Link>
-                    ) : (
-                      <div className="py-2 px-4">{cellContent}</div>
-                    )}
+                    <div className="py-2 px-4">{cellContent}</div>
                   </TableCell>
                 );
               })}

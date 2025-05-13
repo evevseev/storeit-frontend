@@ -155,8 +155,8 @@ export const columns = [
               }}
               className="text-red-600"
             >
-              <Ban className="mr-2 h-4 w-4" />
-              <span>Исключить из организации</span>
+              <Ban />
+              Исключить из организации
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

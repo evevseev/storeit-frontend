@@ -70,14 +70,28 @@ export function useWarehouseStructure() {
   useEffect(() => {
     if (unitsData?.data && storageGroupsData?.data && cellsGroupsData?.data) {
       const transformedData: OrganizationUnit[] = unitsData.data.map(
-        (unit) => ({
-          id: unit.id,
-          name: unit.name,
-          alias: unit.alias,
-          address: unit.address,
-          type: "organizationUnit" as const,
-          children: buildStorageGroupTree(unit.id),
-        })
+        (unit) => {
+          // Get cell groups that are direct children of the unit
+          const unitCellGroups = cellsGroupsData.data
+            .filter((cg) => cg.unitId === unit.id && !cg.storageGroupId)
+            .map((cg): CellGroup => ({
+              id: cg.id,
+              unitId: cg.unitId,
+              storageGroupId: cg.storageGroupId,
+              name: cg.name,
+              alias: cg.alias,
+              type: 'cellGroup',
+            }));
+
+          return {
+            id: unit.id,
+            name: unit.name,
+            alias: unit.alias,
+            address: unit.address,
+            type: "organizationUnit" as const,
+            children: [...buildStorageGroupTree(unit.id), ...unitCellGroups],
+          };
+        }
       );
       setUnits(transformedData);
     }

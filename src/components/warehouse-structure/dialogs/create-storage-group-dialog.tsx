@@ -1,5 +1,4 @@
 "use client";
-import * as z from "zod";
 import {
   Dialog,
   DialogContent,
@@ -13,11 +12,7 @@ import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { PathBreadcrumb } from "./path-breadcrumb";
-
-const createGroupSchema = z.object({
-  name: z.string().min(1, "Обязательное поле"),
-  alias: z.string().min(1, "Обязательное поле"),
-});
+import { storageGroupSchema } from "@/lib/zod/schemas";
 
 interface CreateGroupDialogProps {
   open: boolean;
@@ -45,7 +40,7 @@ export function CreateStorageGroupDialog({
       alias: "",
     },
     validators: {
-      onChange: createGroupSchema,
+      onChange: storageGroupSchema,
     },
     onSubmit: async (values) => {
       try {

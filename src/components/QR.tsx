@@ -24,9 +24,7 @@ const QR = ({
   foreground = "#000",
   background = "#fff",
 }: QRProps): JSX.Element => {
-  // EcLevels seems to not do anything...
-  // @ts-expect-error qr-code-generator-lib-misstype
-  const matrix = useMemo(() => getMatrix(url), EcLevels[level], [url, level]);
+  const matrix = useMemo(() => getMatrix(url, EcLevels[level]), [url, level]);
   const factor = useMemo(() => width / matrix.length, [matrix, width]);
 
   return (

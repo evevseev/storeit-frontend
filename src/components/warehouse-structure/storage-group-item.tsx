@@ -39,7 +39,7 @@ export const StorageGroupItem = ({
   if (!shouldShow) return null;
 
   const visibleChildren = item.children.filter((child) => {
-    if (child.type === 'cellGroup') {
+    if (child.type === "cellGroup") {
       return !searchQuery || matchesSearch(child, searchQuery);
     }
     return !searchQuery || storageGroupMatchesSearch(child, searchQuery);
@@ -118,7 +118,7 @@ export const StorageGroupItem = ({
           {visibleChildren.map((child, index) => {
             const isLastChild = index === visibleChildren.length - 1;
 
-            if (child.type === 'cellGroup') {
+            if (child.type === "cellGroup") {
               return (
                 <CellGroupItem
                   key={child.id}

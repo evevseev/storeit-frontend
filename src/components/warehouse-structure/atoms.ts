@@ -24,7 +24,7 @@ const getAllDescendantIds = (item: StorageGroup | OrganizationUnit): string[] =>
     return ids;
 };
 
-export const itemOpenAtom = atomFamily((itemId: string) => 
+export const itemOpenAtom = atomFamily((itemId: string) =>
     atom((get) => {
         const openItems = get(openItemsAtom);
         return !!openItems[itemId];

@@ -11,9 +11,13 @@ import { useParams } from "next/navigation";
 import InstancesView from "@/components/common-page/instances-view";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import { PageMetadata } from "@/components/header/page-metadata";
+import { useQueryClient } from "@tanstack/react-query";
+
 export default function CellPage() {
   const { id } = useParams() as { id: string };
-  const { data } = useApiQueryClient().useQuery("get", "/cells/{id}", {
+  const client = useApiQueryClient();
+  const globalClient = useQueryClient();
+  const { data } = client.useQuery("get", "/cells/{id}", {
     params: {
       path: {
         id,

@@ -7,11 +7,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
-import { useState, useRef, useCallback } from "react";
+import { useState } from "react";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { DeleteDialog } from "../dialogs/deletion";
 
 interface ItemDropdownProps {
   type: "unit" | "storage-group" | "cells-group";
@@ -21,20 +21,37 @@ interface ItemDropdownProps {
 export const ItemDropdown = ({ type, id }: ItemDropdownProps) => {
   const queryClient = useApiQueryClient();
   const globalQueryClient = useQueryClient();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const { mutate: deleteUnit } = queryClient.useMutation(
+    "delete",
+    "/units/{id}"
+  );
+
+  const { mutate: deleteStorageGroup } = queryClient.useMutation(
+    "delete",
+    "/storage-groups/{id}"
+  );
+
+  const { mutate: deleteCellsGroup } = queryClient.useMutation(
+    "delete",
+    "/cells-groups/{groupId}"
+  );
 
   const handleDelete = async () => {
     try {
-      const endpoint = type === "unit" 
-        ? `/units/${id}`
-        : type === "storage-group"
-        ? `/storage-groups/${id}`
-        : `/cells-groups/${id}`;
-
-      await queryClient.mutate("delete", endpoint);
+      if (type === "unit") {
+        deleteUnit({ params: { path: { id } } });
+      } else if (type === "storage-group") {
+        deleteStorageGroup({ params: { path: { id } } });
+      } else if (type === "cells-group") {
+        deleteCellsGroup({ params: { path: { groupId: id } } });
+      }
       toast.success("Успешно удалено");
       globalQueryClient.invalidateQueries({ queryKey: ["get", `/${type}s`] });
     } catch (error) {
-      toast.error("Ошибка при удалении");
+      toast.error("Ошибка при удалении", {
+        description: (error as any).error.message,
+      });
     }
   };
 
@@ -46,8 +63,20 @@ export const ItemDropdown = ({ type, id }: ItemDropdownProps) => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={handleDelete}>Удалить</DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => setDeleteDialogOpen(true)}
+          variant="destructive"
+        >
+          <Trash2 />
+          Удалить
+        </DropdownMenuItem>
       </DropdownMenuContent>
+      <DeleteDialog
+        hideTrigger
+        onDelete={handleDelete}
+        isOpen={deleteDialogOpen}
+        setIsOpen={setDeleteDialogOpen}
+      />
     </DropdownMenu>
   );
 };

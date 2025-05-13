@@ -12,6 +12,8 @@ import { cn } from "@/lib/utils";
 import { PrintLabelButton } from "./print-label-button";
 import { ItemDropdown } from "./item-dropdown";
 import { useMemo } from "react";
+import { CellGroupItem } from "./CellGroupItem";
+import { getUnitLabel } from "@/hooks/use-print-labels";
 
 interface OrganizationUnitItemProps {
   item: OrganizationUnit;
@@ -91,11 +93,12 @@ export const OrganizationUnitItem = ({
           <div className="flex items-center gap-2">
             <PrintLabelButton
               labels={[
-                {
-                  url: `https://store-it.ru/units/${item.id}`,
-                  name: item.alias,
-                  description: `Подразделение\n${item.address ?? ""}`,
-                },
+                getUnitLabel({
+                  id: item.id,
+                  name: item.name,
+                  alias: item.alias,
+                  address: item.address ?? "",
+                }),
               ]}
             />
             <GroupsCreationButton
@@ -111,19 +114,30 @@ export const OrganizationUnitItem = ({
 
       {isExpanded && visibleChildren.length > 0 && (
         <div className="mt-2 pl-8">
-          {visibleChildren
-            .filter(
-              (child): child is StorageGroup => child.type === "storageGroup"
-            )
-            .map((storageGroup, index, filteredArray) => (
+          {visibleChildren.map((child, index) => {
+            const isLastChild = index === visibleChildren.length - 1;
+
+            if (child.type === "cellGroup") {
+              return (
+                <CellGroupItem
+                  key={child.id}
+                  item={child}
+                  searchQuery={searchQuery}
+                  isLast={isLastChild}
+                />
+              );
+            }
+
+            return (
               <StorageGroupItem
-                key={storageGroup.id}
-                item={storageGroup}
+                key={child.id}
+                item={child}
                 searchQuery={searchQuery}
-                isLast={index === filteredArray.length - 1}
+                isLast={isLastChild}
                 parentPath={[{ id: item.id, name: item.name }]}
               />
-            ))}
+            );
+          })}
         </div>
       )}
     </div>

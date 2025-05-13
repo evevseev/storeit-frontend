@@ -180,7 +180,7 @@ export default function InstancesView({
       },
     }),
     columnHelper.accessor("alias", {
-      header: "Алиас",
+      header: "Обозначение",
     }),
     columnHelper.accessor("cellPosition", {
       header: "Позиция ячейки",
@@ -369,7 +369,7 @@ export default function InstancesView({
         getRowCanExpand={(row) => Boolean(row.original.subRows?.length)}
         getSubRows={(row) => row.subRows}
         getRowId={(row) => row.id}
-        expanded
+        expanded={expanded}
         onRowClick={handleRowClick}
       />
     </Block>

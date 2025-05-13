@@ -1,6 +1,6 @@
 "use client";
 
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom } from "jotai";
 import { useWarehouseStructure } from "./hooks/use-warehouse-structure";
 import { OrganizationUnitItem } from "./organization-unit-item";
 import { searchQueryAtom } from "./atoms";
@@ -9,8 +9,7 @@ import { Skeleton } from "../ui/skeleton";
 
 const WarehouseStructure = () => {
   const { units, isLoading, error } = useWarehouseStructure();
-  const searchQuery = useAtomValue(searchQueryAtom);
-  const setSearchQuery = useSetAtom(searchQueryAtom);
+  const [searchQuery, setSearchQuery] = useAtom(searchQueryAtom);
 
   if (isLoading) {
     return (

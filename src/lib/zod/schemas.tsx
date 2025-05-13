@@ -5,3 +5,8 @@ export const unitSchema = z.object({
   alias: z.string().min(1).max(100),
   address: z.string().min(1).max(100),
 });
+
+export const storageGroupSchema = z.object({
+  name: z.string().min(1).max(100),
+  alias: z.string().min(1).max(100),
+});

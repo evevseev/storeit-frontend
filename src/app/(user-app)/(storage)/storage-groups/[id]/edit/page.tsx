@@ -5,13 +5,9 @@ import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import { useQueryClient } from "@tanstack/react-query";
 import { PageMetadata } from "@/components/header/page-metadata";
 import { FormBlock, useAppForm } from "@/components/common-form";
-import { z } from "zod";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-const validator = z.interface({
-  name: z.string().min(1),
-  alias: z.string().min(1),
-});
+import { storageGroupSchema } from "@/lib/zod/schemas";
 
 export default function StorageGroupEditPage() {
   const { id } = useParams();
@@ -38,6 +34,9 @@ export default function StorageGroupEditPage() {
     defaultValues: {
       name: storageGroup?.data.name ?? "",
       alias: storageGroup?.data.alias ?? "",
+    },
+    validators: {
+      onChange: storageGroupSchema,
     },
     onSubmit: async (data) => {
       mutation.mutate(
@@ -67,9 +66,6 @@ export default function StorageGroupEditPage() {
           },
         }
       );
-    },
-    validators: {
-      onChange: validator,
     },
   });
 
@@ -116,7 +112,7 @@ export default function StorageGroupEditPage() {
               name="alias"
               children={(field) => (
                 <field.TextField
-                  label="Алиас"
+                  label="Обозначение"
                   value={storageGroup!.data.alias}
                 />
               )}

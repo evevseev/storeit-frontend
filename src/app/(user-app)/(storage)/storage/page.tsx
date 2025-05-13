@@ -10,7 +10,7 @@ export default function StoragePage() {
     <>
       <PageMetadata
         title="Структура склада"
-        breadcrumbs={[{ label: "Хранение" }]}
+        breadcrumbs={[{ label: "Склад", href: "/storage" }]}
         actions={[
           <Button asChild className="whitespace-nowrap" variant="default">
             <Link href="/units">Управление Подразделениями</Link>

@@ -36,7 +36,7 @@ export function DeleteDialog({
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       {!hideTrigger && (
         <AlertDialogTrigger asChild>
-          <Button variant="destructive">
+          <Button variant="destructive" onClick={(e) => e.stopPropagation()}>
             <Trash />
             {buttonLabel}
           </Button>
