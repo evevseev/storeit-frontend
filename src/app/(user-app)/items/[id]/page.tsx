@@ -51,6 +51,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { CopyableText } from "@/components/ui/copyable-text";
 type Item = {
   id: string;
   name: string;
@@ -111,11 +112,11 @@ const variantColumns = [
   }),
   variantColumnHelper.accessor("article", {
     header: "Артикул",
-    cell: (props) => props.getValue(),
+    cell: (props) => <CopyableText>{props.getValue()}</CopyableText>,
   }),
   variantColumnHelper.accessor("ean13", {
     header: "EAN13",
-    cell: (props) => props.getValue(),
+    cell: (props) => <CopyableText>{props.getValue()}</CopyableText>,
   }),
   variantColumnHelper.display({
     id: "actions",
@@ -210,8 +211,14 @@ export default function ItemPage() {
     },
   });
 
-  const createInstanceMutation = client.useMutation("post", "/items/{itemId}/instances");
-  const deleteInstanceMutation = client.useMutation("delete", "/instances/{instanceId}");
+  const createInstanceMutation = client.useMutation(
+    "post",
+    "/items/{itemId}/instances"
+  );
+  const deleteInstanceMutation = client.useMutation(
+    "delete",
+    "/instances/{instanceId}"
+  );
 
   const handleDeleteInstance = async (instanceId: string) => {
     deleteInstanceMutation.mutate(
@@ -406,61 +413,13 @@ export default function ItemPage() {
             label="Описание"
             value={data.data.description ?? ""}
           />
-          <BlockTextElement label="ID" value={data.data.id} />
+          <BlockTextElement label="ID">
+            <CopyableText>{data.data.id}</CopyableText>
+          </BlockTextElement>
         </Block>
       </BlockedPageRow>
       <BlockedPageRow>
         <Block title="Варианты">
-          <div className="flex justify-end mb-4">
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Создать инстанс
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Создать инстанс товара</DialogTitle>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="variant">Вариант</Label>
-                    <Select value={selectedVariant} onValueChange={setSelectedVariant}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Выберите вариант" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {data.data.variants.map((variant: Variant) => (
-                          <SelectItem key={variant.id} value={variant.id}>
-                            {variant.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="cell">UUID ячейки</Label>
-                    <Input
-                      id="cell"
-                      value={cellUuid}
-                      onChange={(e) => setCellUuid(e.target.value)}
-                      placeholder="Введите UUID ячейки"
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-end">
-                  <Button 
-                    onClick={handleCreateInstance}
-                    disabled={createInstanceMutation.isPending}
-                  >
-                    {createInstanceMutation.isPending ? "Создание..." : "Создать"}
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-          {/* Custom Table */}
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -502,6 +461,58 @@ export default function ItemPage() {
         </Block>
       </BlockedPageRow>
       <Block title="Инстансы">
+        <div className="flex justify-end mb-4">
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Создать инстанс
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Создать инстанс товара</DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="variant">Вариант</Label>
+                  <Select
+                    value={selectedVariant}
+                    onValueChange={setSelectedVariant}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Выберите вариант" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {data.data.variants.map((variant: Variant) => (
+                        <SelectItem key={variant.id} value={variant.id}>
+                          {variant.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="cell">ID ячейки</Label>
+                  <Input
+                    id="cell"
+                    value={cellUuid}
+                    onChange={(e) => setCellUuid(e.target.value)}
+                    placeholder="Введите UUID ячейки"
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <Button
+                  onClick={handleCreateInstance}
+                  disabled={createInstanceMutation.isPending}
+                >
+                  {createInstanceMutation.isPending ? "Создание..." : "Создать"}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
         <DataTable
           columns={getStorageColumns()}
           data={buildStorageTree(data.data.items)}

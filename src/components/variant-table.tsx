@@ -1,8 +1,13 @@
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import { X, Plus } from "lucide-react";
+import { X, Plus, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/data-table";
 import { EditedCellValue, defaultColumn } from "@/lib/tanstack-table";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 export type Variant = {
   id: string | null;
@@ -31,6 +36,22 @@ export function VariantTable({ value, onChange }: VariantTableProps) {
     onChange([...value, newVariant]);
   };
 
+  const generateEan13 = () => {
+    let code = "101";
+
+    for (let i = 0; i < 9; i++) {
+      code += Math.floor(Math.random() * 10).toString();
+    }
+
+    let sum = 0;
+    for (let i = 0; i < 12; i++) {
+      sum += parseInt(code[i]) * (i % 2 === 0 ? 1 : 3);
+    }
+    const checkDigit = (10 - (sum % 10)) % 10;
+
+    return code + checkDigit;
+  };
+
   const columnHelper = createColumnHelper<Variant>();
 
   const columns = [
@@ -45,6 +66,45 @@ export function VariantTable({ value, onChange }: VariantTableProps) {
     columnHelper.accessor("ean13", {
       header: "EAN13",
       size: 150,
+      cell: ({ getValue, row, column, table }) => {
+        const meta = table.options.meta;
+        return (
+          <div className="flex items-center gap-2">
+            <input
+              value={getValue() as string}
+              onChange={(e) => {
+                meta?.updateData?.(row.index, column.id, e.target.value);
+              }}
+              className="h-8 rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 flex-1"
+            />
+            <HoverCard>
+              <HoverCardTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => {
+                    const ean13 = generateEan13();
+                    meta?.updateData?.(row.index, column.id, ean13);
+                  }}
+                >
+                  <Wand2 className="h-4 w-4" />
+                </Button>
+              </HoverCardTrigger>
+              <HoverCardContent>
+                <div className="space-y-2">
+                  <h4 className="text-sm font-semibold">Генерация EAN-13</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Генерация случайного EAN-13 кода. Начинается со статичного
+                    префикса "101", остальные цифры генерируются случайным
+                    образом.
+                  </p>
+                </div>
+              </HoverCardContent>
+            </HoverCard>
+          </div>
+        );
+      },
     }),
     columnHelper.display({
       id: "actions",
@@ -70,27 +130,35 @@ export function VariantTable({ value, onChange }: VariantTableProps) {
   return (
     <div className="flex flex-col gap-4">
       <div className="border rounded-md">
-        <DataTable 
-          columns={columns} 
-          data={value} 
-          pagination={false} 
+        <DataTable
+          columns={columns}
+          data={value}
+          pagination={false}
           editMode={true}
           defaultColumn={defaultColumn}
           meta={{
-            updateData: (rowIndex: number, columnId: string, newValue: unknown) => {
+            updateData: (
+              rowIndex: number,
+              columnId: string,
+              newValue: unknown
+            ) => {
               onChange(
                 value.map((variant: Variant, index: number) =>
-                  index === rowIndex ? { ...variant, [columnId]: newValue } : variant
+                  index === rowIndex
+                    ? { ...variant, [columnId]: newValue }
+                    : variant
                 )
               );
             },
             addEditedValue: (editedValue: EditedCellValue) => {
               onChange(
                 value.map((variant: Variant, index: number) =>
-                  index === editedValue.rowIndex ? { ...variant, [editedValue.columnId]: editedValue.value } : variant
+                  index === editedValue.rowIndex
+                    ? { ...variant, [editedValue.columnId]: editedValue.value }
+                    : variant
                 )
               );
-            }
+            },
           }}
         />
       </div>
