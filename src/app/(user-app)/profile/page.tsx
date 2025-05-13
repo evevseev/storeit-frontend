@@ -27,14 +27,6 @@ export default function ProfilePage() {
       <PageMetadata
         title={`${user.first_name} ${user.last_name}`}
         breadcrumbs={[{ label: "Профиль", href: "/profile" }]}
-        actions={[
-          <Link href="/profile/edit">
-            <Button>
-              <Pencil />
-              Реадктировать
-            </Button>
-          </Link>,
-        ]}
       />
       <Block title="Профиль">
         <BlockTextElement label="Фамилия" value={user?.last_name} />

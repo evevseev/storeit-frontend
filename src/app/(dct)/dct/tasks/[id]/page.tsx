@@ -71,13 +71,15 @@ export default function TaskPage() {
   };
 
   if (!task) {
-    return <div>Loading...</div>;
+    return <div>Загрузка...</div>;
   }
 
   const getCellPath = (cell: (typeof task.items)[number]["sourceCell"]) => {
     return cell.cellPath.map((pathItem, index) => (
       <span key={pathItem.id} className="flex items-center">
-        <span className="whitespace-nowrap">{pathItem.name}</span>
+        <span className="whitespace-nowrap">
+          {pathItem.name} ({pathItem.alias})
+        </span>
         {index < cell.cellPath.length - 1 && (
           <ChevronRight className="h-4 w-4 mx-1 shrink-0" />
         )}
@@ -146,16 +148,16 @@ export default function TaskPage() {
                 </Badge>
               </div>
               <div className="flex flex-col gap-2 text-sm text-gray-500">
-                <div className="flex items-center">
-                  <span className="font-medium min-w-20">Расположение</span>
+                <div className="flex items-center gap-1">
+                  <span className="font-medium min-w-20">Расположение:</span>
                   <div className="flex items-center flex-wrap gap-y-1">
                     {getCellPath(item.sourceCell)}
                   </div>
                 </div>
                 {item.targetCell && (
-                  <div className="flex items-center">
+                  <div className="flex items-center gap-1">
                     <span className="font-medium min-w-20">
-                      Целевое расположение:
+                      Целевое расположение:{" "}
                     </span>
                     <div className="flex items-center flex-wrap gap-y-1">
                       {getCellPath(item.targetCell)}
