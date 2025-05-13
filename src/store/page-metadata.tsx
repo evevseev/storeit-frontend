@@ -1,7 +1,7 @@
 import { atom } from "jotai";
 
 export interface PageMetadataConfig {
-  title: string;
+  title?: string;
   breadcrumbs?: {
     href?: string;
     label: string;
@@ -10,7 +10,6 @@ export interface PageMetadataConfig {
 }
 
 export const pageMetadataAtom = atom<PageMetadataConfig>({
-  title: "StoreIt",
   breadcrumbs: [{ label: "Главная", href: "/" }],
   actions: [],
 });

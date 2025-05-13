@@ -13,6 +13,7 @@ import {
   useReactTable,
   RowSelectionState,
   OnChangeFn,
+  TableOptions,
 } from "@tanstack/react-table";
 
 import { Table } from "@/components/ui/table";
@@ -38,6 +39,9 @@ export interface DataTableProps<TData> {
   getRowId?: (row: TData) => string;
   setRowSelection?: OnChangeFn<RowSelectionState>;
   rowSelection?: RowSelectionState;
+  defaultColumn?: Partial<ColumnDef<TData, unknown>>;
+  meta?: TableOptions<TData>["meta"];
+  editMode?: boolean;
 }
 
 export function DataTable<TData>({
@@ -55,10 +59,16 @@ export function DataTable<TData>({
   getRowId,
   setRowSelection,
   rowSelection,
+  defaultColumn,
+  meta,
+  editMode = false,
 }: Readonly<DataTableProps<TData>>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
+
+  const effectiveDefaultColumn = editMode ? defaultColumn : undefined;
+
   const table = useReactTable({
     data: data ?? [],
     columns,
@@ -84,6 +94,8 @@ export function DataTable<TData>({
       return !(meta?.isDisplay || meta?.isSelector);
     },
     getRowId,
+    defaultColumn: effectiveDefaultColumn,
+    meta: editMode ? meta : undefined,
   });
 
   // React.useEffect(() => {

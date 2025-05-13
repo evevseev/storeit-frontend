@@ -24,7 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { DataTable } from "@/components/data-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
@@ -32,6 +32,14 @@ import { components } from "@/lib/api/storeit";
 import { useQueryClient } from "@tanstack/react-query";
 import { DeleteDialog } from "../dialogs/deletion";
 import { toast } from "sonner";
+import {
+  defaultColumn,
+  useSkipper,
+  EditedCellValue,
+} from "@/lib/tanstack-table";
+import { Label, usePrintLabels } from "@/hooks/use-print-labels";
+import CreateCellDialog from "./create-cell-dialog";
+import { CopyableText } from "../ui/copyable-text";
 interface CellsListProps {
   cellsGroupId: string;
 }
@@ -42,6 +50,7 @@ const columnHelper = createColumnHelper<DType>();
 export default function GroupCellsList({ cellsGroupId }: CellsListProps) {
   const client = useApiQueryClient();
   const globalClient = useQueryClient();
+  const { printLabels } = usePrintLabels();
 
   const { data: cells } = client.useQuery(
     "get",
@@ -71,56 +80,84 @@ export default function GroupCellsList({ cellsGroupId }: CellsListProps) {
   );
 
   const [selectedRows, setSelectedRows] = useState<RowSelectionState>({});
-  useEffect(() => {
-    console.log(JSON.stringify(selectedRows, null, 2));
-  }, [selectedRows]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedValues, setEditedValues] = useState<EditedCellValue[]>([]);
+  // const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
 
   const selectedRowsCount = Object.keys(selectedRows).length;
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedValues, setEditedValues] = useState<Record<string, DType>>({});
-
   const handleEdit = () => {
     setIsEditing(true);
-    if (cells?.data) {
-      const initialEdits = cells.data.reduce((acc, cell) => {
-        acc[cell.id] = cell;
-        return acc;
-      }, {} as Record<string, DType>);
-      setEditedValues(initialEdits);
-    }
+    setEditedValues([]);
   };
 
   const handleSave = () => {
-    if (cells?.data) {
-      const updatedCells = cells.data.map((cell) => ({
-        ...cell,
-        ...editedValues[cell.id],
-      }));
+    const editsByCell = editedValues.reduce((acc, edit) => {
+      const cell = cells?.data[edit.rowIndex];
+      if (!cell) return acc;
 
-      updatedCells.forEach((cell) => {
-        try {
-          updateCell({
-            params: {
-              path: {
-                groupId: cellsGroupId,
-                cellId: cell.id,
-              },
+      if (!acc[cell.id]) {
+        acc[cell.id] = { ...cell };
+      }
+
+      switch (edit.columnId) {
+        case "alias":
+          acc[cell.id].alias = edit.value as string;
+          break;
+        case "row":
+          acc[cell.id].row = edit.value as number;
+          break;
+        case "level":
+          acc[cell.id].level = edit.value as number;
+          break;
+        case "position":
+          acc[cell.id].position = edit.value as number;
+          break;
+      }
+
+      return acc;
+    }, {} as Record<string, DType>);
+
+    Object.entries(editsByCell).forEach(([cellId, updatedCell]) => {
+      updateCell(
+        {
+          params: {
+            path: {
+              groupId: cellsGroupId,
+              cellId,
             },
-            body: cell,
-          });
-        } catch (error) {
-          toast.error("Не удалось обновить ячейки");
+          },
+          body: updatedCell,
+        },
+        {
+          onSuccess: () => {
+            globalClient.invalidateQueries({
+              queryKey: ["get", "/cells-groups/{groupId}/cells"],
+            });
+          },
+          onError: (err) => {
+            toast.error("Ошибка при обновлении ячейки", {
+              description: err.error.message,
+            });
+          },
         }
-      });
+      );
+    });
+
+    if (Object.keys(editsByCell).length > 0) {
+      toast.success("Изменения сохранены");
     }
+
     setIsEditing(false);
-    setEditedValues({});
+    setEditedValues([]);
   };
 
   const handleCancel = () => {
     setIsEditing(false);
-    setEditedValues({});
+    setEditedValues([]);
+    globalClient.invalidateQueries({
+      queryKey: ["get", "/cells-groups/{groupId}/cells"],
+    });
   };
 
   const handleDelete = (id: string) => {
@@ -149,37 +186,33 @@ export default function GroupCellsList({ cellsGroupId }: CellsListProps) {
     );
   };
 
-  const handleChange = (
-    id: string,
-    key: keyof DType,
-    value: string | number
-  ) => {
-    setEditedValues((prev) => ({
-      ...prev,
-      [id]: {
-        ...prev[id],
-        [key]: value,
-      },
-    }));
-  };
-
   const handleCreateCell = () => {
     console.log("Create cell clicked");
   };
 
   const handlePrintLabels = () => {
-    if (selectedRowsCount > 0) {
-      console.log("Print labels clicked");
-    }
+    const labels =
+      cells?.data
+        .filter((cell) => selectedRows[cell.id])
+        .map((cell) => ({
+          id: cell.id,
+          alias: cell.alias,
+          description: "Ячейка",
+          url:
+            process.env.NEXT_PUBLIC_API_URL +
+            "/cells-groups/" +
+            cellsGroupId +
+            "/cells/" +
+            cell.id +
+            "/label",
+        })) ?? [];
+    printLabels(labels);
   };
 
   const renderTopToolbar = () => {
     return (
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="sm" onClick={handleCreateCell}>
-          <Plus className="mr-2 h-4 w-4" />
-          Создать ячейку
-        </Button>
+        <CreateCellDialog cellsGroupId={cellsGroupId} />
         {isEditing ? (
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={handleCancel}>
@@ -212,171 +245,119 @@ export default function GroupCellsList({ cellsGroupId }: CellsListProps) {
     );
   };
 
-  const columns = [
-    columnHelper.display({
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllRowsSelected() ||
-            (table.getIsSomeRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={table.getToggleAllRowsSelectedHandler()}
-          aria-label="Выбрать все"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          disabled={!row.getCanSelect()}
-          onCheckedChange={row.getToggleSelectedHandler()}
-          aria-label="Выбрать ячейку"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-      meta: {
-        isDisplay: true,
-      },
-    }),
-    columnHelper.accessor("id", {
-      header: "ID",
-      size: 100,
-      sortingFn: "alphanumeric",
-    }),
-    columnHelper.accessor("alias", {
-      header: "Обозначение",
-      size: 150,
-      sortingFn: "alphanumeric",
-      cell: ({ row }) => {
-        const cell = row.original;
-        if (isEditing) {
+  const columns = useMemo(
+    () => [
+      columnHelper.display({
+        id: "select",
+        header: ({ table }) => (
+          <Checkbox
+            checked={
+              table.getIsAllRowsSelected() ||
+              (table.getIsSomeRowsSelected() && "indeterminate")
+            }
+            onCheckedChange={(checked) => {
+              table.toggleAllRowsSelected(!!checked);
+            }}
+            aria-label="Выбрать все"
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            disabled={!row.getCanSelect()}
+            onCheckedChange={(checked) => {
+              row.toggleSelected(!!checked);
+            }}
+            aria-label="Выбрать ячейку"
+          />
+        ),
+        enableSorting: false,
+        enableHiding: false,
+        meta: {
+          isDisplay: true,
+        },
+      }),
+      columnHelper.accessor("id", {
+        header: "ID",
+        size: 100,
+        sortingFn: "alphanumeric",
+        cell: ({ getValue }) => (
+          <CopyableText className="cursor-pointer">{getValue()}</CopyableText>
+        ),
+      }),
+      columnHelper.accessor("alias", {
+        header: "Обозначение",
+        size: 150,
+        sortingFn: "alphanumeric",
+      }),
+      columnHelper.accessor("row", {
+        header: "№ ряда",
+        size: 120,
+        sortingFn: "basic",
+        meta: {
+          filterVariant: "range",
+        },
+      }),
+      columnHelper.accessor("level", {
+        header: "№ уровня",
+        size: 120,
+        sortingFn: "basic",
+        meta: {
+          filterVariant: "range",
+        },
+      }),
+      columnHelper.accessor("position", {
+        header: "№ позиции",
+        size: 120,
+        sortingFn: "basic",
+        meta: {
+          filterVariant: "range",
+        },
+      }),
+      columnHelper.display({
+        id: "actions",
+        size: 50,
+        header: () => null,
+        meta: {
+          isDisplay: true,
+        },
+        cell: ({ row }) => {
+          const cell = row.original;
+          const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
           return (
-            <Input
-              value={cell?.alias}
-              className="h-8"
-              onChange={(e) => handleChange(cell.id, "alias", e.target.value)}
-            />
+            <div className="text-right">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Open menu</span>
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Действия</DropdownMenuLabel>
+                  <DropdownMenuItem
+                    className="text-destructive"
+                    onClick={() => setDeleteDialogOpen(true)}
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Удалить
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <DeleteDialog
+                hideTrigger
+                onDelete={() => handleDelete(cell.id)}
+                buttonLabel="Удалить"
+                isOpen={deleteDialogOpen}
+                setIsOpen={setDeleteDialogOpen}
+              />
+            </div>
           );
-        }
-        return cell.alias;
-      },
-    }),
-    columnHelper.accessor("row", {
-      header: "№ ряда",
-      size: 120,
-      sortingFn: "basic",
-      cell: ({ row }) => {
-        const cell = row.original;
-        if (isEditing) {
-          return (
-            <Input
-              type="number"
-              value={editedValues[cell.id]?.row ?? cell.row}
-              className="h-8"
-              onChange={(e) =>
-                handleChange(cell.id, "row", parseInt(e.target.value))
-              }
-            />
-          );
-        }
-        return cell.row;
-      },
-      meta: {
-        filterVariant: "range",
-      },
-    }),
-    columnHelper.accessor("level", {
-      header: "№ уровня",
-      size: 120,
-      sortingFn: "basic",
-      cell: ({ row }) => {
-        const cell = row.original;
-        if (isEditing) {
-          return (
-            <Input
-              type="number"
-              value={editedValues[cell.id]?.level ?? cell.level}
-              className="h-8"
-              onChange={(e) =>
-                handleChange(cell.id, "level", parseInt(e.target.value))
-              }
-            />
-          );
-        }
-        return cell.level;
-      },
-      meta: {
-        filterVariant: "range",
-      },
-    }),
-    columnHelper.accessor("position", {
-      header: "№ позиции",
-      size: 120,
-      sortingFn: "basic",
-      cell: ({ row }) => {
-        const cell = row.original;
-        if (isEditing) {
-          return (
-            <Input
-              type="number"
-              value={editedValues[cell.id]?.position ?? cell.position}
-              className="h-8"
-              onChange={(e) =>
-                handleChange(cell.id, "position", parseInt(e.target.value))
-              }
-            />
-          );
-        }
-        return cell.position;
-      },
-      meta: {
-        filterVariant: "range",
-      },
-    }),
-
-    columnHelper.display({
-      id: "actions",
-      size: 50,
-      header: () => null,
-      meta: {
-        isDisplay: true,
-      },
-      cell: ({ row }) => {
-        const cell = row.original;
-        const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-        return (
-          <div className="text-right">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                  <span className="sr-only">Open menu</span>
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Действия</DropdownMenuLabel>
-                <DropdownMenuItem
-                  className="text-destructive"
-                  onClick={() => setDeleteDialogOpen(true)}
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Удалить
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <DeleteDialog
-              hideTrigger
-              onDelete={() => handleDelete(cell.id)}
-              buttonLabel="Удалить"
-              isOpen={deleteDialogOpen}
-              setIsOpen={setDeleteDialogOpen}
-            />
-          </div>
-        );
-      },
-    }),
-  ];
+        },
+      }),
+    ],
+    []
+  );
 
   return (
     <div className="flex flex-col">
@@ -389,6 +370,22 @@ export default function GroupCellsList({ cellsGroupId }: CellsListProps) {
             setRowSelection={setSelectedRows}
             rowSelection={selectedRows}
             getRowId={(row) => row.id}
+            defaultColumn={defaultColumn}
+            editMode={isEditing}
+            meta={{
+              addEditedValue: (value: EditedCellValue) => {
+                setEditedValues((prev) => {
+                  const filtered = prev.filter(
+                    (edit) =>
+                      !(
+                        edit.rowIndex === value.rowIndex &&
+                        edit.columnId === value.columnId
+                      )
+                  );
+                  return [...filtered, value];
+                });
+              },
+            }}
           />
         </div>
       </div>

@@ -43,6 +43,8 @@ GroupInfoProps) {
     <Block title="Информация о группе" isLoading={isPending}>
       <BlockTextElement label="Название" value={group?.data.name} />
       <BlockTextElement label="Обозначение" value={group?.data.alias} />
+      <BlockTextElement label="ID" value={group?.data.id} />
+      {/* <BlockTextElement label="Количество ячеек" value={group?.data.cellsCount} /> */}
     </Block>
 
     //     // </div>

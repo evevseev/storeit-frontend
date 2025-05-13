@@ -36,10 +36,10 @@ export default function UnitPage() {
   return (
     <BlockedPage>
       <PageMetadata
-        title="Подразделение"
+        title={data.data.name ?? "Подразделение"}
         breadcrumbs={[
           { label: "Подразделения", href: "/units" },
-          { label: data.data.name, href: `/units/${data.data.id}` },
+          { label: data.data.name ?? "Подразделение", href: `/units/${data.data.id}` },
         ]}
         actions={[
           <Button asChild>
