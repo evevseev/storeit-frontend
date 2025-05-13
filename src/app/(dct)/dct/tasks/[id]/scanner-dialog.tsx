@@ -6,7 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Scanner, ScannerResult } from "../../scanner/page";
+import { Scanner, ScannerResult } from "@/app/(dct)/dct/scanner/scanner";
 
 interface ScannerDialogProps {
   open: boolean;

@@ -17,7 +17,7 @@ export default function RootLayout({
     <html lang="ru">
       <body>
         <Providers>
-          <div className="w-full">{children}</div>
+          <div className="w-full p-4">{children}</div>
         </Providers>
       </body>
     </html>

@@ -45,7 +45,7 @@ export default function DctPage() {
   }
 
   return (
-    <div className="flex flex-col w-full p-5 gap-4">
+    <div className="flex flex-col w-full gap-4">
       <DctButton onClick={() => setScannerOpen(true)}>
         <Search />
         Поиск товара / Ячейки / Экземпляра

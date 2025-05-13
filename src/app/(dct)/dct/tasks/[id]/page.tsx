@@ -75,16 +75,31 @@ export default function TaskPage() {
   }
 
   const getCellPath = (cell: (typeof task.items)[number]["sourceCell"]) => {
-    return cell.cellPath.map((pathItem, index) => (
-      <span key={pathItem.id} className="flex items-center">
-        <span className="whitespace-nowrap">
-          {pathItem.name} ({pathItem.alias})
-        </span>
-        {index < cell.cellPath.length - 1 && (
-          <ChevronRight className="h-4 w-4 mx-1 shrink-0" />
-        )}
-      </span>
-    ));
+    return (
+      <div className="space-y-2">
+        <div>
+          <div className="font-semibold text-foreground mb-1">Путь:</div>
+          <div className="flex items-center flex-wrap gap-y-1 text-sm text-muted-foreground">
+            {cell.cellPath.map((pathItem, index) => (
+              <span key={pathItem.id} className="flex items-center">
+                <span className="whitespace-nowrap">
+                  {pathItem.name} ({pathItem.alias})
+                </span>
+                {index < cell.cellPath.length - 1 && (
+                  <ChevronRight className="h-4 w-4 mx-1 shrink-0" />
+                )}
+              </span>
+            ))}
+          </div>
+        </div>
+        <div>
+          <div className="font-semibold text-foreground mb-1">Ячейка:</div>
+          <div className="text-base font-semibold">
+            Ряд {cell.row}, Уровень {cell.level}, Место {cell.position} ({cell.alias})
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -96,6 +111,11 @@ export default function TaskPage() {
             <h1 className="text-2xl font-bold">{task.name}</h1>
             {task.description && (
               <p className="text-gray-500 mt-1">{task.description}</p>
+            )}
+            {task.unit && (
+              <p className="text-sm text-muted-foreground mt-1">
+                Подразделение: {task.unit.name}
+              </p>
             )}
           </div>
           <Badge
@@ -148,22 +168,28 @@ export default function TaskPage() {
                 </Badge>
               </div>
               <div className="flex flex-col gap-2 text-sm text-gray-500">
-                <div className="flex items-center gap-1">
-                  <span className="font-medium min-w-20">Расположение:</span>
-                  <div className="flex items-center flex-wrap gap-y-1">
-                    {getCellPath(item.sourceCell)}
-                  </div>
+                <div>
+                  {getCellPath(item.sourceCell)}
                 </div>
                 {item.targetCell && (
                   <div className="flex items-center gap-1">
                     <span className="font-medium min-w-20">
                       Целевое расположение:{" "}
                     </span>
-                    <div className="flex items-center flex-wrap gap-y-1">
-                      {getCellPath(item.targetCell)}
-                    </div>
+                    {getCellPath(item.targetCell)}
                   </div>
                 )}
+              </div>
+              <div className="flex justify-end mt-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="bg-green-100 hover:bg-green-200 border-green-500 text-green-700"
+                  disabled={item.status === "picked"}
+                >
+                  <CheckCircle2 className="mr-2 h-4 w-4" />
+                  Отметить как подобранный
+                </Button>
               </div>
             </div>
           ))}
