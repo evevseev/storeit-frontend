@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
+import InstancesView from "@/components/common-page/instances-view";
 
 export default function CellsGroupPage() {
   const { id } = useParams() as { id: string };
@@ -94,6 +95,7 @@ export default function CellsGroupPage() {
       />
       <GroupInfoCard id={id} />
       <GroupCellsList cellsGroupId={id} />
+      <InstancesView cellsGroupId={id} />
       <HistoryTable objectType={ObjectType.CellsGroup} objectId={id} />
     </BlockedPage>
   );

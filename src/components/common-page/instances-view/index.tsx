@@ -81,18 +81,30 @@ const filterInstances = (
     variantId?: string;
     instanceId?: string;
     cellId?: string;
+    cellsGroupId?: string;
   }
 ) => {
   return instances.filter((instance) => {
     if (filters.instanceId && instance.id !== filters.instanceId) return false;
-    if (filters.variantId && instance.variant.id !== filters.variantId) return false;
+    if (filters.variantId && instance.variant.id !== filters.variantId)
+      return false;
     if (filters.cellId && instance.cell?.id !== filters.cellId) return false;
-    
+    if (
+      filters.cellsGroupId &&
+      instance.cell?.cellPath?.some((p) => p.id === filters.cellsGroupId)
+    )
+      return false;
+
     // Check storage hierarchy through cellPath
     if (instance.cell?.cellPath) {
       const path = instance.cell.cellPath;
-      if (filters.storageGroupId && !path.some(p => p.id === filters.storageGroupId)) return false;
-      if (filters.unitId && !path.some(p => p.id === filters.unitId)) return false;
+      if (
+        filters.storageGroupId &&
+        !path.some((p) => p.id === filters.storageGroupId)
+      )
+        return false;
+      if (filters.unitId && !path.some((p) => p.id === filters.unitId))
+        return false;
     }
 
     return true;
@@ -107,6 +119,7 @@ export default function InstancesView({
   instanceId,
   cellId,
   expanded = false,
+  cellsGroupId,
 }: {
   storageGroupId?: string;
   unitId?: string;
@@ -115,6 +128,7 @@ export default function InstancesView({
   instanceId?: string;
   cellId?: string;
   expanded?: boolean;
+  cellsGroupId?: string;
 }) {
   const client = useApiQueryClient();
   const globalClient = useQueryClient();

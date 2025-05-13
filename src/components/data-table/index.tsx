@@ -24,7 +24,7 @@ import { TableBodyComponent } from "./table-body";
 import { TableLoading } from "./table-loading";
 import { TableError } from "./table-error";
 import { Block } from "../common-page/block";
-import { useState } from "react";
+import { EditedRows } from "@/lib/tanstack-table";
 
 export interface DataTableProps<TData> {
   columns: ColumnDef<TData, any>[];
@@ -45,6 +45,8 @@ export interface DataTableProps<TData> {
   meta?: TableOptions<TData>["meta"];
   editMode?: boolean;
   expanded?: boolean;
+  changedRows?: EditedRows;
+  setChangedRows?: (changedRows: EditedRows) => void;
 }
 
 export function DataTable<TData>({
@@ -66,6 +68,8 @@ export function DataTable<TData>({
   meta,
   editMode = false,
   expanded = false,
+  changedRows,
+  setChangedRows,
 }: Readonly<DataTableProps<TData>>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -102,7 +106,13 @@ export function DataTable<TData>({
     },
     getRowId,
     defaultColumn: effectiveDefaultColumn,
-    meta: editMode ? meta : undefined,
+    meta: {
+      editMode: editMode,
+      addEditedValue: () => {},
+      editedRows: {},
+      changedRows,
+      setChangedRows,
+    },
   });
 
   if (isError) {

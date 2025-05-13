@@ -8,6 +8,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import Ean13Generator from "@/app/(user-app)/items/ean-13-generator";
 
 export type Variant = {
   id: string | null;
@@ -36,22 +37,6 @@ export function VariantTable({ value, onChange }: VariantTableProps) {
     onChange([...value, newVariant]);
   };
 
-  const generateEan13 = () => {
-    let code = "101";
-
-    for (let i = 0; i < 9; i++) {
-      code += Math.floor(Math.random() * 10).toString();
-    }
-
-    let sum = 0;
-    for (let i = 0; i < 12; i++) {
-      sum += parseInt(code[i]) * (i % 2 === 0 ? 1 : 3);
-    }
-    const checkDigit = (10 - (sum % 10)) % 10;
-
-    return code + checkDigit;
-  };
-
   const columnHelper = createColumnHelper<Variant>();
 
   const columns = [
@@ -77,31 +62,11 @@ export function VariantTable({ value, onChange }: VariantTableProps) {
               }}
               className="h-8 rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 flex-1"
             />
-            <HoverCard>
-              <HoverCardTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => {
-                    const ean13 = generateEan13();
-                    meta?.updateData?.(row.index, column.id, ean13);
-                  }}
-                >
-                  <Wand2 className="h-4 w-4" />
-                </Button>
-              </HoverCardTrigger>
-              <HoverCardContent>
-                <div className="space-y-2">
-                  <h4 className="text-sm font-semibold">Генерация EAN-13</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Генерация случайного EAN-13 кода. Начинается со статичного
-                    префикса "101", остальные цифры генерируются случайным
-                    образом.
-                  </p>
-                </div>
-              </HoverCardContent>
-            </HoverCard>
+            <Ean13Generator
+              onChange={(ean13) => {
+                meta?.updateData?.(row.index, column.id, ean13);
+              }}
+            />
           </div>
         );
       },

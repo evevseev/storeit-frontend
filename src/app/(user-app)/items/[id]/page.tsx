@@ -1,76 +1,31 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  Row,
-  RowSelectionState,
-} from "@tanstack/react-table";
 import { Plus, Trash2, Pencil, Save, X } from "lucide-react";
 import { PageMetadata } from "@/components/header/page-metadata";
 import {
   Block,
   BlockTextElement,
-  BlockCustomElement,
-  BlockRow,
   BlockedPageRow,
 } from "@/components/common-page/block";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useReactTable, createColumnHelper } from "@tanstack/react-table";
+import { useState } from "react";
+import { createColumnHelper } from "@tanstack/react-table";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import { DataTable } from "@/components/data-table";
-import { ChevronDown, ChevronRight } from "lucide-react";
 import { HistoryTable } from "@/components/common-page/history-table";
 import { ObjectType } from "@/components/common-page/history-table/types";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { CopyableText } from "@/components/ui/copyable-text";
-import { defaultColumn, EditedCellValue } from "@/lib/tanstack-table";
+import { EditedRows } from "@/lib/tanstack-table";
 import InstancesView from "@/components/common-page/instances-view";
+import { components } from "@/lib/api/storeit";
+import CreateVariantDialog from "./create-variant-dialog";
 
-type Item = {
-  id: string;
-  name: string;
-  description: string | null;
-  variants: Variant[];
-};
-
-type Variant = {
-  id: string;
-  name: string;
-  article: string | null;
-  ean13: number | null;
-};
-
-const variantColumnHelper = createColumnHelper<Variant>();
+const variantColumnHelper =
+  createColumnHelper<components["schemas"]["ItemVariant"]>();
 
 export default function ItemPage() {
   const client = useApiQueryClient();
@@ -80,10 +35,8 @@ export default function ItemPage() {
   const [cellUuid, setCellUuid] = useState<string>("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isVariantsEditing, setIsVariantsEditing] = useState(false);
-  const [editedVariantValues, setEditedVariantValues] = useState<
-    EditedCellValue[]
-  >([]);
-  const [selectedVariants, setSelectedVariants] = useState<RowSelectionState>(
+
+  const [editedVariantValues, setEditedVariantValues] = useState<EditedRows>(
     {}
   );
 
@@ -149,32 +102,41 @@ export default function ItemPage() {
 
   const handleEditVariants = () => {
     setIsVariantsEditing(true);
-    setEditedVariantValues([]);
+    setEditedVariantValues({});
   };
 
   const handleSaveVariants = () => {
-    const editsByVariant = editedVariantValues.reduce((acc, edit) => {
-      const variant = data?.data?.variants[edit.rowIndex];
+    const editsByVariant = Object.entries(editedVariantValues).reduce<
+      Record<string, components["schemas"]["ItemVariant"]>
+    >((acc, [rowId, rowEdits]) => {
+      const variant = data?.data?.variants.find((v) => v.id === rowId);
+      console.log(rowId);
+      console.log(data?.data?.variants);
+      console.log(variant);
+      console.log(rowEdits);
+
       if (!variant) return acc;
 
       if (!acc[variant.id]) {
         acc[variant.id] = { ...variant };
       }
 
-      switch (edit.columnId) {
-        case "name":
-          acc[variant.id].name = edit.value as string;
-          break;
-        case "article":
-          acc[variant.id].article = edit.value as string;
-          break;
-        case "ean13":
-          acc[variant.id].ean13 = edit.value as number;
-          break;
-      }
+      Object.entries(rowEdits).forEach(([columnId, value]) => {
+        switch (columnId) {
+          case "name":
+            acc[variant.id].name = value as string;
+            break;
+          case "article":
+            acc[variant.id].article = value as string;
+            break;
+          case "ean13":
+            acc[variant.id].ean13 = value as number;
+            break;
+        }
+      });
 
       return acc;
-    }, {} as Record<string, Variant>);
+    }, {});
 
     Object.entries(editsByVariant).forEach(([variantId, updatedVariant]) => {
       updateVariant(
@@ -207,47 +169,13 @@ export default function ItemPage() {
     }
 
     setIsVariantsEditing(false);
-    setEditedVariantValues([]);
+    setEditedVariantValues({});
   };
 
   const handleCancelVariants = () => {
     setIsVariantsEditing(false);
-    setEditedVariantValues([]);
-    globalClient.invalidateQueries({
-      queryKey: ["get", "/items/{id}"],
-    });
+    setEditedVariantValues({});
   };
-
-  const variantColumns = [
-    variantColumnHelper.accessor("name", {
-      header: "Название",
-    }),
-    variantColumnHelper.accessor("article", {
-      header: "Артикул",
-    }),
-    variantColumnHelper.accessor("ean13", {
-      header: "EAN13",
-    }),
-    variantColumnHelper.display({
-      id: "actions",
-      meta: {
-        isDisplay: true,
-      },
-      cell: (props) => (
-        <div className="text-right">
-          <Button
-            variant="ghost"
-            className="h-8 w-8 p-0 hover:cursor-pointer"
-            onClick={() => {
-              alert(props.row.original.id);
-            }}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-      ),
-    }),
-  ];
 
   const handleDeleteVariant = (variantId: string) => {
     deleteVariant(
@@ -275,60 +203,51 @@ export default function ItemPage() {
     );
   };
 
-  // Update the actions column to use delete handler
-  variantColumns[3].cell = (props) => (
-    <div className="text-right">
-      <Button
-        variant="ghost"
-        className="h-8 w-8 p-0 hover:cursor-pointer"
-        onClick={(e) => {
-          e.stopPropagation();
-          handleDeleteVariant(props.row.original.id);
-        }}
-      >
-        <Trash2 className="h-4 w-4" />
-      </Button>
-    </div>
-  );
-
-  const table = useReactTable({
-    data: data?.data?.variants ?? [],
-    columns: variantColumns,
-    getCoreRowModel: getCoreRowModel(),
-    defaultColumn,
-    meta: {
-      addEditedValue: (value: EditedCellValue) => {
-        setEditedVariantValues((prev) => {
-          const filtered = prev.filter(
-            (edit) =>
-              !(
-                edit.rowIndex === value.rowIndex &&
-                edit.columnId === value.columnId
-              )
-          );
-          return [...filtered, value];
-        });
+  const variantColumns = [
+    variantColumnHelper.accessor("name", {
+      header: "Название",
+      meta: {
+        isEditable: true,
+        type: "text",
       },
-    },
-  });
-
-  useEffect(() => {
-    if (data && data.data) {
-      const variants = data.data.variants?.map((variant: Variant) => ({
-        id: variant.id,
-        name: variant.name,
-        article: variant.article,
-        ean13: variant.ean13,
-      }));
-    }
-  }, [data]);
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+    }),
+    variantColumnHelper.accessor("article", {
+      header: "Артикул",
+      meta: {
+        isEditable: true,
+        type: "text",
+      },
+    }),
+    variantColumnHelper.accessor("ean13", {
+      header: "EAN13",
+      meta: {
+        isEditable: true,
+        type: "number",
+      },
+    }),
+    variantColumnHelper.display({
+      id: "actions",
+      meta: {
+        isDisplay: true,
+      },
+      cell: (props) => (
+        <div className="text-right">
+          <Button
+            variant="ghost"
+            className="h-8 w-8 p-0 hover:cursor-pointer"
+            onClick={() => {
+              handleDeleteVariant(props.row.original.id);
+            }}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      ),
+    }),
+  ];
 
   if (isError) {
-    return <div>Error</div>;
+    return <div>Ошибка при загрузке данных</div>;
   }
 
   if (!data) {
@@ -349,7 +268,7 @@ export default function ItemPage() {
         ]}
       />
       <BlockedPageRow>
-        <Block title="Информация о товаре">
+        <Block title="Информация о товаре" isLoading={isLoading}>
           <BlockTextElement label="Название" value={data.data.name} />
           <BlockTextElement
             label="Описание"
@@ -362,53 +281,34 @@ export default function ItemPage() {
       </BlockedPageRow>
       <BlockedPageRow>
         <Block title="Варианты">
-          <div className="flex justify-end py-4">
+          <div className="flex justify-end gap-2">
             {isVariantsEditing ? (
               <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleCancelVariants}
-                >
-                  <X className="mr-2 h-4 w-4" />
-                  Отмена
+                <Button variant="outline" onClick={handleCancelVariants}>
+                  <X />
+                  Отменить
                 </Button>
-                <Button size="sm" onClick={handleSaveVariants}>
-                  <Save className="mr-2 h-4 w-4" />
+                <Button onClick={handleSaveVariants}>
+                  <Save />
                   Сохранить
                 </Button>
               </div>
             ) : (
-              <Button size="sm" onClick={handleEditVariants}>
-                <Pencil className="mr-2 h-4 w-4" />
+              <Button onClick={handleEditVariants}>
+                <Pencil />
                 Редактировать
               </Button>
             )}
+            <CreateVariantDialog itemId={id as string} />
           </div>
-          <div className="border rounded-md">
-            <div className="overflow-x-auto">
-              <DataTable
-                columns={variantColumns}
-                data={data?.data?.variants}
-                defaultColumn={defaultColumn}
-                editMode={isVariantsEditing}
-                meta={{
-                  addEditedValue: (value: EditedCellValue) => {
-                    setEditedVariantValues((prev) => {
-                      const filtered = prev.filter(
-                        (edit) =>
-                          !(
-                            edit.rowIndex === value.rowIndex &&
-                            edit.columnId === value.columnId
-                          )
-                      );
-                      return [...filtered, value];
-                    });
-                  },
-                }}
-              />
-            </div>
-          </div>
+          <DataTable
+            columns={variantColumns}
+            data={data?.data?.variants}
+            editMode={isVariantsEditing}
+            changedRows={editedVariantValues}
+            setChangedRows={setEditedVariantValues}
+            getRowId={(row) => row.id}
+          />
         </Block>
       </BlockedPageRow>
       <InstancesView />

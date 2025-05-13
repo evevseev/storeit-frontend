@@ -3,8 +3,8 @@ import { TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { ChevronRight, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Input } from "../ui/input";
 
 interface TableBodyComponentProps<TData> {
   table: Table<TData>;
@@ -25,28 +25,25 @@ export function TableBodyComponent<TData>({
     <TableBody>
       {table.getRowModel().rows?.length ? (
         table.getRowModel().rows.map((row) => {
-          const href = getRowHref?.(row.original) || "";
-          const hasValidHref = !!href;
+          const href = getRowHref?.(row.original) || null;
 
           return (
             <TableRow
               key={row.id}
               onClick={() => {
-                if (hasValidHref) {
+                if (href) {
                   router.push(href);
                 } else {
                   onRowClick?.(row.original);
                 }
               }}
               className={cn(
-                onRowClick || hasValidHref
-                  ? "cursor-pointer hover:bg-muted/50"
-                  : "",
+                onRowClick || href ? "cursor-pointer hover:bg-muted/50" : "",
                 row.getCanExpand() ? "bg-muted/70" : ""
               )}
             >
               {row.getVisibleCells().map((cell, index) => {
-                const isDisplay = cell.column.columnDef.meta as any;
+                const isDisplay = cell.column.columnDef.meta?.isDisplay;
                 const expandButton =
                   index === 0 && row.getCanExpand() ? (
                     <Button
@@ -86,6 +83,9 @@ export function TableBodyComponent<TData>({
                   </div>
                 );
 
+                const changed = table.options.meta?.changedRows?.[row.id];
+                const changedValue = changed?.[cell.column.id];
+
                 return (
                   <TableCell
                     key={cell.id}
@@ -97,7 +97,39 @@ export function TableBodyComponent<TData>({
                         "text-center"
                     )}
                   >
-                    <div className="py-2 px-4">{cellContent}</div>
+                    {table.options.meta?.editMode &&
+                    cell.column.columnDef.meta?.isEditable ? (
+                      <div>
+                        <Input
+                          value={
+                            (changedValue as any) || (cell.getValue() as any)
+                          }
+                          onChange={(e) => {
+                            table.options.meta?.setChangedRows?.({
+                              ...table.options.meta?.changedRows,
+                              [row.id]: {
+                                ...changed,
+                                [cell.column.id]: e.target.value,
+                              },
+                            });
+                          }}
+                          onBlur={(e) => {
+                            table.options.meta?.setChangedRows?.({
+                              ...table.options.meta?.changedRows,
+                              [row.id]: {
+                                ...changed,
+                                [cell.column.id]: e.target.value,
+                              },
+                            });
+                          }}
+                          type={
+                            (cell.column.columnDef.meta as any)?.type || "text"
+                          }
+                        />
+                      </div>
+                    ) : (
+                      <div className="py-2 px-4">{cellContent}</div>
+                    )}
                   </TableCell>
                 );
               })}

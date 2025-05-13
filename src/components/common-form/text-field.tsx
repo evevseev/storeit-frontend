@@ -17,6 +17,7 @@ interface TextFieldProps {
   unit?: string;
   label: string;
   value?: string | number | null;
+  actionButton?: React.ReactNode;
 }
 
 interface DropdownOption {
@@ -75,6 +76,7 @@ export function FormInputField({
   unit,
   label,
   value,
+  actionButton,
 }: TextFieldProps) {
   const field = useFieldContext<string | number | null>();
   const hasError = field.state.meta.errors.length > 0;
@@ -99,22 +101,25 @@ export function FormInputField({
     <div>
       <div className="text-sm text-muted-foreground mb-2">{label}</div>
       <div className="relative group">
-        <Input
-          type={type}
-          value={field.state.value ?? ""}
-          placeholder={placeholder}
-          onChange={(e) => handleChange(e.target.value)}
-          onBlur={field.handleBlur}
-          className={cn(
-            unit ? "pr-8" : "",
-            hasError ? "border-red-500 focus:border-red-500 border-2" : ""
+        <div className="flex items-center gap-2">
+          <Input
+            type={type}
+            value={field.state.value ?? ""}
+            placeholder={placeholder}
+            onChange={(e) => handleChange(e.target.value)}
+            onBlur={field.handleBlur}
+            className={cn(
+              unit ? "pr-8" : "",
+              hasError ? "border-red-500 focus:border-red-500 border-2" : ""
+            )}
+          />
+          {actionButton && <div className="ml-2">{actionButton}</div>}
+          {unit && (
+            <div className="absolute inset-y-0 right-3 flex items-center text-sm text-muted-foreground">
+              {unit}
+            </div>
           )}
-        />
-        {unit && (
-          <div className="absolute inset-y-0 right-3 flex items-center text-sm text-muted-foreground">
-            {unit}
-          </div>
-        )}
+        </div>
         {hasError && <ValidationErrorText errors={field.state.meta.errors} />}
       </div>
     </div>
