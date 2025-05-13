@@ -13,6 +13,9 @@ import { getGroupLabel } from "@/hooks/use-print-labels";
 import { DeleteDialog } from "@/components/dialogs/deletion";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Pencil } from "lucide-react";
 
 export default function CellsGroupPage() {
   const { id } = useParams() as { id: string };
@@ -81,6 +84,12 @@ export default function CellsGroupPage() {
               })}
             />
           ),
+          <Button asChild>
+            <Link href={`/cells-groups/${id}/edit`}>
+              <Pencil />
+              Редактировать
+            </Link>
+          </Button>,
         ]}
       />
       <GroupInfoCard id={id} />

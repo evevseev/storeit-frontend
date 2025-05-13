@@ -10,3 +10,8 @@ export const storageGroupSchema = z.object({
   name: z.string().min(1).max(100),
   alias: z.string().min(1).max(100),
 });
+
+export const cellsGroupSchema = z.object({
+  name: z.string().min(1).max(100),
+  alias: z.string().min(1).max(100),
+});

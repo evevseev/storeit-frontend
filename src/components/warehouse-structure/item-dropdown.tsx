@@ -12,6 +12,7 @@ import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { DeleteDialog } from "../dialogs/deletion";
+import Link from "next/link";
 
 interface ItemDropdownProps {
   type: "unit" | "storage-group" | "cells-group";
@@ -55,6 +56,17 @@ export const ItemDropdown = ({ type, id }: ItemDropdownProps) => {
     }
   };
 
+  const getEditPath = () => {
+    switch (type) {
+      case "unit":
+        return `/units/${id}/edit`;
+      case "storage-group":
+        return `/storage-groups/${id}/edit`;
+      case "cells-group":
+        return `/cells-groups/${id}/edit`;
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -63,11 +75,17 @@ export const ItemDropdown = ({ type, id }: ItemDropdownProps) => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
+        <DropdownMenuItem asChild>
+          <Link href={getEditPath()}>
+            <Pencil className="h-4 w-4 mr-2" />
+            Редактировать
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => setDeleteDialogOpen(true)}
           variant="destructive"
         >
-          <Trash2 />
+          <Trash2 className="h-4 w-4 mr-2" />
           Удалить
         </DropdownMenuItem>
       </DropdownMenuContent>

@@ -26,17 +26,7 @@ export const CellGroupItem = ({
   if (!shouldShow) return null;
 
   return (
-    <div className={`pl-8 relative ${!isLast ? "mb-2" : ""}`}>
-      {/* Vertical line connecting to parent */}
-      <div
-        className={`absolute left-4 -top-2 w-px bg-gray-300 ${
-          isLast ? "h-[2.25rem]" : "h-[calc(100%+0.5rem)]"
-        }`}
-      ></div>
-
-      {/* Horizontal line connecting to vertical line */}
-      <div className="absolute left-4 top-[1.75rem] w-4 h-px bg-gray-300"></div>
-
+    <div className={`pl-6 relative ${!isLast ? "mb-2" : ""}`}>
       <div
         className={cn("py-2 rounded-lg border border-gray-200", highlightClass)}
       >

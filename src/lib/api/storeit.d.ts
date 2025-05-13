@@ -820,6 +820,8 @@ export interface components {
         Cell: {
             /** Format: uuid */
             readonly id: string;
+            /** Format: uuid */
+            readonly cellsGroupId: string;
         } & components["schemas"]["CellBase"];
         GetCellsResponse: {
             data: components["schemas"]["Cell"][];

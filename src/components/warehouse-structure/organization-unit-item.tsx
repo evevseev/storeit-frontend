@@ -42,7 +42,7 @@ export const OrganizationUnitItem = ({
   const highlightClass =
     searchQuery && searchResults.isExactMatch
       ? "bg-yellow-50"
-      : "bg-gray-50/50";
+      : "bg-gray-200/50";
 
   if (!shouldShow) return null;
 
