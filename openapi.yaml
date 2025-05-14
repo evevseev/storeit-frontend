@@ -2296,6 +2296,7 @@ components:
         - variant
         - cell
         - item
+        - affectedByTaskId
     GetInstancesResponse:
       type: object
       properties:
@@ -2324,9 +2325,9 @@ components:
         cellId:
           type: string
           format: uuid
+          nullable: true
       required:
         - variantId
-        - cellId
     CreateInstanceForItemRequest:
       allOf:
         - $ref: '#/components/schemas/InstanceCreateForItem'

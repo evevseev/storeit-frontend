@@ -42,9 +42,13 @@ const filterInstances = (
     cellId?: string;
     cellsGroupId?: string;
     affectedByTaskId?: string;
+    withNoCell?: boolean;
   }
 ) => {
   return instances.filter((instance) => {
+    // If withNoCell is true and instance has no cell, include it
+    if (filters.withNoCell && !instance.cell) return true;
+
     if (filters.instanceId && instance.id !== filters.instanceId) return false;
     if (filters.variantId && instance.variant.id !== filters.variantId)
       return false;
@@ -83,6 +87,7 @@ export default function InstancesView({
   expanded = false,
   cellsGroupId,
   affectedByTaskId,
+  withNoCell = false,
 }: {
   storageGroupId?: string;
   unitId?: string;
@@ -93,6 +98,7 @@ export default function InstancesView({
   expanded?: boolean;
   cellsGroupId?: string;
   affectedByTaskId?: string;
+  withNoCell?: boolean;
 }) {
   const client = useApiQueryClient();
   const globalClient = useQueryClient();
@@ -219,6 +225,20 @@ export default function InstancesView({
     const result: StorageNode[] = [];
 
     instances.forEach((instance) => {
+      if (!instance.cell) {
+        // Create a top-level node for instances without cells
+        const instanceNode: StorageNode = {
+          id: instance.id,
+          name: instance.variant.name,
+          alias: "",
+          type: "instance",
+          instanceCount: 1,
+          instances: [instance],
+        };
+        result.push(instanceNode);
+        return;
+      }
+
       let currentPath: StorageNode[] = [];
       const path = instance.cell?.cellPath ?? [];
 
@@ -344,6 +364,7 @@ export default function InstancesView({
             cellId,
             cellsGroupId,
             affectedByTaskId,
+            withNoCell,
           })
         )}
         getRowCanExpand={(row) => Boolean(row.original.subRows?.length)}

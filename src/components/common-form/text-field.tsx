@@ -42,10 +42,14 @@ export function FormInputDropdown({
   return (
     <div>
       <div className="text-sm text-muted-foreground mb-2">{label}</div>
-      <div className="relative group">
+t      <div className="relative group">
         <Select
           value={field.state.value}
-          onValueChange={(value) => field.handleChange(value)}
+          onValueChange={(value) => {
+            if (options.some((option) => option.value === value)) {
+              field.handleChange(value);
+            }
+          }}
           onOpenChange={() => field.handleBlur()}
         >
           <SelectTrigger

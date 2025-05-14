@@ -50,16 +50,16 @@ const columns = [
       const statusColors = {
         pending: "bg-yellow-500",
         in_progress: "bg-blue-500",
-        awaiting_to_collect: "bg-purple-500",
+        ready: "bg-purple-500",
         completed: "bg-green-500",
-        failed: "bg-red-500",
+        cancelled: "bg-red-500",
       };
       const statusLabels = {
         pending: "Ожидает",
         in_progress: "В работе",
-        awaiting_to_collect: "Ожидает сбора",
+        ready: "Ожидает сбора",
         completed: "Завершено",
-        failed: "Ошибка",
+        cancelled: "Отменено",
       };
       return (
         <Badge

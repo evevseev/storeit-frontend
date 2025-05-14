@@ -18,6 +18,8 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import InstancesView from "@/components/common-page/instances-view";
+import { HistoryTable } from "@/components/common-page/history-table";
+import { ObjectType } from "@/components/common-page/history-table/types";
 
 export default function TaskPage() {
   const { id } = useParams() as { id: string };
@@ -45,49 +47,43 @@ export default function TaskPage() {
       />
       <BlockedPageRow>
         <Block title="Информация о задаче">
-          <BlockTextElement label="Название" value="Отгрузка товара" />
-          <BlockTextElement label="Подразделение" value="Красноярск" />
+          <BlockTextElement label="ID" value={task?.data.id} copyable />
+          <BlockTextElement label="Название" value={task?.data.name} />
           <BlockTextElement
-            label="Детали"
-            value="Необходимо выполнить отгрузку на точку выдачи товара клиентам"
+            label="Подразделение"
+            value={task?.data.unit.name}
           />
+          <BlockTextElement label="Описание" value={task?.data.description} />
           <BlockTextElement
             label="Дата создания"
-            value={"10:00 10.04.2025"}
-            unitLabel="(10 минут назад)"
+            value={task?.data.createdAt}
           />
-          <BlockTextElement label="ID" value={task?.data.id} copyable />
         </Block>
         <Block title="Статус выполнения">
           <BlockCustomElement label="Статус">
             <Badge variant="outline" className="bg-green-500 text-white">
-              Выполнено
+              {task?.data.status}
             </Badge>
           </BlockCustomElement>
           <BlockTextElement
-            label="Сотрудник"
-            value={`${task?.data.assignedTo?.lastName} ${task?.data.assignedTo?.firstName} ${task?.data.assignedTo?.middleName}`}
+            label="Ответственный сотрудник"
+            value={`${task?.data.assignedTo?.lastName} ${
+              task?.data.assignedTo?.firstName
+            } ${task?.data.assignedTo?.middleName ?? ""}`}
           />
           <BlockTextElement
-            label="Взята в работу"
-            value={"10:00 10.04.2025"}
-            unitLabel="(10 минут назад)"
+            label="Взята в работу в"
+            value={task?.data.assignedAt ?? "-"}
           />
           <BlockTextElement
-            label="Выполнена"
-            value={"10:00 10.04.2025"}
-            unitLabel="(10 минут назад)"
+            label="Выполнена в"
+            value={task?.data.completedAt ?? "-"}
           />
-          <BlockTextElement label="Время выполнения" value="10 минут" />
+          {/* <BlockTextElement label="Время выполнения" value="10 минут" /> */}
         </Block>
       </BlockedPageRow>
-      <InstancesView affectedByTaskId={id} />
-      <Block title="Товары">
-        <div>Таблица</div>
-      </Block>
-      <Block title="Результаты выполнения">
-        <div>Таблица</div>
-      </Block>
+      <InstancesView affectedByTaskId={id} withNoCell />
+      <HistoryTable objectType={ObjectType.Task} objectId={id} />
     </div>
   );
 }

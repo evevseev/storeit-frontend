@@ -8,15 +8,21 @@ import {
 } from "@/components/common-page/block";
 import { HistoryTable } from "@/components/common-page/history-table";
 import { ObjectType } from "@/components/common-page/history-table/types";
+import { DeleteDialog } from "@/components/dialogs/deletion";
 import { PageMetadata } from "@/components/header/page-metadata";
 import PrintButton from "@/components/print-button";
+import { Button } from "@/components/ui/button";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import { getInstanceLabel } from "@/hooks/use-print-labels";
-import { useParams } from "next/navigation";
+import { Pencil } from "lucide-react";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function InstancePage() {
   const { id } = useParams() as { id: string };
   const client = useApiQueryClient();
+  const router = useRouter();
   const { data, isLoading, isError } = client.useQuery(
     "get",
     "/instances/{instanceId}",
@@ -28,11 +34,43 @@ export default function InstancePage() {
       },
     }
   );
+
+  const deleteInstanceMutation = client.useMutation(
+    "delete",
+    "/instances/{instanceId}"
+  );
+
   return (
     <BlockedPage>
       <PageMetadata
         title={`Экземпляр ${data?.data.id}`}
         actions={[
+          <DeleteDialog
+            buttonLabel="Удалить экземпляр"
+            firstText="Вы действительно хотите удалить экземпляр?"
+            onDelete={() => {
+              deleteInstanceMutation.mutate(
+                {
+                  params: {
+                    path: {
+                      instanceId: id,
+                    },
+                  },
+                },
+                {
+                  onSuccess: () => {
+                    toast.success("Экземпляр успешно удален");
+                    router.push("/instances");
+                  },
+                  onError: (error) => {
+                    toast.error("Ошибка при удалении экземпляра", {
+                      description: error.error.message,
+                    });
+                  },
+                }
+              );
+            }}
+          />,
           data?.data && (
             <PrintButton
               label={getInstanceLabel({
@@ -43,6 +81,12 @@ export default function InstancePage() {
               })}
             />
           ),
+          <Button asChild>
+            <Link href={`/instances/${data?.data.id}/edit`}>
+              <Pencil />
+              Редактировать
+            </Link>
+          </Button>,
         ]}
         breadcrumbs={[
           { label: "Экземпляры", href: "/instances" },

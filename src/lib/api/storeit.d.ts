@@ -940,7 +940,7 @@ export interface components {
             status: "available" | "reserved" | "consumed";
             item: components["schemas"]["ItemForList"];
             /** Format: uuid */
-            affectedByTaskId?: string | null;
+            affectedByTaskId: string | null;
             variant: components["schemas"]["ItemVariant"];
             cell: components["schemas"]["CellForInstanceOptional"];
         };
@@ -954,7 +954,7 @@ export interface components {
             /** Format: uuid */
             variantId: string;
             /** Format: uuid */
-            cellId: string;
+            cellId?: string | null;
         };
         CreateInstanceForItemRequest: components["schemas"]["InstanceCreateForItem"];
         CreateInstanceForItemResponse: {

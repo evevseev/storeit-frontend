@@ -21,3 +21,8 @@ export const itemVariantSchema = z.object({
   article: z.nullable(z.string().min(1).max(100)),
   ean13: z.nullable(z.number().min(1000000000000).max(9999999999999)),
 });
+
+export const instanceSchema = z.object({
+  variantId: z.string(),
+  cellId: z.string().nullable(),
+});
