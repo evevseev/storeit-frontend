@@ -106,17 +106,36 @@ export default function TaskPage() {
     <div className="flex flex-col h-full">
       <div className="flex-1 p-4 space-y-4">
         {/* Task Header */}
-        <div className="flex items-center justify-between">
-          <div>
+        <div className="flex items-start justify-between">
+          <div className="space-y-2">
             <h1 className="text-2xl font-bold">{task.name}</h1>
             {task.description && (
               <p className="text-gray-500 mt-1">{task.description}</p>
             )}
-            {task.unit && (
-              <p className="text-sm text-muted-foreground mt-1">
-                Подразделение: {task.unit.name}
+            <div className="flex flex-col gap-1 text-sm text-muted-foreground">
+              {task.unit && (
+                <p>
+                  Подразделение: {task.unit.name}
+                </p>
+              )}
+              <p>
+                Создано: {new Date(task.createdAt).toLocaleString("ru-RU", {
+                  dateStyle: "short",
+                  timeStyle: "short",
+                })}
+                {task.assignedTo && (
+                  <> • Исполнитель: {task.assignedTo.firstName} {task.assignedTo.lastName}</>
+                )}
               </p>
-            )}
+              {task.completedAt && (
+                <p>
+                  Завершено: {new Date(task.completedAt).toLocaleString("ru-RU", {
+                    dateStyle: "short",
+                    timeStyle: "short",
+                  })}
+                </p>
+              )}
+            </div>
           </div>
           <Badge
             variant="outline"
