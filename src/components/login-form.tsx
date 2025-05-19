@@ -28,7 +28,7 @@ interface YandexAuthConfig {
 }
 
 const YANDEX_AUTH_CONFIG: YandexAuthConfig = {
-  clientId: "712925a705b34f5399ba6f067347266b",
+  clientId: process.env.NEXT_PUBLIC_YANDEX_CLIENT_ID as string,
   redirectUri: `${process.env.NEXT_PUBLIC_APP_URL}/login/oauth/redirect/yandex`,
   buttonConfig: {
     size: "s",
