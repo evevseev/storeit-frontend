@@ -30,7 +30,27 @@ export function TableBodyComponent<TData>({
           return (
             <TableRow
               key={row.id}
-              onClick={() => {
+              onClick={(e) => {
+                const target = e.target as HTMLElement;
+                const isInteractiveElement =
+                  target.tagName === "BUTTON" ||
+                  target.tagName === "INPUT" ||
+                  target.tagName === "SELECT" ||
+                  target.tagName === "TEXTAREA" ||
+                  target.tagName === "A" ||
+                  target.closest("button") ||
+                  target.closest("input") ||
+                  target.closest("select") ||
+                  target.closest("textarea") ||
+                  target.closest("a") ||
+                  target.closest('[role="button"]') ||
+                  target.closest('[role="menuitem"]') ||
+                  target.closest("[data-radix-collection-item]"); // For dropdown menu items
+
+                if (isInteractiveElement) {
+                  return;
+                }
+
                 if (href) {
                   router.push(href);
                 } else {
@@ -85,7 +105,14 @@ export function TableBodyComponent<TData>({
 
                 const changed = table.options.meta?.changedRows?.[row.id];
                 const changedValue = changed?.[cell.column.id];
-
+                const type =
+                  (cell.column.columnDef.meta as any)?.type || "text";
+                function toType(value: unknown) {
+                  if (type === "number") {
+                    return Number(value);
+                  }
+                  return String(value);
+                }
                 return (
                   <TableCell
                     key={cell.id}
@@ -99,7 +126,7 @@ export function TableBodyComponent<TData>({
                   >
                     {table.options.meta?.editMode &&
                     cell.column.columnDef.meta?.isEditable ? (
-                      <div>
+                      <div className="flex items-center gap-2">
                         <Input
                           value={
                             (changedValue as any) || (cell.getValue() as any)
@@ -109,7 +136,7 @@ export function TableBodyComponent<TData>({
                               ...table.options.meta?.changedRows,
                               [row.id]: {
                                 ...changed,
-                                [cell.column.id]: e.target.value,
+                                [cell.column.id]: toType(e.target.value),
                               },
                             });
                           }}
@@ -118,14 +145,25 @@ export function TableBodyComponent<TData>({
                               ...table.options.meta?.changedRows,
                               [row.id]: {
                                 ...changed,
-                                [cell.column.id]: e.target.value,
+                                [cell.column.id]: toType(e.target.value),
                               },
                             });
                           }}
-                          type={
-                            (cell.column.columnDef.meta as any)?.type || "text"
-                          }
+                          type={type}
                         />
+                        {cell.column.columnDef.meta?.editModeButton?.({
+                          cell,
+                          value: cell.getValue(),
+                          setValue: (value) => {
+                            table.options.meta?.setChangedRows?.({
+                              ...table.options.meta?.changedRows,
+                              [row.id]: {
+                                ...changed,
+                                [cell.column.id]: value,
+                              },
+                            });
+                          },
+                        })}
                       </div>
                     ) : (
                       <div className="py-2 px-4">{cellContent}</div>

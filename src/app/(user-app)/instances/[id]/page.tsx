@@ -8,6 +8,7 @@ import {
 } from "@/components/common-page/block";
 import { HistoryTable } from "@/components/common-page/history-table";
 import { ObjectType } from "@/components/common-page/history-table/types";
+import InstancesView from "@/components/common-page/instances-view";
 import { DeleteDialog } from "@/components/dialogs/deletion";
 import { PageMetadata } from "@/components/header/page-metadata";
 import PrintButton from "@/components/print-button";
@@ -122,6 +123,7 @@ export default function InstancePage() {
           />
         </Block>
       </BlockedPageRow>
+      <InstancesView instanceId={id} expanded />
       <HistoryTable objectType={ObjectType.ItemInstance} objectId={id} />
     </BlockedPage>
   );

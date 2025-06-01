@@ -9,6 +9,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import { components } from "@/lib/api/storeit";
 import { CopyableText } from "@/components/ui/copyable-text";
 import { useRouter } from "next/navigation";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useState } from "react";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 type StorageNode = {
   id: string;
@@ -58,7 +63,10 @@ const filterInstances = (
       instance.cell?.cellPath?.some((p) => p.id === filters.cellsGroupId)
     )
       return false;
-    if (filters.affectedByTaskId && instance.affectedByTaskId !== filters.affectedByTaskId)
+    if (
+      filters.affectedByTaskId &&
+      instance.affectedByTaskId !== filters.affectedByTaskId
+    )
       return false;
 
     // Check storage hierarchy through cellPath
@@ -104,10 +112,32 @@ export default function InstancesView({
   const globalClient = useQueryClient();
   const router = useRouter();
   const { data } = client.useQuery("get", "/instances");
-
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedVariant, setSelectedVariant] = useState<string>("");
+  const [cellUuid, setCellUuid] = useState<string>("");
+  
   const deleteInstanceMutation = client.useMutation(
     "delete",
     "/instances/{instanceId}"
+  );
+
+  const createInstanceMutation = client.useMutation(
+    "post",
+    "/items/{itemId}/instances"
+  );
+
+  // Get item data for variants when itemId is provided
+  const { data: itemData } = client.useQuery(
+    "get",
+    "/items/{id}",
+    {
+      params: {
+        path: {
+          id: itemId ?? "",
+        },
+      },
+    },
+    { enabled: !!itemId }
   );
 
   const handleDeleteInstance = async (instanceId: string) => {
@@ -123,9 +153,53 @@ export default function InstancesView({
         onSuccess: () => {
           toast.success("Экземпляр успешно удален");
           globalClient.invalidateQueries({ queryKey: ["get", "/items/{id}"] });
+          globalClient.invalidateQueries({ queryKey: ["get", "/instances"] });
         },
         onError: (error) => {
           toast.error("Ошибка при удалении экземпляра", {
+            description: error.error?.message || "Неизвестная ошибка",
+          });
+        },
+      }
+    );
+  };
+
+  const handleCreateInstance = async () => {
+    if (!itemId) {
+      toast.error("Создание экземпляра возможно только в контексте конкретного товара");
+      return;
+    }
+
+    if (!selectedVariant || !cellUuid) {
+      toast.error("Пожалуйста, заполните все поля");
+      return;
+    }
+
+    createInstanceMutation.mutate(
+      {
+        params: {
+          path: {
+            itemId: itemId,
+          },
+        },
+        body: {
+          variantId: selectedVariant,
+          cellId: cellUuid,
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Экземпляр успешно создан");
+          globalClient.invalidateQueries({ queryKey: ["get", "/items/{id}"] });
+          globalClient.invalidateQueries({ queryKey: ["get", "/instances"] });
+
+          // Reset form
+          setSelectedVariant("");
+          setCellUuid("");
+          setIsDialogOpen(false);
+        },
+        onError: (error) => {
+          toast.error("Ошибка при создании экземпляра", {
             description: error.error?.message || "Неизвестная ошибка",
           });
         },
@@ -300,10 +374,10 @@ export default function InstancesView({
 
   return (
     <Block title="Экземпляры">
-      {/* <div className="flex justify-end mb-4">
+      <div className="flex justify-end mb-4">
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button disabled={!itemId}>
               <Plus className="h-4 w-4 mr-2" />
               Создать экземпляр
             </Button>
@@ -323,7 +397,7 @@ export default function InstancesView({
                     <SelectValue placeholder="Выберите вариант" />
                   </SelectTrigger>
                   <SelectContent>
-                    {data.data.variants.map((variant: Variant) => (
+                    {itemData?.data.variants.map((variant) => (
                       <SelectItem key={variant.id} value={variant.id}>
                         {variant.name}
                       </SelectItem>
@@ -351,7 +425,7 @@ export default function InstancesView({
             </div>
           </DialogContent>
         </Dialog>
-      </div> */}
+      </div>
       <DataTable
         columns={columns}
         data={buildStorageTree(

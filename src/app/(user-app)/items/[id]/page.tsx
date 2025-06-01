@@ -8,7 +8,7 @@ import {
   BlockTextElement,
   BlockedPageRow,
 } from "@/components/common-page/block";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
@@ -23,6 +23,8 @@ import { EditedRows } from "@/lib/tanstack-table";
 import InstancesView from "@/components/common-page/instances-view";
 import { components } from "@/lib/api/storeit";
 import CreateVariantDialog from "./create-variant-dialog";
+import { DeleteDialog } from "@/components/dialogs/deletion";
+import Link from "next/link";
 
 const variantColumnHelper =
   createColumnHelper<components["schemas"]["ItemVariant"]>();
@@ -39,6 +41,8 @@ export default function ItemPage() {
   const [editedVariantValues, setEditedVariantValues] = useState<EditedRows>(
     {}
   );
+
+  const router = useRouter();
 
   const { data, isLoading, isError } = client.useQuery("get", "/items/{id}", {
     params: {
@@ -62,6 +66,8 @@ export default function ItemPage() {
     "delete",
     "/items/{id}/variants/{variantId}"
   );
+
+  const { mutate: deleteItem } = client.useMutation("delete", "/items/{id}");
 
   const handleCreateInstance = async () => {
     if (!selectedVariant || !cellUuid) {
@@ -266,17 +272,44 @@ export default function ItemPage() {
           { href: "/items", label: "Товары" },
           { label: data.data.name },
         ]}
+        actions={[
+          <DeleteDialog
+            onDelete={() => {
+              deleteItem(
+                {
+                  params: {
+                    path: {
+                      id: id as string,
+                    },
+                  },
+                },
+                {
+                  onSuccess: () => {
+                    toast.success("Товар успешно удален");
+                    router.push("/items");
+                  },
+                }
+              );
+            }}
+          />,
+          <Button asChild>
+            <Link href={`/items/${id}/edit`}>
+              <Pencil />
+              Редактировать
+            </Link>
+          </Button>,
+        ]}
       />
       <BlockedPageRow>
         <Block title="Информация о товаре" isLoading={isLoading}>
+          <BlockTextElement label="ID">
+            <CopyableText>{data.data.id}</CopyableText>
+          </BlockTextElement>
           <BlockTextElement label="Название" value={data.data.name} />
           <BlockTextElement
             label="Описание"
             value={data.data.description ?? ""}
           />
-          <BlockTextElement label="ID">
-            <CopyableText>{data.data.id}</CopyableText>
-          </BlockTextElement>
         </Block>
       </BlockedPageRow>
       <BlockedPageRow>
@@ -311,7 +344,7 @@ export default function ItemPage() {
           />
         </Block>
       </BlockedPageRow>
-      <InstancesView />
+      <InstancesView itemId={id as string} />
       <HistoryTable objectType={ObjectType.Item} objectId={id as string} />
     </div>
   );

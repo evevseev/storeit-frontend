@@ -16,7 +16,7 @@ const validator = z.object({
   description: z.string(),
   variants: z.array(
     z.object({
-      id: z.null(),
+      id: z.string().nullable(),
       name: z.string().min(1),
       sku: z.string(),
       ean13: z.string(),

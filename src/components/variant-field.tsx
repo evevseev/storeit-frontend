@@ -5,6 +5,6 @@ export function VariantField() {
   const field = useFieldContext<Variant[]>();
 
   return (
-    <VariantTable value={field.state.value} onChange={field.handleChange} />
+    <VariantTable value={field.state.value} setValue={field.handleChange} />
   );
 }

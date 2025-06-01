@@ -14,6 +14,7 @@ import { z } from "@/lib/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { useApiQueryClient } from "@/hooks/use-api-query-client";
 import { toast } from "sonner";
+import { useState } from "react";
 
 const schema = z.object({
   alias: z.string().min(1),
@@ -29,6 +30,7 @@ export default function CreateCellDialog({
 }) {
   const client = useApiQueryClient();
   const globalClient = useQueryClient();
+  const [open, setOpen] = useState(false);
 
   const { mutate } = client.useMutation(
     "post",
@@ -42,6 +44,7 @@ export default function CreateCellDialog({
           queryKey: ["get", "/cells-groups/{groupId}"],
         });
         toast.success("Ячейка создана");
+        setOpen(false);
       },
       onError: (error) => {
         if (error.error.message == "duplication error") {
@@ -79,7 +82,7 @@ export default function CreateCellDialog({
     },
   });
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">
           <Plus /> Создать ячейку

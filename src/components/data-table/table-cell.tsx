@@ -1,42 +1,60 @@
-import { CellContext, ColumnDefTemplate } from "@tanstack/react-table";
-import { useEffect } from "react";
+// import { CellContext, ColumnDefTemplate } from "@tanstack/react-table";
+// import { useEffect, useState, ChangeEvent } from "react";
+// import { Input } from "../ui/input";
 
-export default function TableCell ({ getValue, row, column, table }: ColumnDefTemplate<CellContext<TData, string>>): {
-  const initialValue = getValue();
-  const columnMeta = column.columnDef.meta;
-  const tableMeta = table.options.meta;
-  const [value, setValue] = useState(initialValue);
+// interface Option {
+//   value: string;
+//   label: string;
+// }
 
-  useEffect(() => {
-    setValue(initialValue);
-  }, [initialValue]);
+// export default function TableCell<TData>({
+//   getValue,
+//   row,
+//   column,
+//   table,
+// }: CellContext<TData, any>) {
+//   const initialValue = getValue() as string;
+//   const columnMeta = column.columnDef.meta as any;
+//   const tableMeta = table.options.meta as any;
+//   const [value, setValue] = useState<unknown>(initialValue);
 
-  const onBlur = () => {
-    tableMeta?.updateData(row.index, column.id, value);
-  };
+//   useEffect(() => {
+//     setValue(initialValue);
+//   }, [initialValue]);
 
-  const onSelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setValue(e.target.value);
-    tableMeta?.updateData(row.index, column.id, e.target.value);
-  };
+//   const onBlur = () => {
+//     tableMeta?.updateData?.(row.index, column.id, value);
+//   };
 
-  if (tableMeta?.editedRows[row.id]) {
-    return columnMeta?.type === "select" ? (
-      <select onChange={onSelectChange} value={initialValue}>
-        {columnMeta?.options?.map((option: Option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-    ) : (
-      <input
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        onBlur={onBlur}
-        type={columnMeta?.type || "text"}
-      />
-    );
-  }
-  return <span>{value}</span>;
-};
+//   const onSelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
+//     setValue(e.target.value);
+//     tableMeta?.updateData?.(row.index, column.id, e.target.value);
+//   };
+
+//   if (tableMeta?.editedRows?.[row.id]) {
+//     return columnMeta?.type === "select" ? (
+//       <select onChange={onSelectChange} value={initialValue}>
+//         {columnMeta?.options?.map((option: Option) => (
+//           <option key={option.value} value={option.value}>
+//             {option.label}
+//           </option>
+//         ))}
+//       </select>
+//     ) : (
+//       <Input
+//         value={value as string}
+//         onChange={(e) => {
+//           alert(columnMeta?.type);
+//           if (columnMeta?.type === "number") {
+//             setValue(Number(e.target.value));
+//           } else {
+//             setValue(e.target.value);
+//           }
+//         }}
+//         onBlur={onBlur}
+//         type={columnMeta?.type || "text"}
+//       />
+//     );
+//   }
+//   return <span>{value as string}</span>;
+// }

@@ -42,7 +42,7 @@ export function FormInputDropdown({
   return (
     <div>
       <div className="text-sm text-muted-foreground mb-2">{label}</div>
-t      <div className="relative group">
+      <div className="relative group">
         <Select
           value={field.state.value}
           onValueChange={(value) => {

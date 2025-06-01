@@ -23,8 +23,15 @@ export function CopyableText({ children, className }: CopyableTextProps) {
 
   return (
     <div
-      className={cn("flex items-center gap-2 group cursor-pointer", className)}
-      onClick={copyToClipboard}
+      className={cn(
+        "flex items-center gap-2 group cursor-pointer w-fit",
+        className
+      )}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        copyToClipboard();
+      }}
     >
       <span className="border-b border-dotted border-muted-foreground group-hover:border-foreground transition-colors">
         {children}
@@ -34,6 +41,7 @@ export function CopyableText({ children, className }: CopyableTextProps) {
         size="icon"
         className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity"
         onClick={(e) => {
+          e.preventDefault();
           e.stopPropagation();
           copyToClipboard();
         }}

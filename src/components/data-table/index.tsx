@@ -108,8 +108,6 @@ export function DataTable<TData>({
     defaultColumn: effectiveDefaultColumn,
     meta: {
       editMode: editMode,
-      addEditedValue: () => {},
-      editedRows: {},
       changedRows,
       setChangedRows,
     },

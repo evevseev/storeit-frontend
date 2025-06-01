@@ -26,3 +26,8 @@ export const instanceSchema = z.object({
   variantId: z.string(),
   cellId: z.string().nullable(),
 });
+
+export const itemSchema = z.object({
+  name: z.string().min(1).max(100),
+  description: z.string().nullable(),
+});

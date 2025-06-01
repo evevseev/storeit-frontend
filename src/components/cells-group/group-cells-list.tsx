@@ -22,11 +22,7 @@ import { components } from "@/lib/api/storeit";
 import { useQueryClient } from "@tanstack/react-query";
 import { DeleteDialog } from "../dialogs/deletion";
 import { toast } from "sonner";
-import {
-  defaultColumn,
-  EditedCellValue,
-  EditedRows,
-} from "@/lib/tanstack-table";
+import { EditedRows } from "@/lib/tanstack-table";
 import { getCellLabel, Label, usePrintLabels } from "@/hooks/use-print-labels";
 import CreateCellDialog from "./create-cell-dialog";
 import { CopyableText } from "../ui/copyable-text";
@@ -78,29 +74,13 @@ export default function GroupCellsList({
   };
 
   const handleSave = () => {
+    console.log(editedRows);
     const editsByCell = Object.entries(editedRows).reduce(
       (acc, [cellId, edit]) => {
         const cell = cells?.data.find((c) => c.id === cellId);
         if (!cell) return acc;
 
-        if (!acc[cell.id]) {
-          acc[cell.id] = { ...cell };
-        }
-
-        switch (edit.columnId) {
-          case "alias":
-            acc[cell.id].alias = edit.value as string;
-            break;
-          case "row":
-            acc[cell.id].row = edit.value as number;
-            break;
-          case "level":
-            acc[cell.id].level = edit.value as number;
-            break;
-          case "position":
-            acc[cell.id].position = edit.value as number;
-            break;
-        }
+        acc[cell.id] = { ...cell, ...edit };
 
         return acc;
       },
@@ -212,11 +192,10 @@ export default function GroupCellsList({
             </Button>
 
             <Button
-              size="sm"
               onClick={handlePrintLabels}
               disabled={selectedRowsCount === 0}
             >
-              <Printer className="mr-2 h-4 w-4" />
+              <Printer />
               Печать этикеток ({selectedRowsCount})
             </Button>
           </>
@@ -228,6 +207,7 @@ export default function GroupCellsList({
   const columns = [
     columnHelper.display({
       id: "select",
+      size: 20,
       header: ({ table }) => (
         <Checkbox
           checked={
@@ -346,18 +326,21 @@ export default function GroupCellsList({
       <div className="flex justify-end py-4">{renderTopToolbar()}</div>
       <div className="border rounded-md">
         <div className="overflow-x-auto">
+          {/* {cells?.data ? ( */}
           <DataTable
             columns={columns}
-            data={cells?.data}
+            data={cells?.data ?? []}
             setRowSelection={setSelectedRows}
             rowSelection={selectedRows}
             getRowId={(row) => row.id}
-            defaultColumn={defaultColumn}
             editMode={isEditing}
-            getRowHref={(row) => `/cells/${row.id}`}
+            getRowHref={!isEditing ? (row) => `/cells/${row.id}` : undefined}
             changedRows={editedRows}
             setChangedRows={setEditedRows}
           />
+          {/* ) : (
+            <div>Загрузка...</div>
+          )} */}
         </div>
       </div>
     </div>

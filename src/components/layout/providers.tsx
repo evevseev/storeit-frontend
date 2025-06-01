@@ -12,7 +12,7 @@ export function Providers({ children }: Readonly<ProvidersProps>) {
   return (
     <QueryClientProvider client={queryClient}>
       <JotaiProvider>
-        <ReactQueryDevtools initialIsOpen={false} buttonPosition="top-right" />
+        {/* <ReactQueryDevtools initialIsOpen={false} buttonPosition="top-right" /> */}
         <SidebarProvider>{children}</SidebarProvider>
       </JotaiProvider>
     </QueryClientProvider>

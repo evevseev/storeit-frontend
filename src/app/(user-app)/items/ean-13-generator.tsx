@@ -33,7 +33,9 @@ export default function Ean13Generator({
         <Button
           variant="outline"
           size="icon"
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
             const ean13 = generateEan13();
             onChange(ean13);
           }}
