@@ -28,7 +28,7 @@ export default function TvBoardPage() {
     ) || [];
 
   const completedTasks =
-    tvBoardData?.data.tasks.filter((task) => task.status === "completed") || [];
+    tvBoardData?.data.tasks.filter((task) => task.status === "ready") || [];
 
   return (
     <div className="min-h-screen overflow-hidden">
