@@ -55,9 +55,9 @@ const columns = [
         cancelled: "bg-red-500",
       };
       const statusLabels = {
-        pending: "Ожидает",
+        pending: "Ожидает подбора",
         in_progress: "В работе",
-        ready: "Ожидает сбора",
+        ready: "Готово к выдаче",
         completed: "Завершено",
         cancelled: "Отменено",
       };

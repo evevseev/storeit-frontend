@@ -117,21 +117,12 @@ export default function TaskPage() {
     value: string;
     source: "ean" | "qr";
   }) => {
-    try {
-      await pickInstanceMutation.mutateAsync({
-        params: {
-          path: {
-            id,
-          },
-        },
-        body: {
-          instanceId: result.value,
-        },
-      });
-      toast.success("Товар успешно отсканирован");
-      queryClient.invalidateQueries({ queryKey: ["get", "/tasks/{id}"] });
-    } catch (error) {
-      toast.error("Ошибка при сканировании товара");
+    if (result.source === "ean") {
+      return;
+    }
+    const instanceId = result.value.split("/").pop();
+    if (instanceId) {
+      handlePickInstance(instanceId);
     }
   };
 
@@ -293,7 +284,7 @@ export default function TaskPage() {
             onClick={() => handleTaskReady()}
           >
             <Clock className="mr-2 h-5 w-5" />
-            Статус: ожидает
+            Статус: готов
           </Button>
           <Button
             variant="outline"
