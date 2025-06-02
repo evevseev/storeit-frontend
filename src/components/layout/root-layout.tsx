@@ -73,12 +73,12 @@ function Header() {
           </BreadcrumbList>
         </Breadcrumb>
       </div>
-      <div className="px-4 pt-4 flex items-center justify-between">
+      <div className="px-4 pt-4 flex sm:flex-row flex-col gap-4 justify-between">
         <h1 className="text-2xl font-semibold tracking-tight">
           {metadata.title}
         </h1>
         {metadata.actions && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             {metadata.actions.map((action, index) => (
               <React.Fragment key={index + 1}>{action}</React.Fragment>
             ))}

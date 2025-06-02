@@ -1,6 +1,4 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "../ui/button";
-import { Edit, Pencil, Trash2 } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
 import { CopyableText } from "../ui/copyable-text";
 
@@ -11,8 +9,11 @@ export function BlockedPage({ children }: { children?: React.ReactNode }) {
     </div>
   );
 }
+
 export function BlockedPageRow({ children }: { children: React.ReactNode }) {
-  return <div className="flex flex-row gap-6 w-full">{children}</div>;
+  return (
+    <div className="flex gap-6 w-full sm:flex-row flex-col">{children}</div>
+  );
 }
 
 export function BlockRow({ children }: { children: React.ReactNode }) {
@@ -35,7 +36,7 @@ export function BlockTextElement({
     <div>
       <div className="text-sm text-muted-foreground">{label}</div>
       <div>
-        {copyable ? <CopyableText>{value}</CopyableText> : value }
+        {copyable ? <CopyableText>{value}</CopyableText> : value}
 
         {unitLabel && (
           <span className="text-muted-foreground"> {unitLabel}</span>

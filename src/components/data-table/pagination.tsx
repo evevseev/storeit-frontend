@@ -107,8 +107,8 @@ export function DataTablePagination<TData>({
   table: TableInstance<TData>;
 }>) {
   return (
-    <div className="flex flex-col gap-2 py-4">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-4 py-4">
+      <div className="flex items-center justify-between sm:flex-row flex-col gap-4">
         <DataTablePageSizeSelector table={table} />
         <DataTableNavigation table={table} />
       </div>

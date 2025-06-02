@@ -12,20 +12,20 @@ const getStatusColor = (status: Task["status"]) => {
   const statusColors = {
     pending: "bg-yellow-500",
     in_progress: "bg-blue-500",
-    awaiting_to_collect: "bg-purple-500",
+    ready: "bg-purple-500",
     completed: "bg-green-500",
-    failed: "bg-red-500",
+    cancelled: "bg-red-500",
   };
   return statusColors[status];
 };
 
 const getStatusLabel = (status: Task["status"]) => {
   const statusLabels = {
-    pending: "Ожидает",
+    pending: "Ожидает взятие",
     in_progress: "В работе",
-    awaiting_to_collect: "Ожидает сбора",
+    ready: "Готово к выдаче",
     completed: "Завершено",
-    failed: "Ошибка",
+    cancelled: "Отменено",
   };
   return statusLabels[status];
 };
@@ -117,9 +117,13 @@ export default function TasksPage() {
     tasks?.data.filter(
       (task) =>
         task.status !== "completed" &&
-        task.status !== "failed" &&
+        task.status !== "cancelled" &&
         task.assignedTo?.userId !== user?.id
     ) || [];
+
+  if (myTasks.length === 0 && incompleteTasks.length === 0) {
+    return <h1>Задания отсутствуют</h1>;
+  }
 
   return (
     <div className="flex flex-col gap-8">
