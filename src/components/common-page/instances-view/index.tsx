@@ -9,10 +9,22 @@ import { useQueryClient } from "@tanstack/react-query";
 import { components } from "@/lib/api/storeit";
 import { CopyableText } from "@/components/ui/copyable-text";
 import { useRouter } from "next/navigation";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 
 type StorageNode = {
@@ -115,7 +127,7 @@ export default function InstancesView({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedVariant, setSelectedVariant] = useState<string>("");
   const [cellUuid, setCellUuid] = useState<string>("");
-  
+
   const deleteInstanceMutation = client.useMutation(
     "delete",
     "/instances/{instanceId}"
@@ -166,7 +178,9 @@ export default function InstancesView({
 
   const handleCreateInstance = async () => {
     if (!itemId) {
-      toast.error("Создание экземпляра возможно только в контексте конкретного товара");
+      toast.error(
+        "Создание экземпляра возможно только в контексте конкретного товара"
+      );
       return;
     }
 
@@ -257,12 +271,39 @@ export default function InstancesView({
       },
     }),
     columnHelper.accessor("instances", {
+      id: "itemName",
+      header: "Название товара",
+      cell: ({ row }) => {
+        const instances = row.original.instances;
+        if (!instances?.length || row.original.type !== "instance") return null;
+        return instances[0].item.name;
+      },
+    }),
+    columnHelper.accessor("instances", {
       id: "variantName",
       header: "Название варианта",
       cell: ({ row }) => {
         const instances = row.original.instances;
         if (!instances?.length || row.original.type !== "instance") return null;
         return instances[0].variant.name;
+      },
+    }),
+    columnHelper.accessor("instances", {
+      id: "article",
+      header: "Артикул",
+      cell: ({ row }) => {
+        const instances = row.original.instances;
+        if (!instances?.length || row.original.type !== "instance") return null;
+        return instances[0].variant.article;
+      },
+    }),
+    columnHelper.accessor("instances", {
+      id: "ean13",
+      header: "EAN13",
+      cell: ({ row }) => {
+        const instances = row.original.instances;
+        if (!instances?.length || row.original.type !== "instance") return null;
+        return instances[0].variant.ean13;
       },
     }),
     columnHelper.display({
